@@ -18,3 +18,4 @@ export * from './daily.ts';
 export * from './ocr.ts';
 export * from './query.ts';
 export * from './coach.ts';
+export * from './journey.ts';
