@@ -106,3 +106,7 @@ Production env set: DATABASE_URL, GROQ_API_KEY, Clerk keys. Not set: Telegram/Wh
 
 ## Public (2026-09-26)
 Deployment Protection off; site is public at https://wordwild-seven.vercel.app. Learner data is local per origin unless signed in (Clerk dev keys; production Clerk instance still to do).
+
+## UI redesign pass 1 (2026-09-26)
+Black (~85%) + dark navy (~15%), dark only. Type from the Bhookmark brief (Instrument Serif headline, Inter Tight headings, Inter body, IBM Plex Mono labels; self-hosted via next/font; weight <= 600). Motion from the same brief (tap compress + ripple, spring open with overshoot, background recedes to .96, sheen; only under prefers-reduced-motion: no-preference). Border beam is always on for cards, buttons, search/text fields (component `Beam`, `Field`), CSS beam on order cards, HUD and dock. Large always-visible orb (`Orb`, `SpeakingOrb`) on Today, capture, notebook, settings, scenes, town HUD. Skills used: premium-web-design, epic-design (from alirezarezvani/claude-skills, guidance only), bhookmark-ui (type + motion only). `motion` package installed but not yet used in components.
+Not verified visually: 3D town/garden under the new palette (automation tab is hidden so WebGL does not draw); real-device performance of many beams.

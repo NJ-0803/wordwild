@@ -25,6 +25,7 @@
     "@react-three/fiber": "^9.8.1",
     "border-beam": "^1.4.1",
     "bot-avatars": "^0.1.1",
+    "motion": "^13.4.4",
     "next": "16.3.6",
     "react": "19.2.8",
     "react-dom": "19.2.8",

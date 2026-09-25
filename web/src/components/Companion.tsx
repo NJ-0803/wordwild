@@ -13,12 +13,30 @@ export function Lumi({ mood = "default", size = 72 }: { mood?: "default" | "work
 }
 
 /** Shows while audio is playing so people who cannot read the screen know something is being said. */
-export function SpeakingOrb({ size = 64 }: { size?: 20 | 64 }) {
+export function SpeakingOrb({ size = 88 }: { size?: number }) {
   const [on, setOn] = useState(false);
   const reduced = useReducedMotion();
   useEffect(() => onSpeaking(setOn), []);
-  // fixed-height slot: the orb appearing must never shift the buttons under someone's finger
-  return <div style={{ height: 64, display: "flex", alignItems: "center" }} aria-live="polite">{on && <ThinkingOrb state="listening" size={size} paused={reduced} aria-label="Reading aloud" />}</div>;
+  // always visible: it glows and listens while audio plays, and rests otherwise. Fixed slot so nothing shifts under a finger.
+  return <div style={{ height: size, display: "flex", alignItems: "center", justifyContent: "center" }} aria-live="polite"><BigOrb state={on ? "listening" : "weaving"} size={size} paused={reduced} label={on ? "Reading aloud" : "Ready"} /></div>;
+}
+
+/** The library only renders 64/32/20, so a bigger orb is the 64 one scaled up (crisp: it is vector and shader-drawn). */
+function BigOrb({ state, size, paused, label }: { state: "weaving" | "listening" | "searching" | "solving" | "composing"; size: number; paused: boolean; label: string }) {
+  return <div style={{ width: size, height: size, position: "relative" }}><div style={{ width: 64, height: 64, transform: `scale(${size / 64})`, transformOrigin: "top left" }}><ThinkingOrb state={state} size={64} paused={paused} aria-label={label} /></div></div>;
+}
+
+/** A large, always-visible orb. Use it as the visual centre of a screen. */
+export function Orb({ state = "weaving", size = 120, label }: { state?: "weaving" | "listening" | "searching" | "solving" | "composing"; size?: number; label?: string }) {
+  const reduced = useReducedMotion();
+  return <div style={{ display: "grid", placeItems: "center", filter: "drop-shadow(0 0 28px rgba(80,120,255,.55))" }}><BigOrb state={state} size={size} paused={reduced} label={label ?? "Wordwild is ready"} /></div>;
+}
+
+/** The border beam, always on: a light that travels round the edge. Reduced motion gets a still glowing ring. */
+export function Beam({ children, radius = 20, variant = "ocean", style }: { children: React.ReactNode; radius?: number; variant?: "colorful" | "mono" | "ocean" | "sunset"; style?: React.CSSProperties }) {
+  const reduced = useReducedMotion();
+  if (reduced) return <div style={{ borderRadius: radius, boxShadow: "0 0 0 2px var(--navy-glow), 0 0 22px rgba(80,120,255,.45)", ...style }}>{children}</div>;
+  return <BorderBeam size="md" colorVariant={variant} strength={1} brightness={1.35} borderRadius={radius} theme="dark" style={style}>{children}</BorderBeam>;
 }
 
 export function LookupOrb() { const reduced = useReducedMotion(); return <ThinkingOrb state="searching" size={20} paused={reduced} aria-label="Looking up" />; }
@@ -47,7 +65,7 @@ export function Reward({ on, children, colorVariant = "ocean" }: { on: boolean; 
   const reduced = useReducedMotion();
   if (!on) return <>{children}</>;
   if (reduced) return <div style={{ borderRadius: 18, outline: "3px solid var(--brand)", outlineOffset: 2 }}>{children}</div>;
-  return <BorderBeam size="md" colorVariant={colorVariant} strength={0.85} theme="auto">{children}</BorderBeam>;
+  return <BorderBeam size="md" colorVariant={colorVariant} strength={1} brightness={1.4} theme="dark">{children}</BorderBeam>;
 }
 
 /** Inline loading indicator: a calm breathing orb plus words, so the screen is never just blank text. */
