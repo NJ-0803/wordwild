@@ -43,6 +43,7 @@ try {
   assert.equal((await lookupDict("children"))?.matched, "child"); assert.equal((await lookupDict("hoping"))?.matched, "hope"); assert.equal((await lookupDict("gave up"))?.matched, "give up");
   const saw = await lookupDict("saw"); assert.ok(saw && saw.senses.some(x => x.lemma === "saw") && saw.senses.some(x => x.lemma === "see"), "an ambiguous form shows both readings");
   assert.equal(await lookupDict("asdfghjkl"), null);
+  const cool = await lookupDict("cool"); assert.ok(cool && cool.senses.some(x => x.pos === "adjective"), "cool must offer its adjective meanings, not only nouns and verbs"); assert.ok(cool.senses.filter(x => x.pos === "noun").length <= 4);
   assert.ok((await suggestLemmas("recieve")).includes("receive")); assert.equal((await suggestLemmas("recieve"))[0], "receive"); assert.ok((await suggestLemmas("seperate")).includes("separate"));
   assert.deepEqual(await suggestLemmas("break the ice"), [], "no suggestions for phrases");
   console.log("db-check: all assertions passed");

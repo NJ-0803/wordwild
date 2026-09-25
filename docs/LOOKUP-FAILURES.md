@@ -18,6 +18,8 @@ Rule for every fix: never guess silently. Say what was matched, offer alternativ
 | 11 | Extension did nothing when a drag selection included quotes, commas or brackets | Feels broken | Selection cleaned the same way; server explains what it cannot look up | extension/shared.js |
 | 12 | Extension showed "not in dictionary" with no help | Dead end | Shows "Did you mean" and the plain reason; forms are explained | extension |
 | 13 | Telegram, WhatsApp, voice each did their own cleaning | Different answers on different surfaces | One shared cleaner and lookup; suggestions and form notes on every surface | lib/telegram, whatsapp, voice |
+| 15 | A word with many noun meanings hid its most common adjective meaning ("cool" cut off after 8 meanings, all nouns and verbs) | The everyday meaning could not be chosen | At most 4 meanings per part of speech, so every part of speech shows | db.ts lookupDict |
+| 16 | Ambiguous word with a typed sentence only asked "which meaning?" | Extra effort, wrong pick for "bank" | If they typed where they heard it, the matching meaning is suggested (they still choose; unclear sentences give no suggestion) | /api/sense-hint, capture page |
 | 14 | Prompt-injection or SQL-like text in the search box | Risk to AI prompts | Only ever reaches the dictionary as a letters-only key; sentences (over 3 words) are refused before any AI is called; queries are parameterised | query.ts + tests |
 
 ## Still failing, on purpose or for later

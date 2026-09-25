@@ -101,15 +101,17 @@ export async function lookupDict(word: string): Promise<DictHit | null> {
     const g = by.get(c.lemma); if (!g) continue;
     if (c.kind === 'rule' && groups.length > 0) continue;                       // a rule-based guess is only used when nothing better exists
     if (c.kind === 'rule' && groups.length === 0) { groups.push({ lemma: c.lemma, note: c.note, rows: g, hint: c.posHint, cap: 12 }); break; }
-    groups.push({ lemma: c.lemma, note: c.note, rows: g, hint: c.posHint, cap: c.kind === 'exact' ? 8 : 6 });
+    groups.push({ lemma: c.lemma, note: c.note, rows: g, hint: c.posHint, cap: c.kind === 'exact' ? 12 : 8 });
   }
   if (!groups.length) { hitCache.set(word, { at: Date.now(), hit: null }); return null; }
   const notes: Record<string, string> = {}; const senses: Sense[] = [];
   for (const g of groups) {
-    const ordered = [...g.rows].sort((x, y) => {
+    const sorted = [...g.rows].sort((x, y) => {
       const px = g.hint ? (g.hint.indexOf(x.pos) < 0 ? 9 : g.hint.indexOf(x.pos)) : POS_RANK[x.pos]; const py = g.hint ? (g.hint.indexOf(y.pos) < 0 ? 9 : g.hint.indexOf(y.pos)) : POS_RANK[y.pos];
       return px - py || x.rank - y.rank;
-    }).slice(0, g.cap);
+    });
+    // At most 4 meanings per part of speech, so a word with many noun meanings ("cool") still shows its adjective meanings.
+    const perPos = new Map<string, number>(); const ordered = sorted.filter(r => { const n = perPos.get(r.pos) ?? 0; perPos.set(r.pos, n + 1); return n < 4; }).slice(0, g.cap);
     for (const r of ordered) { const sense = r.enriched ?? rowToSense(r); senses.push(sense); if (g.note) notes[sense.senseId] = g.note; }
   }
   const hit: DictHit = { senses, matched: groups[0].lemma, notes, note: groups[0].note };
