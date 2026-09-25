@@ -103,3 +103,6 @@ Not built: weekly events, chapter collections, town as full home screen (redesig
 ## Deploy (2026-09-26)
 GitHub: NJ-0803/wordwild (private). Vercel project `wordwild`, root directory `web`, source files outside root enabled (core is imported via @core). Hobby plan allows only daily crons, so /api/cron/daily runs once a day at 02:30 UTC (08:00 IST): daily messages only reach learners whose chosen hour matches that run. Hourly needs Vercel Pro or an external hourly pinger sending `Authorization: Bearer $CRON_SECRET`.
 Production env set: DATABASE_URL, GROQ_API_KEY, Clerk keys. Not set: Telegram/WhatsApp/CRON_SECRET/APP_URL (channels off until you add them).
+
+## Public (2026-09-26)
+Deployment Protection off; site is public at https://wordwild-seven.vercel.app. Learner data is local per origin unless signed in (Clerk dev keys; production Clerk instance still to do).
