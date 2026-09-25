@@ -30,7 +30,7 @@ export async function renderCard(spec: CardSpec): Promise<Blob> {
   if (spec.stats?.length) {
     const cw = (W - 192) / spec.stats.length;
     spec.stats.forEach((s, i) => { x.fillStyle = "#ffffff"; x.font = '500 84px "IBM Plex Mono", ui-monospace, monospace'; x.fillText(s.value, 96 + i * cw, y + 70); x.fillStyle = "#a4aec6"; x.font = '500 26px "IBM Plex Mono", ui-monospace, monospace'; x.fillText(s.label.toUpperCase(), 96 + i * cw, y + 116); });
-    y += 190;
+    y += 250;
   }
   for (const l of spec.lines.slice(0, 5)) {
     x.font = '400 30px Inter, system-ui, sans-serif';
