@@ -19,7 +19,9 @@
     "whatsapp:test": "node --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/whatsapp-check.ts 2>&1 | grep -v \"Warning\\|Reparsing\\|trace-warnings\\|To eliminate\\|trace-deprecation\"",
     "qa:brief": "node --no-warnings --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/qa-brief.ts",
     "lookup:audit": "node --no-warnings --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/lookup-audit.ts",
-    "coach:batch": "node --no-warnings --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/coach-batch.ts"
+    "coach:batch": "node --no-warnings --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/coach-batch.ts",
+    "metrics": "node --no-warnings --env-file=.env.local --experimental-strip-types scripts/metrics-report.ts",
+    "ai:probe": "node --no-warnings --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/ai-probe.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",

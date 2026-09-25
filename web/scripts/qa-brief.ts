@@ -46,7 +46,7 @@ await t("6. server time for 24 uncached lookups", async () => {
 });
 
 if (LIVE) {
-  const { MODEL_GENERATE, draftCoach, solveBlind } = await import("../src/lib/groq.ts");
+  const { MODEL_GENERATE, draftCoach, solveBlind, solveMany, lastUsed } = await import("../src/lib/groq.ts");
   console.log("AI tests (need GROQ_API_KEY)");
   await t("7. cool: ambiguous, so the person is asked which meaning", async () => {
     const h = await find("cool"); assert.ok(h && h.senses.length > 1); const r = capture(freshState(), { status: "found", senses: h.senses, source: "t" }, { now: 1 }); assert.equal(r.outcome, "needs-sense");
@@ -54,7 +54,7 @@ if (LIVE) {
   });
   await t("8. ubiquitous: natural sentences, not repetitive, and AI answers in under 3 seconds", async () => {
     const h = await find("ubiquitous"); const s = h!.senses[0] as Sense; const t0 = Date.now();
-    const out = await makeCoach(s.lemma, { definition: s.definition, pos: s.pos }, (p) => draftCoach({ lemma: s.lemma, pos: s.pos, definition: s.definition, synonyms: [] }, p), solveBlind, MODEL_GENERATE, firstDefinition);
+    const out = await makeCoach(s.lemma, { definition: s.definition, pos: s.pos }, (p) => draftCoach({ lemma: s.lemma, pos: s.pos, definition: s.definition, synonyms: [] }, p), solveBlind, () => lastUsed || MODEL_GENERATE, firstDefinition, solveMany);
     const ms = Date.now() - t0; assert.ok(out.ok, out.ok ? "" : out.problems.join("; "));
     if (out.ok) { assert.ok(out.coach.examples.length >= 3); assert.deepEqual(checkCoachDraft(s.lemma, s.definition, { examples: out.coach.examples, memoryHook: out.coach.memoryHook ?? "", confusables: [], notFor: [] }).filter(p => /alike|start the same/.test(p)), []); }
     assert.ok(ms < 3000, `${ms} ms is over 3 seconds`); return `${ms} ms`;

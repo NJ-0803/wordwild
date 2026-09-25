@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import { INTENTS, INTENT_LABEL, type Coach, type Intent } from "@core";
@@ -7,6 +7,7 @@ import { Btn, Card, LinkBtn } from "./ui";
 import { Orb } from "./Companion";
 import { say } from "@/lib/speech";
 import { useStore } from "@/lib/store";
+import { track } from "@/lib/metrics";
 
 async function call(senseId: string, onlyCached: boolean): Promise<{ coach?: Coach; status: number; error?: string }> {
   const r = await fetch("/api/coach", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ senseId, onlyCached }) });
@@ -14,13 +15,13 @@ async function call(senseId: string, onlyCached: boolean): Promise<{ coach?: Coa
   return { coach: j.coach, status: r.status, error: j.error };
 }
 const WHY: Record<string, string> = {
-  quota: "You have used today's coaching. It resets tomorrow.", busy: "The coach is busy. Nothing was used up. Please try again in a minute.",
+  quota: "You have used today's coaching. It resets tomorrow.", "quota-shared": "Free coaching for today has been used up. Sign in for your own daily allowance, or try again tomorrow.", busy: "The coach is busy. Nothing was used up. Please try again in a minute.",
   rejected: "The coach could not make checked examples for this word, so it shows nothing rather than something wrong.", "not-configured": "Coaching is not set up on this server.",
   "enrichment-not-configured": "Coaching is not set up on this server.",
 };
 
 /** How to USE the word: one example per situation, a memory hook, look-alike words, and when not to use it. */
-export function CoachSection({ senseId, lemma }: { senseId: string; lemma: string }) {
+export function CoachSection({ senseId, lemma, auto = false }: { senseId: string; lemma: string; auto?: boolean }) {
   const { isSignedIn } = useAuth();
   const { state } = useStore();
   const hi = state.prefs.explainLang === "hi";
@@ -28,16 +29,17 @@ export function CoachSection({ senseId, lemma }: { senseId: string; lemma: strin
   const [checked, setChecked] = useState(false); const [busy, setBusy] = useState(false); const [msg, setMsg] = useState<string | null>(null);
   const [intent, setIntent] = useState<Intent>("casual");
 
-  useEffect(() => { let live = true; call(senseId, true).then(r => { if (live) { if (r.coach) setCoach(r.coach); setChecked(true); } }).catch(() => { if (live) setChecked(true); }); return () => { live = false; }; }, [senseId]);
-  const make = async () => {
+  const autoTried = useRef(false);
+  useEffect(() => { let live = true; call(senseId, true).then(r => { if (live) { if (r.coach) { setCoach(r.coach); track("coach_seen"); } else if (auto && !autoTried.current) { autoTried.current = true; void make(); } setChecked(true); } }).catch(() => { if (live) setChecked(true); }); return () => { live = false; }; }, [senseId]);   // eslint-disable-line react-hooks/exhaustive-deps
+  async function make() {
     setBusy(true); setMsg(null);
     try {
       const r = await call(senseId, false);
-      if (r.coach) { setCoach(r.coach); setIntent(r.coach.examples[0]?.intent ?? "casual"); }
-      else setMsg(r.status === 401 ? "Sign in to use the word coach." : WHY[r.error ?? ""] ?? "Something went wrong. Please try again.");
+      if (r.coach) { setCoach(r.coach); setIntent(r.coach.examples[0]?.intent ?? "casual"); track("coach_seen"); }
+      else setMsg(WHY[r.error ?? ""] ?? "Something went wrong. Please try again.");
     } catch { setMsg("You seem to be offline. Try again when you are connected."); }
     setBusy(false);
-  };
+  }
 
   if (!coach) {
     if (!checked) return null;
@@ -45,7 +47,8 @@ export function CoachSection({ senseId, lemma }: { senseId: string; lemma: strin
       <Card>
         <h2 style={{ marginBottom: 6 }}>Word coach</h2>
         <p className="sub small">How to use &ldquo;{lemma}&rdquo; in a job interview, an essay, everyday talk and a story, a trick to remember it, and words it is easy to mix up with.</p>
-        {isSignedIn ? <Btn onClick={make} disabled={busy}>{busy ? "Coaching… (a few seconds)" : "Coach me on this word"}</Btn> : <LinkBtn href="/sign-in" kind="soft">Sign in to use the word coach</LinkBtn>}
+        <Btn onClick={make} disabled={busy}>{busy ? "Coaching… (a few seconds)" : "Coach me on this word"}</Btn>
+        {!isSignedIn && <p className="sub small">Free for everyone while the daily allowance lasts. <LinkBtn href="/sign-in" kind="ghost">Sign in for your own allowance</LinkBtn></p>}
         {busy && <div role="status" style={{ marginTop: 8 }}><Orb state="solving" size={96} label="Preparing your coaching" /></div>}
         {msg && <p role="alert"><b>{msg}</b></p>}
       </Card>

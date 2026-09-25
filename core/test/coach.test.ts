@@ -87,3 +87,14 @@ test('a draft that fails verification gets one fresh, informed try before giving
   let g2 = 0; const never: Solver = async ({ options }) => ({ answer: (options.findIndex(o => o === DEF) + 1) % options.length, alsoCorrect: false });
   const fail = await makeCoach('ubiquitous', { definition: DEF, pos: 'adjective' }, async () => { g2++; return good(); }, never, 'm', defOf); assert.ok(!fail.ok); assert.equal(g2, 2, 'never more than two tries');
 });
+test('batched verification: one call for every check, same verdicts as the separate path', async () => {
+  let calls = 0; let size = 0;
+  const many: import('../src/index.ts').SolveMany = async (items) => { calls++; size = items.length; return items.map(it => ({ answer: Math.max(0, it.options.findIndex(o => o === DEF || o === 'True' || o === 'adjective')), alsoCorrect: false })); };
+  const out = await makeCoach('ubiquitous', { definition: DEF, pos: 'adjective', checkPos: true }, async () => good(), async () => { throw new Error('should not be used'); }, 'm', defOf, many);
+  assert.ok(out.ok && out.coach.examples.length === 4 && out.coach.notFor.length === 1); assert.equal(calls, 1); assert.equal(size, 4 + 4 + 1, '4 meanings + 4 parts of speech + 1 statement');
+  const failing = await makeCoach('ubiquitous', { definition: DEF, pos: 'adjective' }, async () => good(), async () => { throw new Error('x'); }, 'm', defOf, async () => null);
+  assert.ok(!failing.ok && failing.transient, 'a failed batch call is an outage, not a verdict');
+  const halfway: import('../src/index.ts').SolveMany = async (items) => items.map((it, i) => (i === 0 ? null : { answer: Math.max(0, it.options.findIndex(o => o === DEF || o === 'True')), alsoCorrect: false }));
+  const part = await makeCoach('ubiquitous', { definition: DEF, pos: 'adjective' }, async () => good(), async () => { throw new Error('x'); }, 'm', defOf, halfway);
+  assert.ok(!part.ok && part.transient, 'an unanswered item is unavailable, never quietly accepted');
+});

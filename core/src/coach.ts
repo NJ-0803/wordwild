@@ -12,6 +12,8 @@ import type { Solver } from './enrich.ts';
  * Everything that survives is still labelled as AI-drafted and not reviewed by a person.
  */
 export const COACH_PROMPT_VERSION = 1;
+/** Many blind multiple-choice questions answered in one model call. Returns null for an item it could not answer, or null overall if the call failed. */
+export type SolveMany = (items: { prompt: string; options: string[] }[]) => Promise<({ answer: number; alsoCorrect: boolean } | null)[] | null>;
 export const INTENTS = ['interview', 'essay', 'casual', 'story'] as const;
 export type Intent = (typeof INTENTS)[number];
 export const INTENT_LABEL: Record<Intent, { en: string; hi: string }> = {
@@ -91,7 +93,7 @@ function limiter(n: number) {
  * That is the single source for every look-alike word: the AI proposes the word, the dictionary supplies its meaning.
  */
 async function makeCoachOnce(
-  target: string, ctx: { definition: string; pos?: string; /** true when the word has more than one part of speech, so the part of speech is worth checking */ checkPos?: boolean; /** definitions of OTHER meanings of the same word, used as decoys */ decoys?: string[] }, generate: (problems?: string[]) => Promise<CoachDraft>, solve: Solver, model: string, defOf: (lemma: string) => Promise<string | null>, hint?: string[],
+  target: string, ctx: { definition: string; pos?: string; /** true when the word has more than one part of speech, so the part of speech is worth checking */ checkPos?: boolean; /** definitions of OTHER meanings of the same word, used as decoys */ decoys?: string[] }, generate: (problems?: string[]) => Promise<CoachDraft>, solve: Solver, model: string | (() => string), defOf: (lemma: string) => Promise<string | null>, solveMany: SolveMany | undefined, hint?: string[],
 ): Promise<CoachOutcome> {
   let d!: CoachDraft; let bad: string[] = [];
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -110,36 +112,34 @@ async function makeCoachOnce(
   const conf: Coach['confusables'] = [];
   for (const { x, def } of found) { if (def) conf.push({ word: x.word, difference: x.difference, definition: def }); else dropped.push(`confusable "${x.word}" is not in the dictionary`); }
 
-  // All blind checks run at once: speed matters (target: a few seconds), and none depends on another.
+  // All blind checks are independent, so they are asked together: either as ONE batched question (cheap: 2 model calls per word in total)
+  // or, when no batch solver is given, as separate questions run in parallel.
   const POS = ['noun', 'verb', 'adjective', 'adverb'];
   const checkPos = !!ctx.checkPos && !!ctx.pos && POS.includes(ctx.pos) && !target.includes(' ');
   // decoys for the meaning check: look-alike words' dictionary meanings, other meanings of this word, and as a last resort an unrelated idea
   const decoyDefs = [...conf.map(c => c.definition), ...(ctx.decoys ?? [])].filter(x => x !== ctx.definition);
   if (!decoyDefs.length) decoyDefs.push('something completely unrelated to this word');
-  const [exChecks, nfChecks] = await Promise.all([
-    Promise.all(d.examples.map(async e => {
-      const opts = rotate([ctx.definition, ...decoyDefs.slice(0, 2)]);
-      const [meaning, pos] = await Promise.all([
-        ask(`In this sentence, which meaning does the word "${target}" have? "${e.sentence}"`, opts),
-        checkPos ? ask(`In this sentence, is the word "${target}" used as a noun, a verb, an adjective or an adverb? "${e.sentence}"`, rotate(POS, 2)) : Promise.resolve(null),
-      ]);
-      const posOk = !checkPos || (!!pos && rotate(POS, 2)[pos.answer] === ctx.pos);
-      return { e, unavailable: !meaning || (checkPos && !pos), ok: !!meaning && opts[meaning.answer] === ctx.definition && posOk, why: !posOk ? 'used as a different part of speech' : 'the meaning was not confirmed' };
-    })),
-    Promise.all(d.notFor.map(async s => {
-      const opts = rotate(['True', 'False']);
-      const r = await ask(`The word "${target}" means: "${ctx.definition}". Is this statement true about using the word? "${s}"`, opts);
-      return { s, r, ok: !!r && opts[r.answer] === 'True' && !r.alsoCorrect };
-    })),
-  ]);
-  if (exChecks.some(c => c.unavailable)) return { ok: false, stage: 'verify', problems: ['solver unavailable'], transient: true };
-  const examples = exChecks.filter(c => c.ok).map(c => c.e);
-  for (const c of exChecks) if (!c.ok) dropped.push(`${c.e.intent}: ${c.why}`);
+  type Q = { prompt: string; options: string[]; want: string };
+  const qs: Q[] = [];
+  const exIdx = d.examples.map(e => {
+    const opts = rotate([ctx.definition, ...decoyDefs.slice(0, 2)]); const posOpts = rotate(POS, 2);
+    const m = qs.push({ prompt: `In this sentence, which meaning does the word "${target}" have? "${e.sentence}"`, options: opts, want: ctx.definition }) - 1;
+    const p = checkPos ? qs.push({ prompt: `In this sentence, is the word "${target}" used as a noun, a verb, an adjective or an adverb? "${e.sentence}"`, options: posOpts, want: ctx.pos! }) - 1 : -1;
+    return { e, m, p };
+  });
+  const nfIdx = d.notFor.map(sn => { const opts = rotate(['True', 'False']); return { s: sn, q: qs.push({ prompt: `The word "${target}" means: "${ctx.definition}". Is this statement true about using the word? "${sn}"`, options: opts, want: 'True' }) - 1 }; });
+  let res: ({ answer: number; alsoCorrect: boolean } | null)[];
+  if (solveMany) res = (await solveMany(qs.map(q => ({ prompt: q.prompt, options: q.options })))) ?? qs.map(() => null);
+  else res = await Promise.all(qs.map(q => ask(q.prompt, q.options)));
+  const right = (i: number) => !!res[i] && qs[i].options[res[i]!.answer] === qs[i].want;
+  if (exIdx.some(x => !res[x.m] || (x.p >= 0 && !res[x.p]))) return { ok: false, stage: 'verify', problems: ['solver unavailable'], transient: true };
+  const examples = exIdx.filter(x => right(x.m) && (x.p < 0 || right(x.p))).map(x => x.e);
+  for (const x of exIdx) if (!(right(x.m) && (x.p < 0 || right(x.p)))) dropped.push(`${x.e.intent}: ${!right(x.m) ? 'the meaning was not confirmed' : 'used as a different part of speech'}`);
   if (examples.length < 2) return { ok: false, stage: 'verify', problems: ['fewer than two examples were confirmed'], transient: false };
-  const notFor = nfChecks.filter(c => c.ok).map(c => c.s);
-  for (const c of nfChecks) if (!c.ok) dropped.push(`avoid statement not confirmed: ${c.s.slice(0, 40)}`);
+  const notFor = nfIdx.filter(x => right(x.q) && !res[x.q]!.alsoCorrect).map(x => x.s);
+  for (const x of nfIdx) if (!(right(x.q) && !res[x.q]!.alsoCorrect)) dropped.push(`avoid statement not confirmed: ${x.s.slice(0, 40)}`);
 
-  return { ok: true, coach: { examples, memoryHook: d.memoryHook, confusables: conf, notFor, generatedBy: model, dropped } };
+  return { ok: true, coach: { examples, memoryHook: d.memoryHook, confusables: conf, notFor, generatedBy: typeof model === 'function' ? model() : model, dropped } };
 }
 
 /**
@@ -147,9 +147,9 @@ async function makeCoachOnce(
  * one fresh draft is made, told what the checker rejected, before giving up. Two full tries at most, so cost stays bounded.
  */
 export async function makeCoach(
-  target: string, ctx: Parameters<typeof makeCoachOnce>[1], generate: (problems?: string[]) => Promise<CoachDraft>, solve: Solver, model: string, defOf: (lemma: string) => Promise<string | null>,
+  target: string, ctx: Parameters<typeof makeCoachOnce>[1], generate: (problems?: string[]) => Promise<CoachDraft>, solve: Solver, model: string | (() => string), defOf: (lemma: string) => Promise<string | null>, solveMany?: SolveMany,
 ): Promise<CoachOutcome> {
-  const first = await makeCoachOnce(target, ctx, generate, solve, model, defOf);
+  const first = await makeCoachOnce(target, ctx, generate, solve, model, defOf, solveMany);
   if (first.ok || first.stage !== 'verify' || first.transient) return first;
-  return makeCoachOnce(target, ctx, generate, solve, model, defOf, first.problems);
+  return makeCoachOnce(target, ctx, generate, solve, model, defOf, solveMany, first.problems);
 }

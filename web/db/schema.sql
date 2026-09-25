@@ -117,6 +117,20 @@ create table if not exists ww_coach (
   at timestamptz not null default now()
 )
 ;
+-- Anonymous product counts. A random per-device token, an event name from a fixed list, at most one fixed label. No account id, no text, no IP.
+create table if not exists ww_metrics (
+  id bigserial primary key,
+  device text not null,
+  day integer not null,
+  name text not null,
+  label text,
+  at timestamptz not null default now()
+)
+;
+create index if not exists ww_metrics_device on ww_metrics (device, day)
+;
+create index if not exists ww_metrics_name on ww_metrics (name, day)
+;
 -- Town actions (buildings built, orders claimed). Grow-only and idempotent, like attempts.
 create table if not exists ww_town_events (
   user_id text not null,

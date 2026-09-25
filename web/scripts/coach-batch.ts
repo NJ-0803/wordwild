@@ -4,7 +4,7 @@
 import { readFileSync } from "node:fs";
 import { COACH_PROMPT_VERSION, makeCoach } from "@core";
 import { firstDefinition, getCoach, lookupDict, putCoach } from "../src/lib/db.ts";
-import { MODEL_GENERATE, commonSense, draftCoach, solveBlind } from "../src/lib/groq.ts";
+import { MODEL_GENERATE, commonSense, draftCoach, solveBlind, solveMany, lastUsed } from "../src/lib/groq.ts";
 
 const file = process.argv[2]?.endsWith(".txt") ? process.argv[2] : "scripts/words-core.txt";
 const max = Number(process.argv[process.argv.indexOf("--max") + 1]) || Infinity;
@@ -23,8 +23,8 @@ for (const w of words) {
     if (await getCoach(s.senseId, COACH_PROMPT_VERSION)) { skipped++; continue; }
     const sib = hit.senses.filter(x => x.lemma === s.lemma && x.senseId !== s.senseId);
     const out = await makeCoach(s.lemma, { definition: s.definition, pos: s.pos, checkPos: sib.some(x => x.pos !== s.pos), decoys: sib.map(x => x.definition).slice(0, 2) },
-      (p) => draftCoach({ lemma: s.lemma, pos: s.pos, definition: s.definition, synonyms: s.nearSynonyms.map(n => n.lemma) }, p), solveBlind, MODEL_GENERATE, firstDefinition);
-    if (out.ok) { await putCoach(s.senseId, out.coach, MODEL_GENERATE, COACH_PROMPT_VERSION); done++; transientRun = 0; log(`OK   ${w} (${s.pos}) ${out.coach.examples.length} examples${out.coach.dropped.length ? `, dropped ${out.coach.dropped.length}` : ""}`); }
+      (p) => draftCoach({ lemma: s.lemma, pos: s.pos, definition: s.definition, synonyms: s.nearSynonyms.map(n => n.lemma) }, p), solveBlind, () => lastUsed || MODEL_GENERATE, firstDefinition, solveMany);
+    if (out.ok) { await putCoach(s.senseId, out.coach, out.coach.generatedBy, COACH_PROMPT_VERSION); done++; transientRun = 0; log(`OK   ${w} (${s.pos}) ${out.coach.examples.length} examples${out.coach.dropped.length ? `, dropped ${out.coach.dropped.length}` : ""}`); }
     else if (out.transient) { transientRun++; failed++; log(`BUSY ${w}: ${out.problems[0]}`); if (transientRun >= 5) { log("Groq keeps refusing (likely a rate or daily limit). Stopping. Run again later; finished words are kept."); break; } await sleep(20_000); }
     else { failed++; transientRun = 0; log(`SKIP ${w}: ${out.stage} ${out.problems[0]}`); }
   } catch (e) { failed++; transientRun++; log(`ERR  ${w}: ${(e as Error).message.slice(0, 100)}`); if (transientRun >= 5) { log("Too many errors in a row. Stopping."); break; } await sleep(15_000); }
