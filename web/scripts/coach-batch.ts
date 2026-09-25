@@ -22,8 +22,8 @@ for (const w of words) {
     const idx = own.length > 1 ? await commonSense(w, own.map(s => s.definition)) : 0; const s = own[idx];
     if (await getCoach(s.senseId, COACH_PROMPT_VERSION)) { skipped++; continue; }
     const sib = hit.senses.filter(x => x.lemma === s.lemma && x.senseId !== s.senseId);
-    const out = await makeCoach(s.lemma, { definition: s.definition, pos: s.pos, checkPos: sib.some(x => x.pos !== s.pos), decoys: sib.map(x => x.definition).slice(0, 2) },
-      (p) => draftCoach({ lemma: s.lemma, pos: s.pos, definition: s.definition, synonyms: s.nearSynonyms.map(n => n.lemma) }, p), solveBlind, () => lastUsed || MODEL_GENERATE, firstDefinition, solveMany);
+    let writer = ""; const out = await makeCoach(s.lemma, { definition: s.definition, pos: s.pos, checkPos: sib.some(x => x.pos !== s.pos), decoys: sib.map(x => x.definition).slice(0, 2) },
+      async (p) => { const d = await draftCoach({ lemma: s.lemma, pos: s.pos, definition: s.definition, synonyms: s.nearSynonyms.map(n => n.lemma) }, p); writer = lastUsed; return d; }, solveBlind, () => writer || MODEL_GENERATE, firstDefinition, solveMany);
     if (out.ok) { await putCoach(s.senseId, out.coach, out.coach.generatedBy, COACH_PROMPT_VERSION); done++; transientRun = 0; log(`OK   ${w} (${s.pos}) ${out.coach.examples.length} examples${out.coach.dropped.length ? `, dropped ${out.coach.dropped.length}` : ""}`); }
     else if (out.transient) { transientRun++; failed++; log(`BUSY ${w}: ${out.problems[0]}`); if (transientRun >= 5) { log("Groq keeps refusing (likely a rate or daily limit). Stopping. Run again later; finished words are kept."); break; } await sleep(20_000); }
     else { failed++; transientRun = 0; log(`SKIP ${w}: ${out.stage} ${out.problems[0]}`); }

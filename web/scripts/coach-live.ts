@@ -7,7 +7,7 @@ const words = (process.argv[2] ?? "meticulous,ubiquitous,skeptical,cool").split(
 for (const w of words) {
   const hit = await lookupDict(w); if (!hit) { console.log(`\n${w}: not in dictionary`); continue; }
   const s = hit.senses[0]; const t0 = Date.now();
-  const out = await makeCoach(s.lemma, { definition: s.definition, pos: s.pos, checkPos: hit.senses.some(x => x.lemma === s.lemma && x.pos !== s.pos), decoys: hit.senses.filter(x => x.lemma === s.lemma && x.senseId !== s.senseId).map(x => x.definition).slice(0, 2) }, (problems) => draftCoach({ lemma: s.lemma, pos: s.pos, definition: s.definition, synonyms: s.nearSynonyms.map(n => n.lemma) }, problems), solveBlind, () => lastUsed || MODEL_GENERATE, firstDefinition, solveMany);
+  let writer = ""; const out = await makeCoach(s.lemma, { definition: s.definition, pos: s.pos, checkPos: hit.senses.some(x => x.lemma === s.lemma && x.pos !== s.pos), decoys: hit.senses.filter(x => x.lemma === s.lemma && x.senseId !== s.senseId).map(x => x.definition).slice(0, 2) }, async (problems) => { const d = await draftCoach({ lemma: s.lemma, pos: s.pos, definition: s.definition, synonyms: s.nearSynonyms.map(n => n.lemma) }, problems); writer = lastUsed; return d; }, solveBlind, () => writer || MODEL_GENERATE, firstDefinition, solveMany);
   const ms = Date.now() - t0;
   console.log(`\n=== ${s.lemma} (${s.pos}): ${s.definition.slice(0, 60)}  [${ms} ms${ms > 3000 ? " > 3s target" : ""}]`);
   if (!out.ok) { console.log(`  FAILED at ${out.stage}${out.transient ? " (transient)" : ""}: ${out.problems.join(" | ")}`); continue; }
