@@ -5,6 +5,7 @@ import { WebDictionary } from "@/lib/senses";
 import { useStore } from "@/lib/store";
 import { say } from "@/lib/speech";
 import { Btn } from "@/components/ui";
+import { Reward, SpeakingOrb } from "@/components/Companion";
 
 const provider = new WebDictionary();
 const SPEAKERS: Record<string, string> = { Narrator: "📖", You: "🙂" };
@@ -33,6 +34,7 @@ export function SceneStage({ scene, done, onFinish }: { scene: Scene; done: bool
 
   return (
     <div aria-live="polite" style={{ display: "grid", gap: 10 }}>
+      <SpeakingOrb />
       {shown.map((b, i) => {
         if (b.kind === "say") return (
           <div key={i} className="order" style={{ gap: 4 }}>
@@ -62,16 +64,16 @@ export function SceneStage({ scene, done, onFinish }: { scene: Scene; done: bool
                 </button>))}
             </div>
             {picked[i] !== undefined && (() => { const o = b.options[picked[i]]; return (
-              <div role="status" className="order" style={{ borderColor: o.outcome === "best" ? "var(--brand)" : "var(--line)" }}>
+              <Reward on={o.outcome === "best"} colorVariant="ocean"><div role="status" className="order" style={{ borderColor: o.outcome === "best" ? "var(--brand)" : "var(--line)" }}>
                 <p style={{ margin: 0 }}><i>{o.reply}</i></p>
                 <p style={{ margin: 0 }}>{o.outcome === "best" ? "✓ " : "Let us think again. "}{o.why}</p>
                 {o.outcome !== "best" && <p className="sub small" style={{ margin: 0 }}>Try another answer. There is no penalty.</p>}
-              </div>); })()}
+              </div></Reward>); })()}
           </div>);
         return (
-          <div key={i} className="order" style={{ borderColor: "var(--brand)" }}>
+          <Reward key={i} on colorVariant="sunset"><div className="order" style={{ borderColor: "var(--brand)" }}>
             <p style={{ margin: 0 }}><b>The end of this scene</b></p><p style={{ margin: 0 }}>{b.summary}</p>
-          </div>);
+          </div></Reward>);
       })}
       {beat.kind !== "end"
         ? <Btn onClick={() => setAt(a => a + 1)} disabled={!canNext}>{canNext ? "Next" : "Choose an answer to continue"}</Btn>
