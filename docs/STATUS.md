@@ -117,3 +117,11 @@ Checked in a real screenshot: town at 08:00 and 23:00, Today garden at 10:00. No
 
 ## Extension restyle (2026-09-26)
 In-page card, popup and settings are black/navy with beam + CSS orb, serif word, spring-in; icons are a navy orb; default address is the public site (host permission added). Fonts fall back to Georgia/system because web fonts cannot be loaded from a content script without bundling. Tests 3 pass; card previewed on a stub page. Not tested: loaded as a real unpacked extension in Chrome, and the beam/orb motion.
+
+## Transformation brief work (2026-09-26)
+Read the docx; plan and per-recommendation analysis in docs/TRANSFORMATION-PLAN.md; failure analysis of the meaning agent in docs/LOOKUP-FAILURES.md.
+Built: input cleaning + irregular forms + typo suggestions + one-round-trip lookup (all surfaces incl. extension, Telegram, WhatsApp, voice); AI Word Coach (verified by blind solver, cached, `npm run coach:batch` pre-generates ~270 words); Daily Word Journey, learning days (no streak loss), 16 milestones, Word Vault with revision schedule; shareable cards; public /word/<word> pages, sitemap, robots; `npm run qa:brief -- --live` and `npm run lookup:audit`.
+Tests: core 131, db-check, telegram, whatsapp, extension 3, qa:brief 8/8.
+Not built on purpose: leaderboards/battles/friend compare as specified (plan R8), streaks that break (replaced by learning days).
+Not verified visually: share card image, journey/vault on a phone. Browser connection dropped mid-session.
+Next recommended: privacy-respecting measurement (plan R9), then friend circle (R8).

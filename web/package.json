@@ -16,7 +16,10 @@
     "enrich:batch": "node --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/enrich-batch.ts 2>&1 | grep -v \"Warning\\|Reparsing\\|trace-warnings\\|To eliminate\\|trace-deprecation\"",
     "telegram:test": "node --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/telegram-check.ts 2>&1 | grep -v \"Warning\\|Reparsing\\|trace-warnings\\|To eliminate\\|trace-deprecation\"",
     "telegram:poll": "node --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/telegram-poll.ts",
-    "whatsapp:test": "node --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/whatsapp-check.ts 2>&1 | grep -v \"Warning\\|Reparsing\\|trace-warnings\\|To eliminate\\|trace-deprecation\""
+    "whatsapp:test": "node --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/whatsapp-check.ts 2>&1 | grep -v \"Warning\\|Reparsing\\|trace-warnings\\|To eliminate\\|trace-deprecation\"",
+    "qa:brief": "node --no-warnings --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/qa-brief.ts",
+    "lookup:audit": "node --no-warnings --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/lookup-audit.ts",
+    "coach:batch": "node --no-warnings --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/coach-batch.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",
