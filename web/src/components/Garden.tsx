@@ -1,5 +1,6 @@
 "use client";
 import * as THREE from "three";
+import { lightAt, useHour } from "@/lib/daylight";
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows } from "@react-three/drei";
@@ -137,7 +138,7 @@ export function Plant({ p, index, motion, pos, celebrate = 0 }: { p: PlantSpec; 
 }
 
 /** A word label drawn inside the scene as a sprite. (drei's Html mounts a separate React root, which can throw while the scene unmounts.) */
-export function Label3D({ text, position, bg = "rgba(20,24,26,0.78)", fg = "#fff", scale = 0.26 }: { text: string; position: [number, number, number]; bg?: string; fg?: string; scale?: number }) {
+export function Label3D({ text, position, bg = "rgba(8,12,26,0.85)", fg = "#fff", scale = 0.26 }: { text: string; position: [number, number, number]; bg?: string; fg?: string; scale?: number }) {
   const { map, aspect } = useMemo(() => {
     const c = document.createElement("canvas"); const g = c.getContext("2d")!; const font = "600 30px system-ui, sans-serif";
     g.font = font; const w = Math.max(96, Math.ceil(g.measureText(text).width) + 36); c.width = w; c.height = 56;
@@ -193,13 +194,14 @@ function FitWidth({ wide = 1.45 }: { wide?: number }) {
 
 /** Outdoor daylight (threejs-lighting skill): warm sun with tight soft shadows, cool fill, sky/ground hemisphere. */
 function Lights({ extent = 4.5 }: { extent?: number }) {
+  const hour = useHour(); const L = lightAt(hour);                       // follows the real clock: bright by day, dim at night
   return (
     <>
-      <hemisphereLight args={["#fff6e0", "#5a7a52", 1.0]} />
-      <directionalLight position={[4, 6, 3]} intensity={1.7} color="#fff3d6" castShadow shadow-mapSize={[1024, 1024]}
+      <hemisphereLight args={[L.sky, L.ground, L.hemi * 1.15]} />
+      <directionalLight position={[L.pos[0] * 0.5, L.pos[1] * 0.6, 3]} intensity={L.intensity * 0.78} color={L.color} castShadow shadow-mapSize={[1024, 1024]}
         shadow-camera-left={-extent} shadow-camera-right={extent} shadow-camera-top={extent} shadow-camera-bottom={-extent}
         shadow-camera-near={1} shadow-camera-far={20} shadow-bias={-0.0004} shadow-normalBias={0.03} />
-      <directionalLight position={[-5, 2, -4]} intensity={0.45} color="#9fd4ff" />
+      <directionalLight position={[-5, 2, -4]} intensity={0.12 + 0.33 * Math.max(0, Math.sin(Math.PI * (hour - 6) / 12))} color="#9fd4ff" />
     </>
   );
 }

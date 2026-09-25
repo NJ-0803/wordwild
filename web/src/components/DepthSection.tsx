@@ -9,7 +9,7 @@ import { useReducedMotion } from "@/lib/motion";
 import { say } from "@/lib/speech";
 
 const TONE: Record<Depth["feel"]["tone"], string> = { positive: "Feels positive", neutral: "Feels neutral", negative: "Feels negative", mixed: "Feels mixed" };
-const TONE_COLOR: Record<Depth["feel"]["tone"], string> = { positive: "#7ee0a1", neutral: "#9db4ff", negative: "#ff9b9b", mixed: "#ffd166" };
+const TONE_COLOR: Record<Depth["feel"]["tone"], string> = { positive: "#a9d4ff", neutral: "#6f93ff", negative: "#b9a4ff", mixed: "#dbe6ff" };
 
 async function call(senseId: string, onlyCached: boolean): Promise<{ depth?: Depth; status: number; error?: string }> {
   const r = await fetch("/api/depth", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ senseId, onlyCached }) });

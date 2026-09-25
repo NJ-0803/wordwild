@@ -6,8 +6,8 @@ import type { Pick, Role } from "@core";
 import { Label3D, glowTexture } from "./Garden";
 
 export const ROLE_COLOR: Record<Role, string> = {
-  "same-meaning": "#4fb0ff", stronger: "#ff6b6b", gentler: "#7ee0a1", opposite: "#c58bff", "used-together": "#ffc857",
-  "same-family": "#ff9f5a", "same-situation": "#5ee6d0", "easier-bridge": "#f4a6d7",
+  "same-meaning": "#4fb0ff", stronger: "#dbe6ff", gentler: "#5ee6d0", opposite: "#9a8cff", "used-together": "#8fb0ff",
+  "same-family": "#6f93ff", "same-situation": "#7fd6ff", "easier-bridge": "#b8c8ff",
 };
 
 const rand = (seed: number) => { const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
@@ -49,8 +49,8 @@ function Star({ lemma, motion }: { lemma: string; motion: boolean }) {
   useFrame(({ clock }) => { if (motion && halo.current) halo.current.scale.setScalar(2.4 + Math.sin(clock.elapsedTime * 1.4) * 0.15); });
   return (
     <group>
-      <mesh><sphereGeometry args={[0.5, 40, 28]} /><meshStandardMaterial color="#ffd166" emissive="#ffb703" emissiveIntensity={1.1} roughness={0.4} /></mesh>
-      <sprite ref={halo} scale={[2.4, 2.4, 1]}><spriteMaterial map={glowTexture ?? undefined} color="#ffd98a" transparent opacity={0.85} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
+      <mesh><sphereGeometry args={[0.5, 40, 28]} /><meshStandardMaterial color="#dbe6ff" emissive="#6f93ff" emissiveIntensity={1.1} roughness={0.4} /></mesh>
+      <sprite ref={halo} scale={[2.4, 2.4, 1]}><spriteMaterial map={glowTexture ?? undefined} color="#9db4ff" transparent opacity={0.85} depthWrite={false} blending={THREE.AdditiveBlending} /></sprite>
       <Label3D text={lemma} position={[0, 0.95, 0]} />
     </group>
   );
@@ -61,7 +61,7 @@ export default function Constellation3D({ target, picks, learnerLevel, motion, s
   return (
     <Canvas frameloop={motion ? "always" : "demand"} dpr={[1, 2]} camera={{ position: [0, 3.4, 5.8], fov: 42 }} onCreated={({ camera }) => camera.lookAt(0, 0, 0)}>
       <ambientLight intensity={0.5} />
-      <pointLight position={[0, 0, 0]} intensity={30} color="#ffd98a" distance={12} decay={2} />
+      <pointLight position={[0, 0, 0]} intensity={30} color="#9db4ff" distance={12} decay={2} />
       <directionalLight position={[3, 5, 4]} intensity={0.6} />
       <Stars motion={motion} />
       <Star lemma={target} motion={motion} />

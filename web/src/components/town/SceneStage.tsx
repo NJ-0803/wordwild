@@ -46,7 +46,7 @@ export function SceneStage({ scene, done, onFinish }: { scene: Scene; done: bool
             {hi && b.hi && <p lang="hi" className="sub" style={{ margin: 0 }}>{b.hi}</p>}
           </div>);
         if (b.kind === "word") { const s = SENSE_BY_ID[b.senseId]; const have = saved[b.senseId] || known.has(b.senseId); return (
-          <div key={i} className="order" style={{ borderColor: "var(--brand)" }}>
+          <div key={i} className="order" style={{ borderColor: "var(--navy-glow)" }}>
             <p style={{ margin: 0 }}>✨ New word: <b style={{ fontSize: "1.2rem" }}>{s?.lemma}</b></p>
             <p className="sub" style={{ margin: 0 }}>{b.note}</p>
             <div className="row"><button className="chip" onClick={() => say(s?.lemma ?? "")}>🔊 Say it</button>
@@ -64,14 +64,14 @@ export function SceneStage({ scene, done, onFinish }: { scene: Scene; done: bool
                 </button>))}
             </div>
             {picked[i] !== undefined && (() => { const o = b.options[picked[i]]; return (
-              <Reward on={o.outcome === "best"} colorVariant="ocean"><div role="status" className="order" style={{ borderColor: o.outcome === "best" ? "var(--brand)" : "var(--line)" }}>
+              <Reward on={o.outcome === "best"} colorVariant="ocean"><div role="status" className="order" style={{ borderColor: o.outcome === "best" ? "var(--navy-glow)" : "var(--line)" }}>
                 <p style={{ margin: 0 }}><i>{o.reply}</i></p>
                 <p style={{ margin: 0 }}>{o.outcome === "best" ? "✓ " : "Let us think again. "}{o.why}</p>
                 {o.outcome !== "best" && <p className="sub small" style={{ margin: 0 }}>Try another answer. There is no penalty.</p>}
               </div></Reward>); })()}
           </div>);
         return (
-          <Reward key={i} on colorVariant="sunset"><div className="order" style={{ borderColor: "var(--brand)" }}>
+          <Reward key={i} on colorVariant="sunset"><div className="order" style={{ borderColor: "var(--navy-glow)" }}>
             <p style={{ margin: 0 }}><b>The end of this scene</b></p><p style={{ margin: 0 }}>{b.summary}</p>
           </div></Reward>);
       })}

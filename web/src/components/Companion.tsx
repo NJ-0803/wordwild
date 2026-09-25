@@ -64,7 +64,7 @@ export function WordBuddy({ lemma, mastery = "new", due = false, size = 56, mood
 export function Reward({ on, children, colorVariant = "ocean" }: { on: boolean; children: React.ReactNode; colorVariant?: "colorful" | "mono" | "ocean" | "sunset" }) {
   const reduced = useReducedMotion();
   if (!on) return <>{children}</>;
-  if (reduced) return <div style={{ borderRadius: 18, outline: "3px solid var(--brand)", outlineOffset: 2 }}>{children}</div>;
+  if (reduced) return <div style={{ borderRadius: 18, outline: "3px solid var(--navy-glow)", outlineOffset: 2 }}>{children}</div>;
   return <BorderBeam size="md" colorVariant={colorVariant} strength={1} brightness={1.4} theme="dark">{children}</BorderBeam>;
 }
 

@@ -7,10 +7,10 @@ const BASE = "/town/models";
 
 /** The Kenney nature models ship unlit, metallic and minty. In our lighting they render as dark metal, so we swap them for matte materials in a warm Township palette. */
 const PALETTE: Record<string, string> = {
-  grass: "#7ccf5a", leafsGreen: "#63c24f", leafsDark: "#3f9a48", leafsFall: "#f0902d",
-  wood: "#b57a45", woodDark: "#8d5a30", woodBark: "#8a5a30", woodInner: "#e8cfa6", woodBirch: "#f3ead7",
-  dirt: "#9a6a3c", dirtDark: "#7c5230", stone: "#cfc9bd", stoneDark: "#b0a99b",
-  corn: "#f4cf4a", colorRed: "#e2483f", colorRedDark: "#b83a33", colorYellow: "#f7c23a", colorPurple: "#9d84f2",
+  grass: "#78a856", leafsGreen: "#5a9a44", leafsDark: "#41763a", leafsFall: "#d9822b",
+  wood: "#a06e3f", woodDark: "#7c5230", woodBark: "#6e4a2a", woodInner: "#dcc39a", woodBirch: "#ece3cf",
+  dirt: "#8a5e36", dirtDark: "#6f4a2a", stone: "#b9b4a8", stoneDark: "#9a9488",
+  corn: "#e6c545", colorRed: "#cf4a3f", colorRedDark: "#a83a33", colorYellow: "#eab935", colorPurple: "#8f78d8",
 };
 const converted = new Map<string, THREE.Material>();
 function matte(m: THREE.Material): THREE.Material {

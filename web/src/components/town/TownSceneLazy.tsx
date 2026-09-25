@@ -21,9 +21,9 @@ function Loader() {
   if (gone) return null;
   return (
     <div role="status" style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", pointerEvents: "none", zIndex: 2 }}>
-      <div style={{ background: "rgba(255,255,255,.92)", borderRadius: 20, padding: "18px 26px", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,.2)", color: "#0f5c4d" }}>
-        <ThinkingOrb state="composing" size={64} theme="light" aria-label="Building your town" />
-        <div style={{ fontWeight: 800 }}>Building your town… {Math.round(progress)}%</div>
+      <div style={{ background: "rgba(8,12,26,.92)", border: "1px solid var(--navy-3)", borderRadius: 20, padding: "18px 26px", textAlign: "center", boxShadow: "0 0 40px rgba(70,110,230,.45)", color: "#fff" }}>
+        <ThinkingOrb state="composing" size={64} theme="dark" aria-label="Building your town" />
+        <div style={{ fontWeight: 600 }}>Building your town… {Math.round(progress)}%</div>
       </div>
     </div>
   );

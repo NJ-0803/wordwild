@@ -1,5 +1,6 @@
 "use client";
 import * as THREE from "three";
+import { lightAt } from "@/lib/daylight";
 import { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
@@ -28,8 +29,8 @@ const plotPos = (i: number): [number, number, number] => [-4.9 + (i % FARM_COLS)
 const markerTexture = (() => {
   if (typeof document === "undefined") return null;
   const c = document.createElement("canvas"); c.width = c.height = 128; const g = c.getContext("2d")!;
-  const grad = g.createRadialGradient(64, 64, 6, 64, 64, 62); grad.addColorStop(0, "rgba(255,240,160,1)"); grad.addColorStop(0.6, "rgba(255,200,60,0.95)"); grad.addColorStop(1, "rgba(255,180,40,0)");
-  g.fillStyle = grad; g.fillRect(0, 0, 128, 128); g.fillStyle = "#5a3a00"; g.font = "800 64px system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("!", 64, 68);
+  const grad = g.createRadialGradient(64, 64, 6, 64, 64, 62); grad.addColorStop(0, "rgba(214,226,255,1)"); grad.addColorStop(0.6, "rgba(86,126,255,0.95)"); grad.addColorStop(1, "rgba(255,180,40,0)");
+  g.fillStyle = grad; g.fillRect(0, 0, 128, 128); g.fillStyle = "#04050a"; g.font = "800 64px system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("!", 64, 68);
   return new THREE.CanvasTexture(c);
 })();
 
@@ -49,7 +50,7 @@ function PlotView({ p, i, lemma, motion, onPlot }: { p: Plot; i: number; lemma?:
       <Model path="nature/crops_dirtSingle" size={1.15} />
       <group ref={g}>{crop && <Model path={crop.path} size={crop.size} position={[0, 0.08, 0]} rotationY={(hash(p.senseId) % 6) * 0.5} />}</group>
       {p.stage === 0 && <mesh position={[0, 0.1, 0]} scale={[0.3, 0.14, 0.3]}><sphereGeometry args={[1, 12, 8]} /><meshStandardMaterial color="#8a5a2b" roughness={1} /></mesh>}
-      {p.ripe && <><Ripe y={1.5} motion={motion} seed={i} />{lemma && <Label3D text={lemma} position={[0, -0.05, 0.75]} scale={0.22} bg="rgba(40,90,50,0.9)" />}</>}
+      {p.ripe && <><Ripe y={1.5} motion={motion} seed={i} />{lemma && <Label3D text={lemma} position={[0, -0.05, 0.75]} scale={0.22} bg="rgba(12,29,71,0.96)" />}</>}
     </group>
   );
 }
@@ -68,13 +69,13 @@ function Site({ b }: { b: TownView["buildings"][number] }) {
   const post = (x: number, z: number) => <mesh key={`${x}${z}`} position={[x, 0.32, z]} castShadow><boxGeometry args={[0.1, 0.56, 0.1]} /><meshStandardMaterial color={dim ? "#8b8378" : "#8a5a30"} roughness={0.9} /></mesh>;
   return (
     <group>
-      <mesh position={[0, 0.04, 0]} receiveShadow><boxGeometry args={[2.4, 0.08, 2.1]} /><meshStandardMaterial color={dim ? "#c2bcae" : "#dcc38c"} roughness={1} /></mesh>
-      <mesh position={[0, 0.09, 0]} receiveShadow><boxGeometry args={[2.1, 0.03, 1.8]} /><meshStandardMaterial color={dim ? "#b3ad9f" : "#cdb27a"} roughness={1} /></mesh>
+      <mesh position={[0, 0.04, 0]} receiveShadow><boxGeometry args={[2.4, 0.08, 2.1]} /><meshStandardMaterial color={dim ? "#b5ae9f" : "#d2b88a"} roughness={1} /></mesh>
+      <mesh position={[0, 0.09, 0]} receiveShadow><boxGeometry args={[2.1, 0.03, 1.8]} /><meshStandardMaterial color={dim ? "#a59f91" : "#c2a677"} roughness={1} /></mesh>
       {post(-1.1, -0.95)}{post(1.1, -0.95)}{post(-1.1, 0.95)}{post(1.1, 0.95)}
       <Model path="nature/log_stack" size={0.75} position={[0.55, 0.08, 0.3]} rotationY={0.6} tint={dim ? "#9a9488" : undefined} />
       <Model path="nature/rock_smallA" size={0.5} position={[-0.6, 0.08, -0.3]} />
       {b.status === "ready" && <Ripe y={1.6} motion seed={b.unlockLevel} />}
-      <Label3D text={b.name} position={[0, 1.15, 0]} scale={0.26} bg={dim ? "rgba(70,80,90,0.9)" : "rgba(30,110,80,0.95)"} />
+      <Label3D text={b.name} position={[0, 1.15, 0]} scale={0.26} bg={dim ? "rgba(70,80,90,0.9)" : "rgba(12,29,71,0.96)"} />
       <Label3D text={b.status === "locked" ? `Level ${b.unlockLevel}` : b.status === "ready" ? "Tap to build!" : `${b.needCoins} more coins`} position={[0, 0.78, 0]} scale={0.2} bg={b.status === "ready" ? "rgba(230,150,20,0.95)" : "rgba(20,24,26,0.8)"} />
     </group>
   );
@@ -88,7 +89,7 @@ function BuildingView({ b, selected, motion, onBuilding }: { b: TownView["buildi
     <group position={[b.slot[0], 0, b.slot[1]]} {...pointer} onClick={click(() => onBuilding(b.id))}>
       {built ? <>
         <Model path={b.model} size={2.6} />
-        <Label3D text={b.name} position={[0, 2.7, 0]} scale={0.26} bg="rgba(30,110,80,0.95)" />
+        <Label3D text={b.name} position={[0, 2.7, 0]} scale={0.26} bg="rgba(12,29,71,0.96)" />
         {(b.id === "home" || b.id === "cafe") && <Smoke position={[0.5, 1.7, 0]} motion={motion} />}
       </> : <Site b={b} />}
       {selected && <mesh ref={ring} position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[1.5, 1.68, 48]} /><meshBasicMaterial color="#ffd166" transparent opacity={0.9} /></mesh>}
@@ -124,16 +125,11 @@ function Paths() {
 }
 
 function Lights({ hour }: { hour: number }) {
-  const { color, intensity, hemi } = useMemo(() => {
-    if (hour >= 17 && hour < 20) return { color: "#ffb26b", intensity: 1.9, hemi: 0.9 };            // golden evening
-    if (hour >= 20 || hour < 5) return { color: "#8fa8ff", intensity: 1.1, hemi: 0.75 };              // night stays readable
-    if (hour < 8) return { color: "#ffd9a8", intensity: 1.8, hemi: 0.95 };
-    return { color: "#fff4d8", intensity: 2.3, hemi: 1.0 };
-  }, [hour]);
+  const L = useMemo(() => lightAt(hour), [hour]);
   return (
     <>
-      <hemisphereLight args={["#e8f4ff", "#7fa060", hemi]} />
-      <directionalLight position={[8, 12, 6]} intensity={intensity} color={color} castShadow shadow-mapSize={[1024, 1024]}
+      <hemisphereLight args={[L.sky, L.ground, L.hemi]} />
+      <directionalLight position={L.pos} intensity={L.intensity} color={L.color} castShadow shadow-mapSize={[1024, 1024]}
         shadow-camera-left={-14} shadow-camera-right={14} shadow-camera-top={14} shadow-camera-bottom={-14} shadow-camera-near={1} shadow-camera-far={40} shadow-bias={-0.0004} shadow-normalBias={0.04} />
     </>
   );
@@ -142,7 +138,7 @@ function Lights({ hour }: { hour: number }) {
 function Clouds({ motion }: { motion: boolean }) {
   const g = useRef<THREE.Group>(null);
   useFrame((_, dt) => { if (motion && g.current) { g.current.position.x += dt * 0.25; if (g.current.position.x > 16) g.current.position.x = -16; } });
-  return <group ref={g}>{[0, 1, 2, 3].map(i => <sprite key={i} position={[-10 + i * 6, 7 + (i % 2), -6 + i * 1.5]} scale={[5, 2.2, 1]}><spriteMaterial map={glowTexture ?? undefined} color="#ffffff" transparent opacity={0.55} depthWrite={false} /></sprite>)}</group>;
+  return <group ref={g}>{[0, 1, 2, 3].map(i => <sprite key={i} position={[-10 + i * 6, 7 + (i % 2), -6 + i * 1.5]} scale={[5, 2.2, 1]}><spriteMaterial map={glowTexture ?? undefined} color="#ffffff" transparent opacity={0.5} depthWrite={false} /></sprite>)}</group>;
 }
 
 // Every model the town can show. Requested all at once, the moment this code loads, instead of one after another as each component renders.
@@ -161,8 +157,8 @@ export default function TownScene(p: TownSceneProps) {
     <Canvas shadows frameloop={p.motion ? "always" : "demand"} dpr={[1, 1.5]} camera={{ position: [12, 14, 15.5], fov: 36, near: 0.5, far: 90 }} gl={{ antialias: true }}>
       <Lights hour={p.hour} />
       <Suspense fallback={null}>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, -0.01, -0.5]}><planeGeometry args={[60, 50]} /><meshStandardMaterial color="#86cf68" roughness={1} /></mesh>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 4.15]}><planeGeometry args={[13.2, 4.7]} /><meshStandardMaterial color="#7cbf5f" roughness={1} /></mesh>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, -0.01, -0.5]}><planeGeometry args={[60, 50]} /><meshStandardMaterial color="#6c9f50" roughness={1} /></mesh>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 4.15]}><planeGeometry args={[13.2, 4.7]} /><meshStandardMaterial color="#65984a" roughness={1} /></mesh>
         <Paths />
         <Decor />
         {p.buildings.map(b => <BuildingView key={b.id} b={b} selected={p.selectedBuilding === b.id} motion={p.motion} onBuilding={p.onBuilding} />)}

@@ -27,5 +27,5 @@ export function useTown() {
     return r.ok ? { ok: true as const } : r;
   }, [state, update, now]);
   const seen = useMemo(() => seenScenes(state), [state]);
-  return { view, ready, build, claim, finish, seen, state, hour: new Date(now()).getHours() };
+  return { view, ready, build, claim, finish, seen, state, hour: (() => { const o = typeof window !== "undefined" ? Number(new URLSearchParams(window.location.search).get("hour")) : NaN; if (Number.isFinite(o) && new URLSearchParams(window.location.search).has("hour")) return Math.min(24, Math.max(0, o)); const t = new Date(now()); return t.getHours() + t.getMinutes() / 60; })() };
 }
