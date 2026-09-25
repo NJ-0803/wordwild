@@ -14,3 +14,5 @@ source-original/
 blender-deliverables/
 assets-src/
 dictionary/build/
+.vercel
+.env*

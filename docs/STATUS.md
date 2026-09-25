@@ -99,3 +99,7 @@ Built and verified (core 72 tests + live runs + browser):
 ## Economy pass (2026-09-26)
 See docs/ECONOMY.md. Levels now rise on a curve (50,60,70...) and never fall; daily cap on discovery coins (8 words); welcome-back gift (15 after 3+ days away, no penalty); HUD shows points to next level; Today has a "Your town" card. Core tests 105, db:test, lint, tsc green.
 Not built: weekly events, chapter collections, town as full home screen (redesign phase).
+
+## Deploy (2026-09-26)
+GitHub: NJ-0803/wordwild (private). Vercel project `wordwild`, root directory `web`, source files outside root enabled (core is imported via @core). Hobby plan allows only daily crons, so /api/cron/daily runs once a day at 02:30 UTC (08:00 IST): daily messages only reach learners whose chosen hour matches that run. Hourly needs Vercel Pro or an external hourly pinger sending `Authorization: Bearer $CRON_SECRET`.
+Production env set: DATABASE_URL, GROQ_API_KEY, Clerk keys. Not set: Telegram/WhatsApp/CRON_SECRET/APP_URL (channels off until you add them).
