@@ -8,5 +8,5 @@ for (const [label, run] of [
   ["draftCoach (generate model, strict schema)", async () => { const d = await draftCoach({ lemma: "serendipity", pos: "noun", definition: "good luck in making unexpected and fortunate discoveries", synonyms: [] }); return `${d.examples.length} examples, hook: ${d.memoryHook.slice(0, 50)}`; }],
 ] as const) {
   const t = Date.now();
-  try { console.log(`OK   ${label}  ${Date.now() - t} ms  via ${lastUsed}\n     ${await run()}`); } catch (e) { console.log(`FAIL ${label}: ${(e as Error).message}`); }
+  try { const out = await run(); console.log(`OK   ${label}  ${Date.now() - t} ms  via ${lastUsed}\n     ${out}`); } catch (e) { console.log(`FAIL ${label}: ${(e as Error).message}`); }
 }

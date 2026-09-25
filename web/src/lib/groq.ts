@@ -22,13 +22,13 @@ interface Req { model: string; messages: { role: string; content: string }[]; sc
  *  - gemini:     Google's Gemini, free tier at aistudio.google.com/apikey.  GEMINI_API_KEY   (models via GEMINI_MODEL_GENERATE / GEMINI_MODEL_VERIFY)
  *  - openrouter: many models, some free.                                    OPENROUTER_API_KEY (OPENROUTER_MODEL)
  */
-interface Provider { name: string; url: string; key: () => string | undefined; generate: string; verify: string; groqStyle: boolean }
+interface Provider { name: string; url: string; key: () => string | undefined; generate: string[]; verify: string[]; groqStyle: boolean }   // models are tried in order
 const PROVIDERS: Provider[] = [
-  { name: "groq", url: URL, key: () => process.env.GROQ_API_KEY, generate: MODEL_GENERATE, verify: MODEL_VERIFY, groqStyle: true },
+  { name: "groq", url: URL, key: () => process.env.GROQ_API_KEY, generate: [MODEL_GENERATE], verify: [MODEL_VERIFY], groqStyle: true },
   { name: "gemini", url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", key: () => process.env.GEMINI_API_KEY,
-    generate: process.env.GEMINI_MODEL_GENERATE ?? "gemini-2.5-flash", verify: process.env.GEMINI_MODEL_VERIFY ?? "gemini-2.5-flash-lite", groqStyle: false },
+    generate: [process.env.GEMINI_MODEL_GENERATE ?? "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-3.5-flash-lite"], verify: [process.env.GEMINI_MODEL_VERIFY ?? "gemini-3.5-flash-lite", "gemini-3.1-flash-lite"], groqStyle: false },
   { name: "openrouter", url: "https://openrouter.ai/api/v1/chat/completions", key: () => process.env.OPENROUTER_API_KEY,
-    generate: process.env.OPENROUTER_MODEL ?? "openai/gpt-oss-120b:free", verify: process.env.OPENROUTER_MODEL ?? "openai/gpt-oss-120b:free", groqStyle: false },
+    generate: [process.env.OPENROUTER_MODEL ?? "openai/gpt-oss-120b:free"], verify: [process.env.OPENROUTER_MODEL ?? "openai/gpt-oss-120b:free"], groqStyle: false },
 ];
 export const aiConfigured = () => PROVIDERS.some(p => !!p.key());
 export const configuredProviders = () => PROVIDERS.filter(p => !!p.key()).map(p => p.name);
@@ -40,8 +40,7 @@ const rest = (name: string, ms: number) => restingUntil.set(name, Date.now() + m
 /** Gemini's structured-output schema is a subset of JSON Schema: it rejects `additionalProperties`. Our schemas use it for Groq's strict mode, so strip it for others. */
 const loosen = (o: unknown): unknown => Array.isArray(o) ? o.map(loosen) : o && typeof o === "object" ? Object.fromEntries(Object.entries(o as Record<string, unknown>).filter(([k]) => k !== "additionalProperties").map(([k, v]) => [k, loosen(v)])) : o;
 
-async function callProvider<T>(p: Provider, r: Req): Promise<T> {
-  const model = r.model === MODEL_VERIFY ? p.verify : p.generate;
+async function callProvider<T>(p: Provider, r: Req, model: string): Promise<T> {
   let last: unknown;
   for (let attempt = 0; attempt < 3; attempt++) {
     const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 25_000);
@@ -72,24 +71,29 @@ async function callProvider<T>(p: Provider, r: Req): Promise<T> {
     } catch (e) {
       last = e;
       if (e instanceof GroqError && !e.retryable) break;                   // real client errors are not retried on the same provider
+      if (e instanceof GroqError && !p.groqStyle && (e.status ?? 0) >= 500) break;   // an overloaded model: go straight to the next one instead of waiting
       await new Promise(ok => setTimeout(ok, 600 * (attempt + 1) ** 2));
     } finally { clearTimeout(t); }
   }
   throw last instanceof Error ? last : new GroqError(`${p.name} failed`);
 }
 
-/** One structured call, with fail-over. Never logs prompts or keys. */
+/** One structured call, with fail-over across providers and, within a provider, across its models. Never logs prompts or keys. */
 async function call<T>(r: Req): Promise<T> {
   let last: unknown;
   for (const p of PROVIDERS) {
-    if (!p.key() || (restingUntil.get(p.name) ?? 0) > Date.now()) continue;
-    try { return await callProvider<T>(p, r); }
-    catch (e) {
-      last = e; const g = e as GroqError & { daily?: boolean };
-      // Out of allowance or overloaded: rest that provider so the next requests go straight to the next one.
-      if (g.status === 429) rest(p.name, g.daily ? 60 * 60_000 : 60_000);
-      else if (g.status && g.status >= 500) rest(p.name, 30_000);
-      else if (g.status === 400 || g.status === 401 || g.status === 403 || g.status === 404) rest(p.name, 10 * 60_000);   // wrong model name, bad key or unsupported schema: do not keep trying it
+    if (!p.key()) continue;
+    for (const model of r.model === MODEL_VERIFY ? p.verify : p.generate) {
+      const id = `${p.name}:${model}`;
+      if ((restingUntil.get(id) ?? 0) > Date.now()) continue;
+      try { return await callProvider<T>(p, r, model); }
+      catch (e) {
+        last = e; const g = e as GroqError & { daily?: boolean };
+        // Out of allowance, overloaded or not available: rest that model so the next requests go straight to the next one.
+        if (g.status === 429) rest(id, g.daily ? 60 * 60_000 : 60_000);
+        else if (g.status && g.status >= 500) rest(id, 30_000);
+        else if (g.status === 400 || g.status === 401 || g.status === 403 || g.status === 404) rest(id, 10 * 60_000);
+      }
     }
   }
   throw last instanceof Error ? last : new GroqError("no AI provider is available");
