@@ -67,26 +67,82 @@ export async function deleteAll(userId: string) {
 }
 
 // ---- Dictionary (read-only reference data, shared by everyone) ----
-import { candidateLemmas, rowToSense, type DictRow, type Sense } from "@core";
+import { lookupCandidates, rowToSense, type DictRow, type Sense } from "@core";
 
 const dictCols = "sense_id, lemma, pos, rank, synset_id, definition, examples, synonyms, antonyms, broader, ipa, arpabet";
-export async function lookupDict(word: string): Promise<{ senses: Sense[]; matched: string } | null> {
-  const sql = db();
-  for (const cand of candidateLemmas(word)) {
-    const rows = (await sql.query(`select ${dictCols} from ww_dict where lemma = $1 order by case pos when 'n' then 1 when 'v' then 2 when 'adj' then 3 else 4 end, rank limit 12`, [cand])) as unknown as DictRow[];
-    if (rows.length) return { senses: await withEnriched(rows.map(rowToSense)), matched: cand };
+export interface DictHit {
+  senses: Sense[]; matched: string;
+  /** senseId -> why it is shown, when it is not the word as typed ("“went” is a form of “go”."). */
+  notes: Record<string, string>;
+  /** Set when the first meanings shown are for a different dictionary form than the one typed. */
+  note?: string;
+}
+const POS_RANK: Record<string, number> = { n: 1, v: 2, adj: 3, adv: 4 };
+const hitCache = new Map<string, { at: number; hit: DictHit | null }>();
+const HIT_TTL = 10 * 60_000;
+
+/**
+ * One database round trip for every candidate spelling (the typed word, irregular bases, rule-based forms), with saved AI help joined in.
+ * Order: the word as typed, then irregular bases (went -> go), then the single best rule-based form (hoping -> hope).
+ * Verb endings prefer verb meanings, "-ly" prefers adverbs, so "ghosting" starts with the verb, not the noun.
+ */
+export async function lookupDict(word: string): Promise<DictHit | null> {
+  const cached = hitCache.get(word); if (cached && Date.now() - cached.at < HIT_TTL) return cached.hit;
+  const cands = lookupCandidates(word);
+  const rows = (await db().query(
+    `select ${dictCols.split(", ").map(c => "d." + c).join(", ")}, e.content as enriched
+       from ww_dict d left join ww_enriched e on e.sense_id = d.sense_id
+      where d.lemma = any($1::text[])
+      order by array_position($1::text[], d.lemma), d.rank limit 200`, [cands.map(c => c.lemma)])) as unknown as (DictRow & { enriched: Sense | null })[];
+  const by = new Map<string, (DictRow & { enriched: Sense | null })[]>();
+  for (const r of rows) { const l = by.get(r.lemma) ?? []; l.push(r); by.set(r.lemma, l); }
+  const groups: { lemma: string; note?: string; rows: (DictRow & { enriched: Sense | null })[]; hint?: string[]; cap: number }[] = [];
+  for (const c of cands) {
+    const g = by.get(c.lemma); if (!g) continue;
+    if (c.kind === 'rule' && groups.length > 0) continue;                       // a rule-based guess is only used when nothing better exists
+    if (c.kind === 'rule' && groups.length === 0) { groups.push({ lemma: c.lemma, note: c.note, rows: g, hint: c.posHint, cap: 12 }); break; }
+    groups.push({ lemma: c.lemma, note: c.note, rows: g, hint: c.posHint, cap: c.kind === 'exact' ? 8 : 6 });
   }
-  return null;
+  if (!groups.length) { hitCache.set(word, { at: Date.now(), hit: null }); return null; }
+  const notes: Record<string, string> = {}; const senses: Sense[] = [];
+  for (const g of groups) {
+    const ordered = [...g.rows].sort((x, y) => {
+      const px = g.hint ? (g.hint.indexOf(x.pos) < 0 ? 9 : g.hint.indexOf(x.pos)) : POS_RANK[x.pos]; const py = g.hint ? (g.hint.indexOf(y.pos) < 0 ? 9 : g.hint.indexOf(y.pos)) : POS_RANK[y.pos];
+      return px - py || x.rank - y.rank;
+    }).slice(0, g.cap);
+    for (const r of ordered) { const sense = r.enriched ?? rowToSense(r); senses.push(sense); if (g.note) notes[sense.senseId] = g.note; }
+  }
+  const hit: DictHit = { senses, matched: groups[0].lemma, notes, note: groups[0].note };
+  if (hitCache.size > 500) hitCache.delete(hitCache.keys().next().value as string);
+  hitCache.set(word, { at: Date.now(), hit }); return hit;
+}
+
+/**
+ * "Did you mean": close spellings from the dictionary itself. Two signals, because typos fail differently:
+ * edit distance catches swapped and missing letters (recieve -> receive), trigram similarity catches longer slips (definately).
+ * Suggestions are offered, never applied silently. Single words only: a phrase has no useful "nearest word".
+ */
+export async function suggestLemmas(word: string): Promise<string[]> {
+  if (word.length < 4 || word.length > 24 || /[ -]/.test(word)) return [];
+  const maxEdit = word.length < 7 ? 1 : 2;
+  const [lev, tri] = await Promise.all([
+    db().query(`select lemma, min(levenshtein(lemma, $1)) as d, count(*) as c from ww_dict
+      where left(lemma, 1) = left($1, 1) and abs(length(lemma) - $2) <= 2 and lemma !~ '[ -]' and levenshtein(lemma, $1) <= $3
+      group by lemma order by d, c desc limit 4`, [word, word.length, maxEdit]),
+    db().query(`select lemma, similarity(lemma, $1) as s, count(*) as c from ww_dict
+      where lemma % $1 and abs(length(lemma) - $2) <= 3 and lemma !~ '[ -]' and similarity(lemma, $1) >= 0.4
+      group by lemma order by s desc, c desc limit 4`, [word, word.length]),
+  ]) as unknown as { lemma: string }[][];
+  const out: string[] = [];
+  for (const r of [...lev, ...tri]) if (r.lemma !== word && !out.includes(r.lemma)) out.push(r.lemma);
+  const key = (w: string) => [...w].sort().join('');
+  out.sort((a, b) => Number(key(b) === key(word)) - Number(key(a) === key(word)));            // swapped letters (recieve -> receive) first
+  return out.slice(0, 4);
 }
 export async function getDictSense(id: string): Promise<Sense | null> {
   const rows = (await db().query(`select ${dictCols} from ww_dict where sense_id = $1`, [id])) as unknown as DictRow[];
   if (!rows[0]) return null;
   return (await getEnriched(id)) ?? rowToSense(rows[0]);
-}
-async function withEnriched(senses: Sense[]): Promise<Sense[]> {
-  const rows = (await db().query(`select sense_id, content from ww_enriched where sense_id = any($1::text[])`, [senses.map(s => s.senseId)])) as unknown as { sense_id: string; content: Sense }[];
-  const by = new Map(rows.map(r => [r.sense_id, r.content]));
-  return senses.map(s => by.get(s.senseId) ?? s);
 }
 export async function dictIdsExist(ids: string[]): Promise<Set<string>> {
   if (!ids.length) return new Set();

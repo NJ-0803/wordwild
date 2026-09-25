@@ -45,7 +45,14 @@ create table if not exists ww_dict (
   arpabet text
 );
 ;
+create extension if not exists pg_trgm
+;
+create extension if not exists fuzzystrmatch
+;
 create index if not exists ww_dict_lemma on ww_dict (lemma)
+;
+-- "Did you mean": fuzzy matching on lemmas for typos.
+create index if not exists ww_dict_lemma_trgm on ww_dict using gin (lemma gin_trgm_ops)
 ;
 -- Validated AI enrichment, shared by all learners so each word is generated (and paid for) once.
 create table if not exists ww_enriched (

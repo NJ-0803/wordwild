@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
-import { dailyMessage, localHour, sanitizeTelegramText, normalizeQuery, isValidQuery } from "@core";
-import { lookupDict } from "./db";
+import { dailyMessage, localHour, sanitizeTelegramText, cleanInput } from "@core";
+import { lookupDict, suggestLemmas } from "./db";
 import { chooseForUser } from "./daily";
 import { sql } from "./sql";
 
@@ -77,12 +77,13 @@ export async function handleUpdate(update: { message?: { chat?: { id?: number };
   }
   if (text === "/stop") { await unlinkChat(chat); await tgSend(chat, "Stopped. You can still send me a word any time."); return; }
   if (text === "/help") { await tgSend(chat, "Send one English word, like <b>skeptical</b>, and I will explain it. /stop turns off the daily word."); return; }
-  const q = normalizeQuery(text);
-  if (!isValidQuery(q)) { await tgSend(chat, "Please send one English word, using letters only."); return; }
+  const cleaned = cleanInput(text);
+  if (!cleaned.query) { await tgSend(chat, (cleaned.message ?? "Please send one English word.").replace(/[<>&]/g, "")); return; }
+  const q = cleaned.query;
   const hit = await lookupDict(q);
-  if (!hit) { await tgSend(chat, `I do not have “${q.replace(/[<>&]/g, "")}” yet. I will not guess.`); return; }
+  if (!hit) { const sug = await suggestLemmas(q); await tgSend(chat, `I do not have “${q.replace(/[<>&]/g, "")}” yet. I will not guess.${sug.length ? ` Did you mean: ${sug.join(", ")}?` : ""}`); return; }
   const s = hit.senses[0];
   const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const more = hit.senses.length > 1 ? `\n\n<i>${hit.senses.length} meanings. Open Wordwild to choose.</i>` : "";
-  await tgSend(chat, `<b>${esc(s.lemma)}</b> <i>${esc(s.pos)}</i>\n\n${esc(s.simple)}${s.explanations.hi ? `\n\n${esc(s.explanations.hi)}` : ""}${s.examples[0] ? `\n\n“${esc(s.examples[0].text)}”` : ""}${more}`, { text: "Save in Wordwild", url: `${appUrl()}/capture?word=${encodeURIComponent(hit.matched)}` });
+  await tgSend(chat, `${hit.note ? `<i>${esc(hit.note)}</i>\n\n` : ""}<b>${esc(s.lemma)}</b> <i>${esc(s.pos)}</i>\n\n${esc(s.simple)}${s.explanations.hi ? `\n\n${esc(s.explanations.hi)}` : ""}${s.examples[0] ? `\n\n“${esc(s.examples[0].text)}”` : ""}${more}`, { text: "Save in Wordwild", url: `${appUrl()}/capture?word=${encodeURIComponent(hit.matched)}` });
 }

@@ -11,7 +11,8 @@ async function lookup(q) {
   if (res.status === 429) return { status: "busy" };
   if (!res.ok) return { status: "error" };
   const data = await res.json();
-  const out = data.status === "found" ? { status: "found", matched: data.matched, senses: data.senses.slice(0, 6).map(s => ({ id: s.senseId, lemma: s.lemma, pos: s.pos, simple: s.simple, definition: s.definition, example: s.examples?.[0]?.text || "", hi: s.explanations?.hi || "", ai: s.provenance?.tier === "enriched" })) } : { status: data.status || "unknown" };
+  if (data.status === "unsearchable") return { status: "unsearchable", message: data.message || "That cannot be looked up." };   // not cached: it is a property of the input, cheap to recompute
+  const out = data.status === "found" ? { status: "found", matched: data.matched, senses: data.senses.slice(0, 6).map(s => ({ id: s.senseId, lemma: s.lemma, pos: s.pos, simple: s.simple, definition: s.definition, example: s.examples?.[0]?.text || "", hi: s.explanations?.hi || "", ai: s.provenance?.tier === "enriched", note: data.notes?.[s.senseId] || "" })) } : { status: data.status || "unknown", suggestions: (data.suggestions || []).slice(0, 4), hint: data.note || "" };
   if (cache.size > 200) cache.delete(cache.keys().next().value);
   cache.set(key, out); return out;
 }

@@ -42,11 +42,14 @@ export function useSense(id: string): Sense | null | undefined {
 export class WebDictionary implements DictionaryProvider {
   readonly name = "wordwild";
   private fixtures = new FixtureProvider();
+  private extras = new Map<string, { notes?: Record<string, string>; note?: string; suggestions?: string[]; hint?: string }>();
+  meta(query: string) { return this.extras.get(query); }
   async lookup(query: string): Promise<Sense[] | null> {
     const curated = await this.fixtures.lookup(query); if (curated) return curated;
     const r = await fetch(`/api/dict?q=${encodeURIComponent(query)}`);
     if (!r.ok) throw new Error("dictionary-unavailable");
-    const d = await r.json() as { status: string; senses?: Sense[] };
+    const d = await r.json() as { status: string; senses?: Sense[]; notes?: Record<string, string>; note?: string; suggestions?: string[]; note2?: string };
+    this.extras.set(query, { notes: d.notes, note: d.note, suggestions: d.suggestions, hint: d.status === "unknown" ? d.note : undefined });
     if (d.status === "found" && d.senses?.length) { cacheSenses(d.senses); return d.senses; }
     return null;
   }

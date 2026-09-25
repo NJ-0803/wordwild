@@ -6,9 +6,12 @@ test("selection: one to three plain words only", () => {
   assert.equal(cleanSelection("let\n go"), "let go");
   assert.equal(cleanSelection("don’t"), "don't");
   assert.equal(cleanSelection("well-known"), "well-known");
-  for (const bad of ["", "   ", "12345", "https://a.com", "a b c d", "hello@x.com", "x".repeat(41), "<script>", "1st", "What does this whole long sentence mean"]) assert.equal(cleanSelection(bad), null, JSON.stringify(bad));
+  for (const bad of ["", "   ", "12345", "https://a.com", "a b c d", "hello@x.com", "x".repeat(41), "1st", "What does this whole long sentence mean", "😀"]) assert.equal(cleanSelection(bad), null, JSON.stringify(bad));
+  assert.equal(cleanSelection("<script>"), "script", "punctuation is cleaned; the server decides it is unknown");
   assert.equal(cleanSelection(null), null); assert.equal(cleanSelection(undefined), null);
-  assert.equal(cleanSelection("मतलब"), "मतलब", "non-English letters are accepted here; the server decides what it knows");
+  assert.equal(cleanSelection("मतलब"), "मतलब", "non-English letters are accepted here; the server explains that it looks up English");
+  // dragging a selection often takes quotes, commas, brackets, possessives and invisible characters along
+  for (const [raw, want] of [["“skeptical,”", "skeptical"], ["(euphemism).", "euphemism"], ["Nani’s", "nani"], ["seren\u200Bdipity", "seren dipity"], ["skeptical—", "skeptical"], ["…meticulous", "meticulous"], ["\"give up\"", "give up"]]) assert.equal(cleanSelection(raw), want, JSON.stringify(raw));
 });
 test("trigger: any letter key with a selection, never in fields, never with Ctrl/Cmd/Alt", () => {
   const key = (k, extra = {}) => ({ key: k, ctrlKey: false, metaKey: false, altKey: false, ...extra });

@@ -49,7 +49,7 @@ try {
   // ---- the bot as a dictionary ----
   await W.handleMessage(msg(NUM2, "skeptical")); assert.match(lastText(), /\*skeptical\*/); assert.match(lastText(), /wordwild\.example\/capture\?word=skeptical/);
   await W.handleMessage(msg(NUM2, "zzyzx")); assert.match(lastText(), /I will not guess/);
-  await W.handleMessage(msg(NUM2, "<script>x</script>")); assert.match(lastText(), /one English word/);
+  await W.handleMessage(msg(NUM2, "<script>x</script>")); assert.match(lastText(), /not words|word you want|one English word|letters/);
   await W.handleMessage(msg(NUM2, "*bold*")); assert.ok(!/\*\*/.test(lastText()));
   await W.handleMessage(msg(NUM2, "", "image")); assert.match(lastText(), /text messages/);
   await W.handleMessage(msg(NUM2, "help")); assert.match(lastText(), /Send me one English word/);

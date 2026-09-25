@@ -34,7 +34,9 @@ test('lookup: found, ambiguous, unknown, invalid, provider failure, unverified c
   assert.ok(amb.status === 'found' && amb.senses.length === 2);
   assert.equal((await safeLookup(p, 'fired')).status, 'found');
   assert.equal((await safeLookup(p, 'zzyzx')).status, 'unknown');
-  assert.equal((await safeLookup(p, '<script>')).status, 'pending');
+  assert.equal((await safeLookup(p, 'a<b>c')).status, 'pending');
+  assert.equal((await safeLookup(p, '<script>')).status, 'unknown');   // punctuation is cleaned, the letters are looked up as an ordinary (unknown) word
+  const num = await safeLookup(p, '2024'); assert.equal(num.status, 'pending'); assert.ok(num.status === 'pending' && num.kind === 'digits' && !!num.message);
   const down: DictionaryProvider = { name: 'down', lookup: async () => { throw new Error('boom'); } };
   const r = await safeLookup(down, 'euphemism');
   assert.ok(r.status === 'pending' && r.reason === 'provider-unavailable');

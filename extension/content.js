@@ -44,15 +44,21 @@
       const s = res.senses[i];
       html += `<p class="w">${esc(s.lemma)}</p><p class="p">${esc(s.pos)}${res.senses.length > 1 ? ` · meaning ${i + 1} of ${res.senses.length}` : ""}</p><p class="m">${esc(s.simple)}</p>`;
       if (s.hi) html += `<p class="h" lang="hi">${esc(s.hi)}</p>`;
+      if (s.note) html += `<p class="e">${esc(s.note)}</p>`;
       if (s.example) html += `<p class="e">“${esc(s.example)}”</p>`;
       html += `<div class="b"><button data-a="say">🔊 Listen</button>${res.senses.length > 1 ? `<button class="g" data-a="next">Next meaning</button>` : ""}<a class="btn g" target="_blank" rel="noopener" href="${esc(base)}/capture?word=${encodeURIComponent(res.matched || s.lemma)}">Save to Wordwild</a></div>`;
       html += `<p class="n">Only the word you selected was sent.${s.ai ? ' <span class="ai">Extra help drafted by AI.</span>' : ""}</p>`;
     } else if (res.status === "busy") html += `<p class="m">Please wait a moment and try again.</p>`;
     else if (res.status === "error") html += `<p class="m">Could not reach Wordwild. Is your connection on, and the address set in the extension options?</p>`;
-    else html += `<p class="w">${esc(q)}</p><p class="m">Not in our dictionary yet. Nothing has been guessed.</p>`;
+    else if (res.status === "unsearchable") html += `<p class="m">${esc(res.message)}</p>`;
+    else {
+      html += `<p class="w">${esc(q)}</p><p class="m">Not in our dictionary yet. Nothing has been guessed.</p>${res.hint ? `<p class="e">${esc(res.hint)}</p>` : ""}`;
+      if (res.suggestions && res.suggestions.length) html += `<p class="e">Did you mean:</p><div class="b">${res.suggestions.map(x => `<button class="g" data-sug="${esc(x)}">${esc(x)}</button>`).join("")}</div>`;
+    }
     card.innerHTML = html;
     const pos = S.placePopup(rect, innerWidth, innerHeight, 324, wrap.offsetHeight || 190); wrap.style.left = pos.left + "px"; wrap.style.top = pos.top + "px";
     card.querySelector(".x").onclick = close;
+    card.querySelectorAll("[data-sug]").forEach(b => b.addEventListener("click", () => open(b.dataset.sug, rect)));
     card.querySelector('[data-a="say"]')?.addEventListener("click", () => speak(`${res.senses[i].lemma}. ${res.senses[i].simple}`));
     card.querySelector('[data-a="next"]')?.addEventListener("click", () => { state.i = (state.i + 1) % res.senses.length; render(); });
     card.focus({ preventScroll: true });

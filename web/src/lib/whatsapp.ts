@@ -1,6 +1,6 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { chunkText, dailyMessageWhatsApp, isValidQuery, localHour, normalizeQuery, parseWaCommand, waSafe } from "@core";
-import { lookupDict } from "./db";
+import { chunkText, cleanInput, dailyMessageWhatsApp, localHour, parseWaCommand, waSafe } from "@core";
+import { lookupDict, suggestLemmas } from "./db";
 import { chooseForUser } from "./daily";
 import { sql } from "./sql";
 
@@ -99,12 +99,13 @@ export async function handleMessage(m: InMessage) {
       return;
     case "help": case "start": await waText(m.from, "Send me one English word, like *skeptical*, and I will explain it in simple words.\nTo get a daily word, link me from Settings in Wordwild. Send STOP to turn the daily word off."); return;
     case "word": {
-      const q = normalizeQuery(cmd.text);
-      if (!isValidQuery(q)) { await waText(m.from, "Please send one English word, using letters only."); return; }
+      const cleaned = cleanInput(cmd.text);
+      if (!cleaned.query) { await waText(m.from, waSafe(cleaned.message ?? "Please send one English word.")); return; }
+      const q = cleaned.query;
       const hit = await lookupDict(q);
-      if (!hit) { await waText(m.from, `I do not have “${waSafe(q)}” yet. I will not guess.`); return; }
+      if (!hit) { const sug = await suggestLemmas(q); await waText(m.from, `I do not have “${waSafe(q)}” yet. I will not guess.${sug.length ? ` Did you mean: ${sug.map(waSafe).join(", ")}?` : ""}`); return; }
       const s = hit.senses[0];
-      await waText(m.from, [`*${waSafe(s.lemma)}* _${waSafe(s.pos)}_`, "", waSafe(s.simple), s.explanations.hi ? `\n${waSafe(s.explanations.hi)}` : "", s.examples[0] ? `\n“${waSafe(s.examples[0].text)}”` : "",
+      await waText(m.from, [hit.note ? `_${waSafe(hit.note)}_\n` : "", `*${waSafe(s.lemma)}* _${waSafe(s.pos)}_`, "", waSafe(s.simple), s.explanations.hi ? `\n${waSafe(s.explanations.hi)}` : "", s.examples[0] ? `\n“${waSafe(s.examples[0].text)}”` : "",
         hit.senses.length > 1 ? `\n_${hit.senses.length} meanings. Open Wordwild to choose:_` : "", `${appUrl()}/capture?word=${encodeURIComponent(hit.matched)}`].filter(Boolean).join("\n"));
     }
   }

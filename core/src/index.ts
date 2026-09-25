@@ -16,3 +16,4 @@ export * from './town.ts';
 export * from './story.ts';
 export * from './daily.ts';
 export * from './ocr.ts';
+export * from './query.ts';

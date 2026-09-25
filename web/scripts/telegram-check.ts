@@ -27,7 +27,7 @@ try {
   await handleUpdate({ message: { chat: { id: CHAT + 2 }, text: "skeptical" } });
   assert.match(last().text, /skeptical/); assert.match(last().text, /meanings/); assert.equal(last().button, "https://wordwild.example/capture?word=skeptical");
   await handleUpdate({ message: { chat: { id: CHAT + 2 }, text: "zzyzx" } }); assert.match(last().text, /I will not guess/);
-  await handleUpdate({ message: { chat: { id: CHAT + 2 }, text: "<script>alert(1)</script>" } }); assert.match(last().text, /one English word/); assert.ok(!last().text.includes("<script>"));
+  await handleUpdate({ message: { chat: { id: CHAT + 2 }, text: "<script>alert(1)</script>" } }); assert.match(last().text, /not words|word you want|one English word|letters/); assert.ok(!last().text.includes("<script>"));
   await handleUpdate({ message: { chat: { id: CHAT + 2 }, text: "/help" } }); assert.match(last().text, /Send one English word/);
   await handleUpdate({} as any); await handleUpdate({ message: { chat: { id: CHAT + 2 } } } as any);       // malformed updates are ignored, never throw
   const before = sent.length; for (let i = 0; i < 20; i++) await handleUpdate({ message: { chat: { id: CHAT + 3 }, text: "polite" } });

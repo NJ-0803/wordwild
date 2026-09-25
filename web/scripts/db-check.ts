@@ -1,6 +1,6 @@
 // Integration check of the data layer against the real database, using throwaway test users that are always deleted.
 import assert from "node:assert/strict";
-import { loadAll, saveEvents, deleteAll } from "../src/lib/db.ts";
+import { loadAll, saveEvents, deleteAll, lookupDict, suggestLemmas } from "../src/lib/db.ts";
 import { FixtureProvider, safeLookup, freshState, capture, submitAttempt, exportEvents, rebuildState, sanitizeEvents } from "../../core/src/index.ts";
 
 const A = `test_${Math.random().toString(36).slice(2)}`, B = `test_${Math.random().toString(36).slice(2)}`;
@@ -38,5 +38,12 @@ try {
   await deleteAll(A);
   const gone = await loadAll(A);
   assert.equal(gone.attempts.length + gone.captures.length + (gone.town?.length ?? 0), 0); assert.equal(gone.prefs, null);
+  // meaning-agent failure cases: forms, phrases, typos (see docs/LOOKUP-FAILURES.md)
+  const went = await lookupDict("went"); assert.equal(went?.matched, "go"); assert.equal(went?.senses[0].pos, "verb"); assert.match(went?.note ?? "", /form of/);
+  assert.equal((await lookupDict("children"))?.matched, "child"); assert.equal((await lookupDict("hoping"))?.matched, "hope"); assert.equal((await lookupDict("gave up"))?.matched, "give up");
+  const saw = await lookupDict("saw"); assert.ok(saw && saw.senses.some(x => x.lemma === "saw") && saw.senses.some(x => x.lemma === "see"), "an ambiguous form shows both readings");
+  assert.equal(await lookupDict("asdfghjkl"), null);
+  assert.ok((await suggestLemmas("recieve")).includes("receive")); assert.equal((await suggestLemmas("recieve"))[0], "receive"); assert.ok((await suggestLemmas("seperate")).includes("separate"));
+  assert.deepEqual(await suggestLemmas("break the ice"), [], "no suggestions for phrases");
   console.log("db-check: all assertions passed");
 } finally { await deleteAll(A); await deleteAll(B); }

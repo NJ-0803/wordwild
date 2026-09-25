@@ -1,12 +1,19 @@
 // Pure helpers shared by the content script, the toolbar popup and the tests. No browser APIs in here.
 (function (root) {
-  /** A selection is lookup-worthy when it is 1-3 words of letters (and ' -), not a paragraph, URL, or number. */
+  /**
+   * A selection is lookup-worthy when it is 1-3 words. Surrounding punctuation, quotes, brackets, possessives and invisible
+   * characters (all common when dragging a selection) are removed instead of making the shortcut silently do nothing.
+   * The server decides what it knows and explains anything it cannot look up.
+   */
   function cleanSelection(raw) {
-    const t = String(raw || "").replace(/\s+/g, " ").trim();
+    let t = String(raw || "").normalize("NFKC").replace(/[\u0000-\u001F\u007F-\u009F\u00AD\u200B-\u200F\u202A-\u202E\u2060-\u2064\uFEFF]/g, " ").replace(/[\u2018\u2019\u02BC]/g, "'").replace(/\s+/g, " ").trim();
     if (!t || t.length > 40) return null;
-    if (!/^[\p{L}][\p{L}'’ -]*$/u.test(t)) return null;
+    if (/^(https?:\/\/|www\.)/i.test(t) || /@/.test(t) || /\d/.test(t)) return null;    // addresses, e-mails and anything with digits: a selection the person did not mean as a word
+    t = t.split(" ").map(w => w.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "")).filter(Boolean).join(" ");
+    t = t.replace(/'s$/i, "").replace(/'$/, "");
+    if (!t || !/^[\p{L}][\p{L}' -]*$/u.test(t)) return null;
     if (t.split(" ").length > 3) return null;
-    return t.toLowerCase().replace(/’/g, "'");
+    return t.toLowerCase();
   }
 
   /**
