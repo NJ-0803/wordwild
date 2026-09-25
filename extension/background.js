@@ -1,5 +1,5 @@
 // Service worker: does the network calls (extension pages are not blocked by the website's CORS rules) and remembers recent lookups.
-const DEFAULT_BASE = "http://localhost:3100";
+const DEFAULT_BASE = "https://wordwild-seven.vercel.app";
 const cache = new Map();
 
 async function baseUrl() { const { base } = await chrome.storage.sync.get("base"); return (base || DEFAULT_BASE).replace(/\/+$/, ""); }

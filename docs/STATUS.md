@@ -114,3 +114,6 @@ Not verified visually: 3D town/garden under the new palette (automation tab is h
 ## UI pass 2 (2026-09-26)
 Remaining screens done (voice, scan, lesson, practice, onboarding, notebook, settings): large always-on orbs, beams on cards/buttons/fields, lesson headline colour fixed. 3D: garden and town keep natural green (not neon) and now follow the real clock via lib/daylight.ts (bright warm morning, full noon, golden evening, dim but readable night; `?hour=8` overrides for checking). Constellation and all UI stay black/navy. Loader card in the town is dark. Template page.module.css removed.
 Checked in a real screenshot: town at 08:00 and 23:00, Today garden at 10:00. Not verified: beam/orb motion (automation tab hidden), evening/midday looks, real-device speed (website only, phones not a goal).
+
+## Extension restyle (2026-09-26)
+In-page card, popup and settings are black/navy with beam + CSS orb, serif word, spring-in; icons are a navy orb; default address is the public site (host permission added). Fonts fall back to Georgia/system because web fonts cannot be loaded from a content script without bundling. Tests 3 pass; card previewed on a stub page. Not tested: loaded as a real unpacked extension in Chrome, and the beam/orb motion.

@@ -1,10 +1,11 @@
-<!doctype html><meta charset="utf-8"><title>Wordwild settings</title>
-<style>body{font:16px/1.5 system-ui,sans-serif;max-width:560px;margin:32px auto;padding:0 16px;background:#14181a;color:#f2efe8}h1{color:#56c9a8}label{display:block;margin:18px 0 6px;font-weight:700}
-input,select{width:100%;box-sizing:border-box;font:inherit;padding:10px;border-radius:10px;border:2px solid #3a4348;background:#1e2427;color:#f2efe8}button{margin-top:14px;font:inherit;font-weight:700;min-height:44px;padding:6px 16px;border-radius:10px;border:2px solid #56c9a8;background:#56c9a8;color:#0b1f19;cursor:pointer}.s{color:#b9c0c4;font-size:14px}#msg{margin-top:10px}</style>
-<h1>Wordwild settings</h1>
-<label for="trigger">When should the meaning appear?</label>
-<select id="trigger"><option value="any">Select a word, then press any letter key</option><option value="d">Select a word, then press D</option><option value="off">Never (use the toolbar button only)</option></select>
+<!doctype html><meta charset="utf-8"><title>Wordwild settings</title><link rel="stylesheet" href="ui.css">
+<style>body{max-width:580px;margin:32px auto;padding:0 20px 40px}label{display:block;margin:22px 0 8px}#msg{margin-top:12px}.orb{margin:0 0 14px}</style>
+<div class="orb" role="img" aria-label="Wordwild"></div>
+<h1>Settings</h1>
+<label class="label" for="trigger">When should the meaning appear?</label>
+<div class="beam"><select id="trigger"><option value="any">Select a word, then press any letter key</option><option value="d">Select a word, then press D</option><option value="off">Never (use the toolbar button only)</option></select></div>
 <p class="s">The meaning never opens while you are typing in a box, and never when you hold Ctrl, Cmd or Alt.</p>
-<label for="base">Wordwild address</label><input id="base" placeholder="http://localhost:3100">
+<label class="label" for="base">Wordwild address</label>
+<div class="beam"><input id="base" placeholder="https://wordwild-seven.vercel.app"></div>
 <p class="s">Where your Wordwild lives. Only the word you select is sent there, never the page or its address.</p>
-<button id="save">Save</button><div id="msg" role="status"></div><script src="options.js"></script>
+<div class="beam" style="margin-top:18px"><button id="save">Save</button></div><div id="msg" role="status"></div><script src="options.js"></script>

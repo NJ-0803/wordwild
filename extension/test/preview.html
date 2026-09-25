@@ -1,0 +1,12 @@
+<!doctype html><meta charset="utf-8"><title>Extension preview</title>
+<body style="font:18px/1.6 Georgia,serif;max-width:640px;margin:60px auto;background:#f6f3ec;color:#222"><h2>A page you are reading</h2>
+<p>Some people find it <b id="w">euphemism</b>-heavy language hard. Select the word, then press a letter key.</p>
+<script>
+// Stubs so the real content.js and popup.js run outside the browser extension runtime.
+window.chrome = { storage: { sync: { get: async () => ({ trigger: "any" }) }, onChanged: { addListener() {} } },
+  runtime: { sendMessage: async (m) => m.type === "base" ? { base: "https://wordwild-seven.vercel.app" } : new Promise(r => setTimeout(() => r({ status: "found", matched: "euphemism", senses: [
+    { id: "a", lemma: "euphemism", pos: "noun", simple: "A gentle way of saying something hard.", hi: "किसी कठिन बात को नरमी से कहने का तरीका।", example: "“Passed away” is a euphemism for died.", ai: false },
+    { id: "b", lemma: "euphemism", pos: "noun", simple: "A mild word used in place of a harsh one.", hi: "", example: "", ai: true }] }), 1500)) } };
+</script><script src="../shared.js"></script><script src="../content.js"></script>
+<script>const r=document.createRange();r.selectNodeContents(document.getElementById("w"));getSelection().removeAllRanges();getSelection().addRange(r);
+setTimeout(()=>dispatchEvent(new KeyboardEvent("keydown",{key:"e",bubbles:true,cancelable:true})),300);</script>
