@@ -236,7 +236,7 @@ export async function putPool(senseId: string, pool: Candidate[], model: string,
 export type { Role };
 
 // ---- Go deeper cache ----
-import type { Depth } from "@core";
+import type { Depth, Coach } from "@core";
 export async function getDepth(senseId: string, minVersion = 0): Promise<Depth | null> {
   const r = (await db().query(`select content from ww_depth where sense_id = $1 and prompt_version >= $2`, [senseId, minVersion])) as unknown as { content: Depth }[];
   return r[0]?.content ?? null;
@@ -244,6 +244,19 @@ export async function getDepth(senseId: string, minVersion = 0): Promise<Depth |
 export async function putDepth(senseId: string, d: Depth, model: string, v: number) {
   await db().query(`insert into ww_depth (sense_id, content, model, prompt_version) values ($1, $2::jsonb, $3, $4)
     on conflict (sense_id) do update set content = excluded.content, model = excluded.model, prompt_version = excluded.prompt_version, at = now() where ww_depth.prompt_version < excluded.prompt_version`, [senseId, JSON.stringify(d), model, v]);
+}
+export async function getCoach(senseId: string, minVersion = 0): Promise<Coach | null> {
+  const r = (await db().query(`select content from ww_coach where sense_id = $1 and prompt_version >= $2`, [senseId, minVersion])) as unknown as { content: Coach }[];
+  return r[0]?.content ?? null;
+}
+export async function putCoach(senseId: string, c: Coach, model: string, v: number) {
+  await db().query(`insert into ww_coach (sense_id, content, model, prompt_version) values ($1, $2::jsonb, $3, $4)
+    on conflict (sense_id) do update set content = excluded.content, model = excluded.model, prompt_version = excluded.prompt_version, at = now() where ww_coach.prompt_version < excluded.prompt_version`, [senseId, JSON.stringify(c), model, v]);
+}
+/** The dictionary's own first definition of a word (nouns and verbs first), or null if it is not a word we know. */
+export async function firstDefinition(lemma: string): Promise<string | null> {
+  const r = (await db().query(`select definition from ww_dict where lemma = $1 order by case pos when 'n' then 1 when 'v' then 2 when 'adj' then 3 else 4 end, rank limit 1`, [lemma])) as unknown as { definition: string }[];
+  return r[0]?.definition ?? null;
 }
 export async function lemmaExists(lemma: string): Promise<boolean> {
   const r = (await db().query(`select 1 from ww_dict where lemma = $1 limit 1`, [lemma])) as unknown as unknown[];

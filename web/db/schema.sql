@@ -108,6 +108,15 @@ create table if not exists ww_depth (
   at timestamptz not null default now()
 )
 ;
+-- Word Coach content per sense (examples by situation, memory hook, look-alike words), verified then shared by all learners.
+create table if not exists ww_coach (
+  sense_id text primary key,
+  content jsonb not null,
+  model text not null,
+  prompt_version integer not null,
+  at timestamptz not null default now()
+)
+;
 -- Town actions (buildings built, orders claimed). Grow-only and idempotent, like attempts.
 create table if not exists ww_town_events (
   user_id text not null,

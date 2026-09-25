@@ -17,3 +17,4 @@ export * from './story.ts';
 export * from './daily.ts';
 export * from './ocr.ts';
 export * from './query.ts';
+export * from './coach.ts';
