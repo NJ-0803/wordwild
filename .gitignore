@@ -1,0 +1,16 @@
+node_modules/
+.next/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+.vercel/
+# heavy or third-party, not part of the product
+app/
+tools/
+dictionary/raw/
+source-original/
+blender-deliverables/
+assets-src/
+dictionary/build/

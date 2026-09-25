@@ -1,0 +1,6 @@
+3D models in this folder are by Kenney (www.kenney.nl), released under Creative Commons CC0 (public domain):
+  City Kit (Suburban) 2.0, City Kit (Commercial) 2.1, Nature Kit.
+No attribution is required; we credit the author with thanks.
+
+Text recognition (camera capture) uses Tesseract.js (Apache-2.0) and the Tesseract OCR engine (Apache-2.0),
+with English language data (tessdata_fast, Apache-2.0). It runs entirely on your device.

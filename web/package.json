@@ -1,0 +1,44 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "db:migrate": "node --env-file=.env.local scripts/migrate.mjs",
+    "db:test": "node --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/db-check.ts 2>&1 | grep -v \"Warning\\|Reparsing\\|trace-warnings\\|To eliminate\"",
+    "dict:build": "node scripts/dict-build.mjs",
+    "dict:load": "node --env-file=.env.local scripts/dict-load.mjs",
+    "enrich:test": "node --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/enrich-check.ts 2>&1 | grep -v \"Warning\\|Reparsing\\|trace-warnings\\|To eliminate\"",
+    "enrich:live": "node --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/enrich-live.ts 2>&1 | grep -v \"Warning\\|Reparsing\\|trace-warnings\\|To eliminate\\|trace-deprecation\"",
+    "enrich:batch": "node --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/enrich-batch.ts 2>&1 | grep -v \"Warning\\|Reparsing\\|trace-warnings\\|To eliminate\\|trace-deprecation\"",
+    "telegram:test": "node --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/telegram-check.ts 2>&1 | grep -v \"Warning\\|Reparsing\\|trace-warnings\\|To eliminate\\|trace-deprecation\"",
+    "telegram:poll": "node --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/telegram-poll.ts",
+    "whatsapp:test": "node --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/whatsapp-check.ts 2>&1 | grep -v \"Warning\\|Reparsing\\|trace-warnings\\|To eliminate\\|trace-deprecation\""
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^7.9.7",
+    "@neondatabase/serverless": "^1.1.0",
+    "@react-three/drei": "^10.7.8",
+    "@react-three/fiber": "^9.8.1",
+    "border-beam": "^1.4.1",
+    "bot-avatars": "^0.1.1",
+    "next": "16.3.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "tesseract.js": "^7.0.0",
+    "thinking-orbs": "^0.3.2",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "^0.186.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.6",
+    "typescript": "^5"
+  }
+}

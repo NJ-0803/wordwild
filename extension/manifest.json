@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Wordwild: meaning as you read",
+  "description": "Select a word on any page and press a key to see its meaning, in simple words. Save it to your Wordwild garden.",
+  "version": "0.1.0",
+  "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "action": { "default_title": "Wordwild", "default_popup": "popup.html", "default_icon": { "16": "icons/icon16.png", "48": "icons/icon48.png" } },
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [{ "matches": ["http://*/*", "https://*/*"], "js": ["shared.js", "content.js"], "run_at": "document_idle", "all_frames": false }],
+  "options_page": "options.html",
+  "permissions": ["storage"],
+  "host_permissions": ["http://localhost:3100/*"],
+  "optional_host_permissions": ["https://*/*"]
+}
