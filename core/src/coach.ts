@@ -80,6 +80,11 @@ export type CoachOutcome =
   | { ok: false; stage: 'draft' | 'verify'; problems: string[]; transient: boolean };
 
 const rotate = <T,>(a: T[], k = 1) => a.map((_, i) => a[(i + k) % a.length]);
+/** At most n calls in flight: a burst of ten solver calls at once trips per-minute rate limits, and the backoff costs more time than queueing. */
+function limiter(n: number) {
+  let active = 0; const waiting: (() => void)[] = [];
+  return async <T,>(f: () => Promise<T>): Promise<T> => { if (active >= n) await new Promise<void>(r => waiting.push(r)); active++; try { return await f(); } finally { active--; waiting.shift()?.(); } };
+}
 
 /**
  * `defOf` returns the dictionary's own definition of a word or null if it is not a word we know.
@@ -97,7 +102,8 @@ async function makeCoachOnce(
   }
   if (bad.length) return { ok: false, stage: 'draft', problems: bad, transient: false };
   const dropped: string[] = [];
-  const ask = async (prompt: string, options: string[]) => { try { return await solve({ prompt, options }); } catch { try { return await solve({ prompt, options }); } catch { return null; } } };
+  const gate = limiter(4);
+  const ask = (prompt: string, options: string[]) => gate(async () => { try { return await solve({ prompt, options }); } catch { try { return await solve({ prompt, options }); } catch { return null; } } });
 
   // Look-alike words must be real words; their meaning comes from the dictionary (looked up together, not one by one).
   const found = await Promise.all(d.confusables.map(async x => ({ x, def: await defOf(x.word).catch(() => null) })));
