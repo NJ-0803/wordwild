@@ -5,6 +5,7 @@
 A respectful, adaptive vocabulary product for adult English learners, with Hindi explanations. Save a word you meet, understand it in simple words, practise it, and watch a town grow from the words you really learn.
 
 - **Website** (`web/`): Next.js 16, Clerk sign-in, Neon Postgres, Vercel. Word coach, daily journey, word vault, 3D town, daily puzzles (Word of the Day, Unscramble, Meaning Match), camera scan and voice.
+- **Tests:** `cd core && node --test` (engine) and `cd web && npm run e2e` (browser end-to-end: search, save, review, schedule, journey).
 - **Core** (`core/`): pure TypeScript learning engine (spaced review, town, puzzles). Run its tests with `cd core && node --test`.
 - **Chrome extension** (`extension/`): select a word on any page for its meaning, or Quick save it and add it to your words the next time you open the site. Install steps are on the site at [/extension](https://wordwild-seven.vercel.app/extension).
 - **Docs** (`docs/`): status, economy, lookup failures, AI providers, transformation plan.

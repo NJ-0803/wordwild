@@ -22,3 +22,4 @@ export * from './journey.ts';
 export * from './metrics.ts';
 export * from './play.ts';
 export * from './playwords.ts';
+export * from './review.ts';

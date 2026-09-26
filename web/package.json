@@ -21,7 +21,8 @@
     "lookup:audit": "node --no-warnings --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/lookup-audit.ts",
     "coach:batch": "node --no-warnings --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/coach-batch.ts",
     "metrics": "node --no-warnings --env-file=.env.local --experimental-strip-types scripts/metrics-report.ts",
-    "ai:probe": "node --no-warnings --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/ai-probe.ts"
+    "ai:probe": "node --no-warnings --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/ai-probe.ts",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",
@@ -39,6 +40,7 @@
     "three": "^0.186.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
