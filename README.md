@@ -14,7 +14,7 @@ A respectful, adaptive vocabulary product for adult English learners, with Hindi
 ```bash
 cd web
 npm install
-cp .env.example .env.local   # add your own keys; never commit them
+# create web/.env.local with your own keys (database, Clerk, AI providers); never commit it
 npm run dev
 ```
 
