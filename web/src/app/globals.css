@@ -246,3 +246,8 @@ input::placeholder, textarea::placeholder { color: #6a7796; }
   @keyframes pz-flip { from { transform: rotateX(90deg); opacity: 0; } to { transform: none; opacity: 1; } }
   @keyframes pz-shake { 20% { transform: translateX(-7px); } 45% { transform: translateX(6px); } 70% { transform: translateX(-4px); } 100% { transform: none; } }
 }
+
+.quick { position: fixed; z-index: 70; right: 20px; bottom: 20px; width: min(420px, calc(100vw - 32px)); padding: 16px 18px; border-radius: 20px; border: 1px solid var(--navy-glow); background: linear-gradient(165deg, #10285e, #06080f 80%); box-shadow: 0 24px 60px rgba(0, 0, 0, .6), 0 0 34px rgba(60, 100, 220, .3); }
+.quick p { margin: 0 0 12px; } .quick-b { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; } .quick-b .btn { width: auto; min-height: 46px; padding: 8px 16px; }
+@media (max-width: 800px) { .quick { bottom: 76px; } }
+@media (prefers-reduced-motion: no-preference) { .quick { animation: quick-in .3s var(--ease) backwards; } @keyframes quick-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } } }

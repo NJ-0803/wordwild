@@ -5,6 +5,7 @@ import { StoreProvider } from "@/lib/store";
 import { Nav } from "@/components/Nav";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Account } from "@/components/Account";
+import { QuickSaved } from "@/components/QuickSaved";
 import { MetricsWatcher } from "@/components/MetricsWatcher";
 import { Sidebar } from "@/components/Sidebar";
 
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ClerkProvider>
           <StoreProvider>
             <MetricsWatcher />
+            <QuickSaved />
             <div className="shell">
               <Sidebar />
               <main className="wrap"><Account />{children}</main>

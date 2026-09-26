@@ -63,7 +63,7 @@
       if (s.hi) html += `<p class="h" lang="hi">${esc(s.hi)}</p>`;
       if (s.note) html += `<p class="e">${esc(s.note)}</p>`;
       if (s.example) html += `<p class="e">“${esc(s.example)}”</p>`;
-      html += `<div class="b"><button data-a="say">🔊 Listen</button>${res.senses.length > 1 ? `<button class="g" data-a="next">Next meaning</button>` : ""}<a class="btn g" target="_blank" rel="noopener" href="${esc(base)}/capture?word=${encodeURIComponent(res.matched || s.lemma)}">Save to Wordwild</a></div>`;
+      html += `<div class="b"><button data-a="say">🔊 Listen</button><button data-a="quick">Quick save</button>${res.senses.length > 1 ? `<button class="g" data-a="next">Next meaning</button>` : ""}<a class="btn g" target="_blank" rel="noopener" href="${esc(base)}/capture?word=${encodeURIComponent(res.matched || s.lemma)}">Open in Wordwild</a></div>`;
       html += `<p class="n">Only the word you selected was sent.${s.ai ? ' <span class="ai">Extra help drafted by AI.</span>' : ""}</p>`;
     } else if (res.status === "busy") html += `<p class="m">Please wait a moment and try again.</p>`;
     else if (res.status === "error") html += `<p class="m">Could not reach Wordwild. Is your connection on, and the address set in the extension options?</p>`;
@@ -80,6 +80,8 @@
     card.querySelector(".x").onclick = close;
     card.querySelectorAll("[data-sug]").forEach(b => b.addEventListener("click", () => open(b.dataset.sug, rect)));
     card.querySelector('[data-a="say"]')?.addEventListener("click", () => speak(`${res.senses[i].lemma}. ${res.senses[i].simple}`));
+    const qb = card.querySelector('[data-a="quick"]');
+    if (qb) qb.addEventListener("click", async () => { const s = res.senses[i]; qb.disabled = true; const r = await send({ type: "quicksave", item: { id: s.id, lemma: s.lemma } }); qb.textContent = r && r.ok ? "Saved. See it later ✓" : "Could not save"; if (!(r && r.ok)) qb.disabled = false; });
     card.querySelector('[data-a="next"]')?.addEventListener("click", () => { state.i = (state.i + 1) % res.senses.length; render(); });
     card.focus({ preventScroll: true });
   }

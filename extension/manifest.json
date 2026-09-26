@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Wordwild: meaning as you read",
   "description": "Select a word on any page and press a key to see its meaning, in simple words. Save it to your Wordwild garden.",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -31,6 +31,16 @@
       ],
       "run_at": "document_idle",
       "all_frames": false
+    },
+    {
+      "matches": [
+        "https://wordwild-seven.vercel.app/*",
+        "http://localhost:3100/*"
+      ],
+      "js": [
+        "bridge.js"
+      ],
+      "run_at": "document_idle"
     }
   ],
   "options_page": "options.html",

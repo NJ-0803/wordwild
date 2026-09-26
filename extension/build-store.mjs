@@ -5,10 +5,11 @@ import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync, readdirSync, st
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 
-const FILES = ["background.js", "content.js", "shared.js", "popup.html", "popup.js", "options.html", "options.js", "ui.css", "icons"];
+const FILES = ["background.js", "content.js", "shared.js", "bridge.js", "popup.html", "popup.js", "options.html", "options.js", "ui.css", "icons"];
 const m = JSON.parse(readFileSync("manifest.json", "utf8"));
 m.host_permissions = m.host_permissions.filter(h => h.startsWith("https://"));
 delete m.optional_host_permissions;
+m.content_scripts = m.content_scripts.map(c => ({ ...c, matches: c.matches.filter(x => x.startsWith("https://")) }));
 const out = join("dist", "package"); rmSync("dist", { recursive: true, force: true }); mkdirSync(out, { recursive: true });
 for (const f of FILES) cpSync(f, join(out, f), { recursive: true });
 writeFileSync(join(out, "manifest.json"), JSON.stringify(m, null, 2) + "\n");
