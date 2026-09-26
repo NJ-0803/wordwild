@@ -1,10 +1,13 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useStore } from "@/lib/store";
 
 const tabs = [["/", "Today"], ["/notebook", "My words"], ["/play", "Puzzles"], ["/settings", "Settings"]] as const;
 export function Nav() {
   const p = usePathname();
+  const { onboarded } = useStore();
+  if (!onboarded) return null;                                    // the very first screens have no tab bar
   if (p.startsWith("/learn") || p.startsWith("/play/") || p === "/review" || p.startsWith("/practice") || p === "/capture" || p === "/voice" || p === "/town" || p === "/scan") return null;   // focus screens hide the tab bar
   return (
     <nav className="nav" aria-label="Main">
