@@ -221,3 +221,13 @@ create table if not exists ww_play_result (
 ;
 create index if not exists ww_play_result_day on ww_play_result (day)
 ;
+-- Shared rate limits (one row per key and time window), so limits hold across every serverless instance.
+create table if not exists ww_rate (
+  k text not null,
+  w bigint not null,
+  n integer not null default 0,
+  primary key (k, w)
+)
+;
+alter table ww_circle_profile add column if not exists code_at timestamptz not null default now()
+;

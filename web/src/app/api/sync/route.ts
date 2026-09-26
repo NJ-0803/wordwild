@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { sanitizeEvents, sanitizePrefs } from "@core";
+import { limitUser } from "@/lib/ratelimit";
 import { dbConfigured, deleteAll, dictIdsExist, loadAll, saveEvents } from "@/lib/db";
 
 export const runtime = "nodejs";
@@ -17,6 +18,7 @@ async function guard() {
   const { userId } = await auth();
   if (!userId) return { res: Response.json({ error: "unauthorized" }, { status: 401 }) };
   if (limited(userId)) return { res: Response.json({ error: "rate-limited" }, { status: 429, headers: { "Retry-After": "10" } }) };
+  { const lim = await limitUser(userId, "sync", 240, 60); if (lim) return { res: lim }; }
   return { userId };
 }
 const fail = (e: unknown) => { console.error("sync error", (e as Error).message); return Response.json({ error: "server-error" }, { status: 500 }); };

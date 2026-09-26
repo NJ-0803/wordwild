@@ -275,8 +275,13 @@ export interface Circle { pid: string; name: string; code: string }
 /** The caller's profile, made on first use. Only a display name is stored, and it is shown to friends only. */
 export async function ensureCircle(userId: string, name: string): Promise<Circle> {
   const sql = db(); const clean = name.replace(/[^\p{L}\p{N} ._-]/gu, "").trim().slice(0, 24) || "A learner";
-  const got = (await sql`select pid, name, code from ww_circle_profile where user_id = ${userId}`) as Row[];
-  if (got[0]) return got[0] as unknown as Circle;
+  const got = (await sql`select pid, name, code, code_at from ww_circle_profile where user_id = ${userId}`) as Row[];
+  if (got[0]) {
+    if (Date.now() - new Date(got[0].code_at as string).getTime() > 30 * 86_400_000) {           // invite links expire after 30 days: a leaked link cannot be used forever
+      const fresh = rid(10); await sql`update ww_circle_profile set code = ${fresh}, code_at = now() where user_id = ${userId}`; return { pid: got[0].pid as string, name: got[0].name as string, code: fresh };
+    }
+    return { pid: got[0].pid as string, name: got[0].name as string, code: got[0].code as string };
+  }
   for (let i = 0; i < 5; i++) {
     const pid = rid(8), code = rid(10);
     try { await sql`insert into ww_circle_profile (user_id, pid, name, code) values (${userId}, ${pid}, ${clean}, ${code}) on conflict (user_id) do nothing`; } catch { continue; }
@@ -308,4 +313,14 @@ export async function friendsBoard(userId: string, day: number): Promise<{ frien
     where r.day = ${day} and (r.user_id = ${userId} or r.user_id in (select b from ww_friend where a = ${userId}))
     order by r.game, r.level, r.ms`) as unknown as BoardRow[];
   return { friends, rows };
+}
+
+/** Counts one hit for `key` in the current window and says whether the limit is now exceeded. Shared by all instances; fails open if the database hiccups. */
+export async function hit(key: string, limit: number, windowSec: number): Promise<boolean> {
+  try {
+    const w = Math.floor(Date.now() / 1000 / windowSec), sql = db();
+    const r = (await sql`insert into ww_rate (k, w, n) values (${key}, ${w}, 1) on conflict (k, w) do update set n = ww_rate.n + 1 returning n`) as Row[];
+    if (Math.random() < 0.01) void sql`delete from ww_rate where w < ${w - 2}`.catch(() => undefined);      // tidy old windows now and then
+    return Number(r[0]?.n ?? 0) > limit;
+  } catch { return false; }
 }

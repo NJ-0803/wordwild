@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { dayIndex, LEVELS } from "@core";
+import { limit } from "@/lib/ratelimit";
 import { dbConfigured, saveResult } from "@/lib/db";
 
 export const runtime = "nodejs";
@@ -8,6 +9,7 @@ export const runtime = "nodejs";
 export async function POST(req: Request) {
   if (!dbConfigured()) return Response.json({ ok: false }, { status: 503 });
   const { userId } = await auth(); if (!userId) return Response.json({ ok: false }, { status: 401 });
+  const lim = await limit(req, userId, "result", 60, 600); if (lim) return lim;
   let b: Record<string, unknown>; try { b = await req.json(); } catch { return Response.json({ ok: false }, { status: 400 }); }
   const game = String(b.game), level = String(b.level), day = Number(b.day), ms = Number(b.ms), tries = Number(b.tries), won = b.won === true;
   const today = dayIndex(Date.now(), 0);

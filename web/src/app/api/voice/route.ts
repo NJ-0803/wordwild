@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import { limit } from "@/lib/ratelimit";
 import { claimQuota, dbConfigured, refundQuota } from "@/lib/db";
 import { groqConfigured } from "@/lib/groq";
 import { answerVoice } from "@/lib/voice";
@@ -13,6 +14,7 @@ export async function POST(req: Request) {
   if (!dbConfigured() || !groqConfigured()) return Response.json({ error: "not-configured" }, { status: 503 });
   const { userId } = await auth();
   if (!userId) return Response.json({ error: "unauthorized" }, { status: 401 });
+  { const lim = await limit(req, userId, "voice", 20, 600); if (lim) return lim; }
   if (Number(req.headers.get("content-length") ?? 0) > MAX_BYTES + 4096) return Response.json({ error: "too-large" }, { status: 413 });
   let file: File | null = null;
   try { const f = (await req.formData()).get("audio"); file = f instanceof File ? f : null; } catch { return Response.json({ error: "bad-form" }, { status: 400 }); }

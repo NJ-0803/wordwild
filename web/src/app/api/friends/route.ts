@@ -1,4 +1,5 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { limit } from "@/lib/ratelimit";
 import { dbConfigured, ensureCircle, friendsBoard } from "@/lib/db";
 
 export const runtime = "nodejs";
@@ -7,6 +8,7 @@ export const runtime = "nodejs";
 export async function GET(req: Request) {
   if (!dbConfigured()) return Response.json({ error: "not-configured" }, { status: 503 });
   const { userId } = await auth(); if (!userId) return Response.json({ error: "unauthorized" }, { status: 401 });
+  const lim = await limit(req, userId, "friends", 60, 60); if (lim) return lim;
   const day = Number(new URL(req.url).searchParams.get("day"));
   if (!Number.isInteger(day) || day < 1) return Response.json({ error: "bad-day" }, { status: 400 });
   try {
