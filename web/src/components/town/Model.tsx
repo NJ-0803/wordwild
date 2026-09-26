@@ -13,10 +13,21 @@ const PALETTE: Record<string, string> = {
   corn: "#e6c545", colorRed: "#cf4a3f", colorRedDark: "#a83a33", colorYellow: "#eab935", colorPurple: "#8f78d8",
 };
 const converted = new Map<string, THREE.Material>();
+/** Windows glow warm after dark. One shared set, so the whole town lights up together when the hour changes. */
+const glass = new Set<THREE.MeshStandardMaterial>(); let night = 0;
+export function setNight(v: number) { night = v; glass.forEach(g => { g.emissiveIntensity = 0.04 + v * 1.6; }); }
 function matte(m: THREE.Material): THREE.Material {
   const src = m as THREE.MeshStandardMaterial;
   if (src.map) return m;                                            // textured city-kit materials are already fine
   const hit = converted.get(m.uuid); if (hit) return hit;
+  if (m.name === "glasspane" || m.name === "PANE") {
+    const g = new THREE.MeshStandardMaterial({ color: new THREE.Color("#bfe6f5"), roughness: 0.1, metalness: 0.05, transparent: true, opacity: 0.38, depthWrite: false });
+    converted.set(m.uuid, g); return g;
+  }
+  if (m.name === "glass") {
+    const g = new THREE.MeshStandardMaterial({ color: new THREE.Color("#8fd0f2"), roughness: 0.18, metalness: 0.05, emissive: new THREE.Color("#ffc766"), emissiveIntensity: 0.04 + night * 1.6 });
+    glass.add(g); converted.set(m.uuid, g); return g;
+  }
   const color = PALETTE[m.name] ? new THREE.Color(PALETTE[m.name]) : (src.color ? src.color.clone() : new THREE.Color("#ffffff"));
   const out = new THREE.MeshStandardMaterial({ color, roughness: 0.88, metalness: 0, side: src.side });
   converted.set(m.uuid, out); return out;
@@ -27,13 +38,13 @@ export const modelUrl = (path: string) => `${BASE}/${path}.glb`;
  * A CC0 (Kenney) model, cloned per use, scaled so its footprint fits `size` (largest of width/depth), sitting on y = 0 and centred.
  * Shadows are switched on for every mesh so the town feels solid.
  */
-export function Model({ path, size, position = [0, 0, 0], rotationY = 0, tint, opacity = 1 }: { path: string; size: number; position?: [number, number, number]; rotationY?: number; tint?: string; opacity?: number }) {
+export function Model({ path, size = 1, unit, position = [0, 0, 0], rotationY = 0, tint, opacity = 1 }: { path: string; size?: number; unit?: number; position?: [number, number, number]; rotationY?: number; tint?: string; opacity?: number }) {
   const { scene } = useGLTF(modelUrl(path));
   const { obj, scale, offset } = useMemo(() => {
     const clone = scene.clone(true);
     const box = new THREE.Box3().setFromObject(clone);
     const dim = box.getSize(new THREE.Vector3()); const c = box.getCenter(new THREE.Vector3());
-    const s = size / Math.max(dim.x, dim.z, 0.001);
+    const s = unit ?? size / Math.max(dim.x, dim.z, 0.001);
     clone.traverse(o => {
       const m = o as THREE.Mesh;
       if (m.isMesh) {
@@ -47,8 +58,8 @@ export function Model({ path, size, position = [0, 0, 0], rotationY = 0, tint, o
         }
       }
     });
-    return { obj: clone, scale: s, offset: new THREE.Vector3(-c.x * s, -box.min.y * s, -c.z * s) };
-  }, [scene, size, tint, opacity]);
+    return { obj: clone, scale: s, offset: unit ? new THREE.Vector3(0, 0, 0) : new THREE.Vector3(-c.x * s, -box.min.y * s, -c.z * s) };   // Blender-made city models are already centred on their base
+  }, [scene, size, unit, tint, opacity]);
   return <group position={position} rotation={[0, rotationY, 0]}><group position={offset} scale={scale}><primitive object={obj} /></group></group>;
 }
 

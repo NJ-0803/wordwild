@@ -439,3 +439,14 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: non
 .fr-list li.me { border-color: color-mix(in srgb, var(--primary) 55%, var(--line)); }
 .fr-pos { font: 500 .8rem var(--font-mono), monospace; color: var(--sub); } .fr-time { font-variant-numeric: tabular-nums; font-weight: 500; }
 .fr-manage { margin-top: 12px; } .fr-manage summary { cursor: pointer; color: var(--sub); } .fr-manage ul { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 4px; }
+
+/* ---- Town: points, plan ---- */
+.hud-town { display: grid; gap: 4px; justify-items: start; min-width: 190px; max-width: min(46vw, 320px); padding: 8px 16px 8px 16px; border-radius: 18px; border: 1px solid var(--navy-3); background: rgba(8, 12, 26, .86); color: #fff; cursor: pointer; text-align: left; font: inherit; }
+.hud-town b { font-weight: 500; font-size: 1.05rem; } .hud-town small { color: #bac3d8; font-size: .78rem; line-height: 1.2; }
+.hud-town .bar { display: block; width: 100%; height: 6px; border-radius: 99px; background: rgba(255, 255, 255, .14); overflow: hidden; } .hud-town .bar i { display: block; height: 100%; transform-origin: left; background: linear-gradient(90deg, #6e82ff, #65b96e); transition: transform .5s var(--ease); }
+.hud-town:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.plan { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 4px; }
+.plan button { display: flex; gap: 12px; align-items: center; width: 100%; padding: 8px 10px; border-radius: 12px; border: 1px solid transparent; background: transparent; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.plan button:disabled { cursor: default; opacity: .6; } .plan li.next button { border-color: color-mix(in srgb, #e6961f 60%, var(--line)); opacity: 1; background: color-mix(in srgb, #e6961f 10%, transparent); }
+.plan-dot { flex: 0 0 24px; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; color: #fff; } .plan li.built .plan-dot { background: var(--progress); border-color: var(--progress); }
+.plan-name { display: grid; } .plan-name small { color: var(--sub); }

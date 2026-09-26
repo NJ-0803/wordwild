@@ -47,7 +47,7 @@ export function milestones(state: LearnerState, now: number, tz: number): { all:
   const scenes = state.town.filter(e => e.kind === 'scene').length;
   const built = state.town.filter(e => e.kind === 'build').length;
   const days = learningDays(state, now, tz);
-  const level = townView(state, now, tz).level;
+  const level = townView(state).size;
   const m = (id: string, title: string, detail: string, have: number, need: number): Milestone => ({ id, title, detail, have: Math.min(have, need), need, done: have >= need });
   const all = [
     m('first-word', 'First word', 'Save your first word.', saved, 1),
@@ -59,7 +59,7 @@ export function milestones(state: LearnerState, now: number, tz: number): { all:
     m('first-building', 'First building', 'Build something new in your town.', built, 1),
     m('ten-words', 'Ten words', 'Save ten words.', saved, 10),
     m('five-secure', 'Five words you own', 'Make five words secure.', secure, 5),
-    m('level-5', 'Level 5', 'Reach level 5 in your town.', level, 5),
+    m('town-8', 'Eight town pieces', 'Grow your town to eight buildings and gardens.', level, 8),
     m('seven-days', 'Seven learning days', 'Learn on seven different days.', days.total, 7),
     m('all-scenes', 'Every story', 'Finish every story scene.', scenes, 7),
     m('twenty-five', 'Twenty-five words', 'Save twenty-five words.', saved, 25),

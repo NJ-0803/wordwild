@@ -37,11 +37,11 @@ test('match: five different words a day and a shuffled meaning order', () => {
   assert.deepEqual(dailyMatch(20000), dailyMatch(20000));
 });
 
-import { freshState, finishPlay, playRef, townView, sanitizeTownEvents, exportEvents, rebuildState, learningDays, playedToday, DAY, PLAY_REWARD } from '../src/index.ts';
+import { freshState, finishPlay, playRef, cityPoints, POINTS, sanitizeTownEvents, exportEvents, rebuildState, learningDays, playedToday, DAY, PLAY_POINTS } from '../src/index.ts';
 test('finishing a puzzle pays once per game per day, only for today, and syncs', () => {
   const now = 1_800_000_000_000, day = Math.floor(now / DAY); const s0 = freshState();
   const a = finishPlay(s0, playRef('word', day), now); assert.ok(a.ok); if (!a.ok) return;
-  const v0 = townView(s0, now), v1 = townView(a.state, now); assert.equal(v1.coins - v0.coins, PLAY_REWARD.coins); assert.equal(v1.xp - v0.xp, PLAY_REWARD.xp);
+  assert.equal(cityPoints(a.state) - cityPoints(s0), PLAY_POINTS);
   assert.equal(finishPlay(a.state, playRef('word', day), now + 5).ok, false, 'no second reward for the same puzzle');
   assert.ok(finishPlay(a.state, playRef('match', day), now + 5).ok, 'a different game is a different puzzle');
   assert.equal(finishPlay(s0, playRef('word', day - 5), now).ok, false, 'an old puzzle cannot be claimed today');

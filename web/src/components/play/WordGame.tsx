@@ -119,7 +119,7 @@ export function WordGame() {
           <p className="pz-badge">{status === "won" ? `Got it in ${guesses.length}` : "Not this time, and that is fine"}</p>
           <h2 className="pz-answer">{answer}</h2>
           <p className="sub">{hint ? hint.simple : hint === null ? "Meaning not available offline." : "…"}</p>
-          <p className="sub small">+8 coins and +8 XP for your town.</p>
+          <p className="sub small">+2 points for your town.</p>
           <div className="pz-actions">
             <Btn kind="soft" onClick={() => void share()}>{copied ? "Copied" : "Share the squares"}</Btn>
             <Link className="btn" href={`/word/${answer}`}>Learn this word</Link>

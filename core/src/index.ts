@@ -13,6 +13,7 @@ export * from './level.ts';
 export * from './constellation.ts';
 export * from './depth.ts';
 export * from './town.ts';
+export * from './city.ts';
 export * from './story.ts';
 export * from './daily.ts';
 export * from './ocr.ts';

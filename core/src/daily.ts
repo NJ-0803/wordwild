@@ -1,5 +1,4 @@
 import type { LearnerState } from './types.ts';
-import { townView } from './town.ts';
 
 /**
  * What to say to a learner today. Never nagging: if there is nothing useful, say nothing.
@@ -11,7 +10,7 @@ export type DailyKind = 'review' | 'first' | 'new' | 'none';
 export interface DailyPick { kind: DailyKind; senseId?: string; from?: string }
 
 export function pickDaily(state: LearnerState, now: number, tz: number, freshCandidates: { senseId: string; lemma: string; from: string }[] = []): DailyPick {
-  const plots = townView(state, now, tz).plots;
+  const plots = Object.values(state.senses).map(r => ({ senseId: r.senseId, firstTime: r.lastAttemptAt === 0, ripe: r.lastAttemptAt === 0 || r.due <= now, dueAt: r.due }));
   const review = plots.filter(p => p.ripe && !p.firstTime).sort((a, b) => a.dueAt - b.dueAt)[0];
   if (review) return { kind: 'review', senseId: review.senseId };
   const first = plots.filter(p => p.firstTime).sort((a, b) => (state.senses[a.senseId]?.capturedAt ?? 0) - (state.senses[b.senseId]?.capturedAt ?? 0))[0];

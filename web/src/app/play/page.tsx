@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { GAMES, GAME_LABEL, PLAY_REWARD } from "@core";
+import { GAMES, GAME_LABEL, PLAY_POINTS } from "@core";
 import { useTown } from "@/lib/useTown";
 import { TiltCard } from "@/components/TiltCard";
 import { Friends } from "@/components/play/Friends";
@@ -13,7 +13,7 @@ export default function PlayHub() {
   return (
     <div className="stack">
       <div className="hero"><Lumi size={84} /><h1 style={{ margin: 0 }}>Puzzles</h1></div>
-      <p className="sub">Three small puzzles every day, the same for everyone. Finish one and your town gets {PLAY_REWARD.coins} coins and {PLAY_REWARD.xp} XP. Skipping a day costs nothing.</p>
+      <p className="sub">Three small puzzles every day, the same for everyone. Finish one and your town gets {PLAY_POINTS} points. Skipping a day costs nothing.</p>
       <div className="pz-hub">
         {GAMES.map((g, i) => (
           <TiltCard key={g} className="tilt-fill"><Link href={`/play/${g}`} className="pz-tilecard" data-g={g} style={{ ["--i" as string]: i }}>

@@ -149,7 +149,7 @@ export const SCENES: Scene[] = [
   },
 ];
 export const SCENE_BY_ID: Record<string, Scene> = Object.fromEntries(SCENES.map(s => [s.id, s]));
-export const SCENE_REWARD = { coins: 12, xp: 12 };
+
 
 /** Structural validation for authored scenes. Says nothing about literary or linguistic quality: that needs a human editor. */
 export function validateScenes(scenes: Scene[], senseIds: Set<string>, buildingIds: Set<string>): string[] {

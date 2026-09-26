@@ -74,7 +74,7 @@ function Run({ day, level, setLevel }: { day: number; level: Level; setLevel: (l
         <Lumi size={80} />
         <p className="pz-badge">All five done · {formatTime(sw.ms)}</p>
         <ul className="pz-list">{items.map(i => <li key={i.word}><b>{i.word}</b><span>{meanings.get(i.word)?.simple ?? ""}</span></li>)}</ul>
-        <p className="sub small">+8 coins and +8 XP for your town. Try the next level, or see how your friends did.</p>
+        <p className="sub small">+2 points for your town. Try the next level, or see how your friends did.</p>
         <Link className="pz-link" href="/play">Puzzles and friends</Link>
       </section>
       {quake.wave}

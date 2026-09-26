@@ -58,7 +58,7 @@ export function MeaningMatch() {
           <Lumi size={80} />
           <p className="pz-badge">All matched · {formatTime(sw.ms)}</p>
           <ul className="pz-list">{usable.map(i => <li key={i}><b>{words[i]}</b><span>{meanings.get(words[i])!.simple}</span></li>)}</ul>
-          <p className="sub small">+8 coins and +8 XP for your town.</p>
+          <p className="sub small">+2 points for your town.</p>
           <Link className="pz-link" href="/play">More puzzles</Link>
         </section>
       )}

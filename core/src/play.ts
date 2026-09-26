@@ -11,7 +11,7 @@ export const GAME_LABEL: Record<Game, { title: string; blurb: string }> = {
   unscramble: { title: 'Unscramble', blurb: 'Put the letters back in order. The meaning is your clue.' },
   match: { title: 'Meaning Match', blurb: 'Pair each word with what it means.' },
 };
-export const PLAY_REWARD = { coins: 8, xp: 8 };
+export const PLAY_POINTS = 2;
 
 // A small, seedable generator (mulberry32) so puzzles never depend on the browser's random numbers.
 function playRng(seed: number) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }

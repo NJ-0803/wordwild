@@ -23,6 +23,7 @@ export default function Today() {
   const router = useRouter();
   const lemmas = useLemmas(Object.keys(state.senses));      // hooks before any early return
   const { view: town } = useTown();
+  const readyCount = Object.values(state.senses).filter(r => r.lastAttemptAt === 0 || r.due <= now()).length;
   const reduced = useReducedMotion();
   if (!ready) return <Loading />;
   if (!onboarded) return <Onboarding />;
@@ -42,19 +43,19 @@ export default function Today() {
     router.push(r.kind === "review" && rec && rec.lastAttemptAt > 0 ? `/practice/${r.senseId}` : `/learn/${r.senseId}`);
   };
   const townCard = (
-    <Card><div className="hero"><span aria-hidden style={{ flex: "0 0 auto" }}><ThinkingOrb state={town.ripeCount > 0 ? "listening" : "weaving"} size={64} paused={reduced} /></span><div><h2>Your town</h2>
-      <p className="sub" style={{ margin: 0 }}>Level {town.level} · {town.coins} coins{town.ripeCount > 0 ? ` · ${town.ripeCount} word${town.ripeCount === 1 ? "" : "s"} ready to harvest` : ""}</p>
-      <p className="sub small" style={{ margin: 0 }}>Stories, orders and buildings grow from words you truly learn.</p></div></div>
+    <Card><div className="hero"><span aria-hidden style={{ flex: "0 0 auto" }}><ThinkingOrb state={readyCount > 0 ? "listening" : "weaving"} size={64} paused={reduced} /></span><div><h2>Your town</h2>
+      <p className="sub" style={{ margin: 0 }}>{town.title} · {town.size} pieces{town.next ? ` · ${town.toNext} points to ${town.next.name}` : ""}</p>
+      <p className="sub small" style={{ margin: 0 }}>Every word you log adds houses, seeds and shops to your city.</p></div></div>
       <LinkBtn href="/town">Visit the town</LinkBtn></Card>
   );
   return (
     <div className="grid g12">
       {(recovered === "reset" || recovered === "migrated") && <div className="c12">{recovered === "reset" ? <Card tone="warn">Your saved progress could not be read, so we started fresh.</Card> : <Card tone="good">Your earlier words were carried over.</Card>}</div>}
       <section className="c12 hero-band" aria-label="Today">
-        <Orb state={town.ripeCount > 0 ? "listening" : "weaving"} size={120} label={town.ripeCount > 0 ? "Words are ready to harvest" : "Your words are resting"} />
+        <Orb state={readyCount > 0 ? "listening" : "weaving"} size={120} label={readyCount > 0 ? "Words are ready to review" : "Your words are resting"} />
         <div style={{ flex: 1 }}>
           <h1 className="display" style={{ margin: 0 }}>Today</h1>
-          <p className="sub" style={{ margin: "6px 0 0", fontSize: "1.1rem" }}>{town.ripeCount > 0 ? `${town.ripeCount} word${town.ripeCount === 1 ? "" : "s"} ready to harvest. ` : ""}{w.discovered} saved · {w.practising} practising · {w.secure} secure</p>
+          <p className="sub" style={{ margin: "6px 0 0", fontSize: "1.1rem" }}>{readyCount > 0 ? `${readyCount} word${readyCount === 1 ? "" : "s"} ready to review. ` : ""}{w.discovered} saved · {w.practising} practising · {w.secure} secure</p>
         </div>
       </section>
       <nav className="c12 tiles" aria-label="Add a word">
