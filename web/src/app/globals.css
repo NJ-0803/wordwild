@@ -365,3 +365,10 @@ b, strong { font-weight: 550; }
 /* Town depth: a soft vignette and a tilt-shift-style fade at the top and bottom edges, over the canvas (static, no cost per frame). */
 .town-canvas::after { content: ""; position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(120% 95% at 50% 46%, transparent 55%, rgba(4, 8, 20, .5) 100%), linear-gradient(180deg, rgba(6, 12, 30, .30) 0%, transparent 16%, transparent 80%, rgba(6, 12, 30, .34) 100%); }
+
+/* ---- Depth for search bars and fields: a recessed well inside, a floor shadow under, and a lift on focus. ---- */
+input:not([type="checkbox"]):not([type="radio"]), textarea, select { box-shadow: inset 0 2px 5px rgba(var(--shadow-c), .42), inset 0 -1px 0 rgba(var(--hi-c), .05); transition: box-shadow .18s var(--ease), border-color .18s var(--ease), background-color .18s var(--ease); }
+input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; border-color: var(--primary); box-shadow: inset 0 2px 4px rgba(var(--shadow-c), .3), 0 0 0 3px color-mix(in srgb, var(--primary) 35%, transparent); }
+.cbeam:has(> input), .cbeam:has(> textarea), .cbeam:has(> select) { box-shadow: 0 1px 1px rgba(var(--shadow-c), .35), 0 10px 22px -8px rgba(var(--shadow-c), .6), 0 22px 40px -20px rgba(var(--shadow-c), .45); transition: transform .18s var(--ease), box-shadow .18s var(--ease); }
+.cbeam:has(> input:focus-visible), .cbeam:has(> textarea:focus-visible) { transform: translateY(-1px); box-shadow: 0 1px 1px rgba(var(--shadow-c), .35), 0 16px 30px -10px rgba(var(--shadow-c), .65), 0 26px 50px -22px rgba(110, 130, 255, .5); }
+:root[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]), :root[data-theme="light"] textarea { box-shadow: inset 0 2px 4px rgba(30, 40, 90, .12), inset 0 -1px 0 rgba(255, 255, 255, .8); }

@@ -32,7 +32,7 @@ export function Orb({ state = "weaving", size = 120, label, still = false }: { s
   const reduced = useReducedMotion(); const [box, live] = useLive<HTMLDivElement>();
   return (
     <div ref={box} style={{ position: "relative", display: "grid", placeItems: "center" }}>
-      <span aria-hidden style={{ position: "absolute", inset: -size * 0.22, borderRadius: "50%", background: "radial-gradient(circle, rgba(80,120,255,.42), rgba(80,120,255,0) 68%)", pointerEvents: "none" }} />
+      <span aria-hidden style={{ position: "absolute", left: "50%", top: "50%", width: size * 1.44, height: size * 1.44, translate: "-50% -50%", borderRadius: "50%", background: "radial-gradient(circle, rgba(80,120,255,.42), rgba(80,120,255,0) 68%)", pointerEvents: "none" }} />
       <div style={{ position: "relative" }}><BigOrb state={state} size={size} paused={reduced || still || !live} label={label ?? "Wordwild is ready"} /></div>
     </div>
   );
