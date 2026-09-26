@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "./Icons";
 import { useState } from "react";
 import { renderCard, shareOrSave, type CardSpec } from "@/lib/shareCard";
 import { Btn } from "./ui";
@@ -13,5 +14,5 @@ export function ShareButton({ spec, filename, text, label = "Share as a card", k
     catch { setMsg("Could not make the card on this device."); }
     setBusy(false);
   };
-  return <><Btn kind="soft" icon="🖼️" onClick={go} disabled={busy}>{busy ? "Making your card…" : label}</Btn>{msg && <p role="status" className="sub small">{msg}</p>}</>;
+  return <><Btn kind="soft" icon={<Icon.Image />} onClick={go} disabled={busy}>{busy ? "Making your card…" : label}</Btn>{msg && <p role="status" className="sub small">{msg}</p>}</>;
 }

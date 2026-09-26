@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "./Icons";
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import type { Depth } from "@core";
@@ -55,7 +56,7 @@ export function DepthSection({ senseId, lemma }: { senseId: string; lemma: strin
       <Card>
         <span className="role" style={{ background: TONE_COLOR[depth.feel.tone] }}>{TONE[depth.feel.tone]}</span>
         <p style={{ margin: "8px 0 0" }}>{depth.feel.note}</p>
-        <Btn kind="soft" icon="🔊" onClick={() => say(depth.feel.note)} style={{ marginTop: 8 }}>Listen</Btn>
+        <Btn kind="soft" icon={<Icon.Speaker />} onClick={() => say(depth.feel.note)} style={{ marginTop: 8 }}>Listen</Btn>
       </Card>
       {depth.ladder.length > 0 && (
         <Card>
@@ -87,7 +88,7 @@ function OnlyThis({ lemma, o, index }: { lemma: string; o: Depth["onlyThisWord"]
           <div className="stack" role="status">
             {right ? <p style={{ margin: 0 }}><b>Yes: &ldquo;{lemma}&rdquo; fits.</b></p> : <p style={{ margin: 0 }}><b>Not quite. &ldquo;{lemma}&rdquo; fits here.</b></p>}
             <p style={{ margin: 0 }}>Why not &ldquo;{o.other}&rdquo;? {o.whyNot}</p>
-            <div className="row"><Btn kind="soft" icon="🔊" onClick={() => say(o.sentence.replace("____", lemma))}>Listen</Btn><Btn kind="ghost" onClick={() => setPick(null)}>Try again</Btn></div>
+            <div className="row"><Btn kind="soft" icon={<Icon.Speaker />} onClick={() => say(o.sentence.replace("____", lemma))}>Listen</Btn><Btn kind="ghost" onClick={() => setPick(null)}>Try again</Btn></div>
           </div>
         )}
       </Card>

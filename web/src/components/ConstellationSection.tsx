@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "./Icons";
 import { useState } from "react";
 import { ROLE_LABEL, capture, relativeLabel, type Pick } from "@core";
 import { useConstellation } from "@/lib/useConstellation";
@@ -62,7 +63,7 @@ export function ConstellationSection({ senseId, lemma }: { senseId: string; lemm
                   <p style={{ margin: "8px 0 4px" }}>{p.simple}</p>
                   <p className="sub small" style={{ marginTop: 0 }}>{p.why}</p>
                   <div className="row">
-                    <Btn kind="soft" icon="🔊" onClick={() => say(`${p.lemma}. ${p.simple}`)}>Listen</Btn>
+                    <Btn kind="soft" icon={<Icon.Speaker />} onClick={() => say(`${p.lemma}. ${p.simple}`)}>Listen</Btn>
                     <Btn kind={saved.has(p.senseId) || state.senses[p.senseId] ? "ghost" : "primary"} disabled={saved.has(p.senseId) || !!state.senses[p.senseId]} onClick={() => save(p)}>{saved.has(p.senseId) || state.senses[p.senseId] ? "Saved" : "Save this word"}</Btn>
                   </div>
                   <LinkBtn href={`/learn/${encodeURIComponent(p.senseId)}`} kind="ghost">Open {p.lemma}</LinkBtn>

@@ -2,9 +2,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Orb } from "./Companion";
+import { Icon } from "./Icons";
 
 const ITEMS = [
-  ["/", "Today", "◐"], ["/notebook", "My words", "▤"], ["/town", "Town", "⌂"], ["/capture", "Save a word", "＋"], ["/scan", "Scan", "◎"], ["/voice", "Voice", "◉"], ["/settings", "Settings", "⚙"],
+  ["/", "Today", Icon.Today], ["/notebook", "My words", Icon.Words], ["/town", "Town", Icon.Town], ["/capture", "Save a word", Icon.Plus], ["/scan", "Scan", Icon.Scan], ["/voice", "Voice", Icon.Mic], ["/settings", "Settings", Icon.Gear],
 ] as const;
 
 /** Desktop navigation: a bold rail down the left. Small screens use the bottom bar instead (Nav). */
@@ -14,9 +15,9 @@ export function Sidebar() {
   const on = (h: string) => (h === "/" ? p === "/" : p.startsWith(h));
   return (
     <aside className="side" aria-label="Main">
-      <Link href="/" className="side-brand" aria-label="Wordwild home"><Orb size={56} label="Wordwild" /><span>Wordwild</span></Link>
+      <Link href="/" className="side-brand" aria-label="Wordwild home"><Orb size={56} label="Wordwild" still /><span>Wordwild</span></Link>
       <nav className="side-nav">
-        {ITEMS.map(([href, label, icon]) => <Link key={href} href={href} aria-current={on(href) ? "page" : undefined}><span aria-hidden>{icon}</span>{label}</Link>)}
+        {ITEMS.map(([href, label, Ic]) => <Link key={href} href={href} aria-current={on(href) ? "page" : undefined}><Ic />{label}</Link>)}
       </nav>
       <p className="side-foot"><Link href="/about">Credits</Link> · <Link href="/privacy">Privacy</Link></p>
     </aside>

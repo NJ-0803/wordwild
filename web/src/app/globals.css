@@ -25,16 +25,16 @@ p { margin: 0 0 .6em; }
 .sub { color: var(--sub); } .small { font-size: .8rem; }
 .stack > * + * { margin-top: 14px; }
 .row { display: flex; gap: 10px; align-items: center; } .row > * { flex: 1; }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3); box-shadow: 0 18px 50px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(140, 170, 255, .10); }
-.card.good { background: linear-gradient(160deg, rgba(20, 48, 111, .55), rgba(8, 10, 18, .85)); border-color: var(--navy-3); }
+.card { background: #080a12; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; box-shadow: inset 0 1px 0 rgba(140, 170, 255, .10); }
+.card.good { background: linear-gradient(160deg, #10285e, #080a12 80%); border-color: var(--navy-3); }
 .card.warn { background: var(--warn); border-style: dashed; border-color: var(--warn-line); }
 .btn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 58px; width: 100%; padding: 12px 20px; border-radius: 16px; border: 1px solid var(--navy-3); background: linear-gradient(180deg, var(--navy-2), var(--navy)); color: var(--brand-ink); font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; text-align: left; box-shadow: 0 10px 30px rgba(20, 48, 111, .45), inset 0 1px 0 rgba(255, 255, 255, .14); }
 .btn:hover { filter: brightness(1.15); box-shadow: 0 14px 38px rgba(60, 100, 220, .5), inset 0 1px 0 rgba(255, 255, 255, .2); }
-.btn.ghost { background: rgba(4, 5, 10, .6); color: var(--ink); box-shadow: none; } .btn.soft { background: rgba(12, 29, 71, .7); color: var(--ink); border-color: var(--line); box-shadow: none; }
+.btn.ghost { background: #05070d; color: var(--ink); box-shadow: none; } .btn.soft { background: #0a1738; color: var(--ink); border-color: var(--line); box-shadow: none; }
 .btn:disabled { opacity: .4; cursor: not-allowed; }
 .btn:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible, .chip:focus-visible { outline: 3px solid var(--navy-glow); outline-offset: 3px; }
 .btn.icon { width: 64px; flex: 0 0 64px; padding: 4px; }
-input, textarea { width: 100%; font: inherit; padding: 15px 16px; min-height: 58px; border: 1px solid var(--line); border-radius: 16px; background: rgba(3, 4, 9, .85); color: var(--ink); }
+input, textarea { width: 100%; font: inherit; padding: 15px 16px; min-height: 58px; border: 1px solid var(--line); border-radius: 16px; background: #03040a; color: var(--ink); }
 input::placeholder, textarea::placeholder { color: #6a7796; }
 .nav { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: min(92vw, 520px); display: flex; background: rgba(6, 8, 15, .78); border: 1px solid var(--line); border-radius: 22px; z-index: 10; padding: 6px; margin-bottom: env(safe-area-inset-bottom); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); box-shadow: 0 16px 50px rgba(0, 0, 0, .7); }
 .nav a { flex: 1; min-height: 54px; display: flex; align-items: center; justify-content: center; color: var(--sub); text-decoration: none; font-weight: 600; border-radius: 16px; transition: background .2s, color .2s; }
@@ -59,11 +59,11 @@ input::placeholder, textarea::placeholder { color: #6a7796; }
 .blank { display: inline-block; min-width: 4.5em; border-bottom: 3px solid var(--navy-glow); text-align: center; font-weight: 600; color: var(--navy-glow); }
 
 /* ---- Border beam for anything that is not wrapped in the library component: a moving light travelling round the border ---- */
-@property --beam-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@property --beam-a { syntax: "<angle>"; inherits: false; initial-value: 215deg; }   /* the ring is a still highlight now; animating this property repainted the whole element every frame */
 .order, .prog, .hud-coins, .hud-level .lv, .dock button, .dock .dockbtn, .hud-back { position: relative; }
 .order::after, .hud-coins::after, .dock button::after, .dock .dockbtn::after, .hud-back::after, .hud-level .lv::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 2px; pointer-events: none;
   background: conic-gradient(from var(--beam-a), transparent 0 55%, rgba(80, 120, 255, .9) 78%, #d6e0ff 90%, transparent 100%);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: beam-spin 4.5s linear infinite; }
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: none; }
 @keyframes beam-spin { to { --beam-a: 360deg; } }
 @media (prefers-reduced-motion: reduce) { .order::after, .hud-coins::after, .dock button::after, .dock .dockbtn::after, .hud-back::after, .hud-level .lv::after { animation: none; background: rgba(90, 130, 255, .6); } }
 
@@ -112,7 +112,7 @@ input::placeholder, textarea::placeholder { color: #6a7796; }
 @media (prefers-reduced-motion: no-preference) {
   :root { --spring: cubic-bezier(.34, 1.45, .64, 1); }
   .btn, .chip, .dock button, .dock .dockbtn, .nav a, .order { transition: transform .32s var(--spring), box-shadow .2s var(--ease), filter .2s, background .2s, border-color .2s; }
-  .btn:hover, .chip:hover { transform: translateY(-2px); }
+  .chip:hover { transform: translateY(-2px); }
   .btn:active, .chip:active, .dock button:active, .dock .dockbtn:active, .nav a:active, button.order:active { transform: scale(.95); transition-duration: .09s; }
   .btn, .chip, .dock button, .dock .dockbtn { position: relative; overflow: hidden; }
   .btn::after, .chip::after, .dock button:not(:active)::before { content: none; }
@@ -172,3 +172,15 @@ input::placeholder, textarea::placeholder { color: #6a7796; }
 .hero-band .display { margin: 0; }
 
 @media (min-width: 1024px) { .settings-cols { display: block; columns: 2; column-gap: 26px; } .settings-cols > * { break-inside: avoid; margin: 0 0 18px !important; } .settings-cols > h1 { column-span: all; } }
+
+/* ================= The beam on every card, button and field: compositor-only rotation, opaque child, paused off screen ================= */
+.cbeam { position: relative; padding: 1.5px; overflow: hidden; background: rgba(50, 80, 170, .38); isolation: isolate; contain: layout paint; }
+.cbeam::before { content: ""; position: absolute; left: 50%; top: 50%; width: 260%; aspect-ratio: 1; translate: -50% -50%; z-index: -1; pointer-events: none;
+  background: conic-gradient(from 0deg, transparent 0 60%, rgba(80, 120, 255, .95) 80%, #e6edff 92%, transparent 100%); }
+.cbeam > * { border-radius: calc(var(--r, 20px) - 1.5px); }
+@media (prefers-reduced-motion: no-preference) {
+  .cbeam::before { animation: cbeam-spin 5s linear infinite; will-change: transform; }
+  .cbeam[data-live="0"]::before { animation-play-state: paused; will-change: auto; }
+  @keyframes cbeam-spin { to { rotate: 360deg; } }
+}
+@media (prefers-reduced-motion: reduce) { .cbeam::before { width: 100%; background: rgba(111, 147, 255, .6); } }

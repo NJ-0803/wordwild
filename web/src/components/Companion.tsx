@@ -5,6 +5,7 @@ import { BorderBeam } from "border-beam";
 import { ThinkingOrb } from "thinking-orbs";
 import { onSpeaking } from "@/lib/speech";
 import { useReducedMotion } from "@/lib/motion";
+import { useLive } from "@/lib/inView";
 
 /** Lumi the companion. Both libraries render a still frame under prefers-reduced-motion; we also pass `paused` for the in-app setting. */
 export function Lumi({ mood = "default", size = 72 }: { mood?: "default" | "working" | "sleeping"; size?: number }) {
@@ -15,10 +16,10 @@ export function Lumi({ mood = "default", size = 72 }: { mood?: "default" | "work
 /** Shows while audio is playing so people who cannot read the screen know something is being said. */
 export function SpeakingOrb({ size = 88 }: { size?: number }) {
   const [on, setOn] = useState(false);
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotion(); const [box, live] = useLive<HTMLDivElement>();
   useEffect(() => onSpeaking(setOn), []);
   // always visible: it glows and listens while audio plays, and rests otherwise. Fixed slot so nothing shifts under a finger.
-  return <div style={{ height: size, display: "flex", alignItems: "center", justifyContent: "center" }} aria-live="polite"><BigOrb state={on ? "listening" : "weaving"} size={size} paused={reduced} label={on ? "Reading aloud" : "Ready"} /></div>;
+  return <div ref={box} style={{ height: size, display: "flex", alignItems: "center", justifyContent: "center" }} aria-live="polite"><BigOrb state={on ? "listening" : "weaving"} size={size} paused={reduced || !live} label={on ? "Reading aloud" : "Ready"} /></div>;
 }
 
 /** The library only renders 64/32/20, so a bigger orb is the 64 one scaled up (crisp: it is vector and shader-drawn). */
@@ -26,17 +27,25 @@ function BigOrb({ state, size, paused, label }: { state: "weaving" | "listening"
   return <div style={{ width: size, height: size, position: "relative" }}><div style={{ width: 64, height: 64, transform: `scale(${size / 64})`, transformOrigin: "top left" }}><ThinkingOrb state={state} size={64} paused={paused} aria-label={label} /></div></div>;
 }
 
-/** A large, always-visible orb. Use it as the visual centre of a screen. */
-export function Orb({ state = "weaving", size = 120, label }: { state?: "weaving" | "listening" | "searching" | "solving" | "composing"; size?: number; label?: string }) {
-  const reduced = useReducedMotion();
-  return <div style={{ display: "grid", placeItems: "center", filter: "drop-shadow(0 0 28px rgba(80,120,255,.55))" }}><BigOrb state={state} size={size} paused={reduced} label={label ?? "Wordwild is ready"} /></div>;
+/** A large orb, the visual centre of a screen. It rests (stops drawing) while it is off screen, the tab is hidden, or `still` is set. The glow behind it is a still gradient: a filter on an animating canvas would repaint every frame. */
+export function Orb({ state = "weaving", size = 120, label, still = false }: { state?: "weaving" | "listening" | "searching" | "solving" | "composing"; size?: number; label?: string; still?: boolean }) {
+  const reduced = useReducedMotion(); const [box, live] = useLive<HTMLDivElement>();
+  return (
+    <div ref={box} style={{ position: "relative", display: "grid", placeItems: "center" }}>
+      <span aria-hidden style={{ position: "absolute", inset: -size * 0.22, borderRadius: "50%", background: "radial-gradient(circle, rgba(80,120,255,.42), rgba(80,120,255,0) 68%)", pointerEvents: "none" }} />
+      <div style={{ position: "relative" }}><BigOrb state={state} size={size} paused={reduced || still || !live} label={label ?? "Wordwild is ready"} /></div>
+    </div>
+  );
 }
 
-/** The border beam, always on: a light that travels round the edge. Reduced motion gets a still glowing ring. */
-export function Beam({ children, radius = 20, variant = "ocean", style }: { children: React.ReactNode; radius?: number; variant?: "colorful" | "mono" | "ocean" | "sunset"; style?: React.CSSProperties }) {
-  const reduced = useReducedMotion();
-  if (reduced) return <div style={{ borderRadius: radius, boxShadow: "0 0 0 2px var(--navy-glow), 0 0 22px rgba(80,120,255,.45)", ...style }}>{children}</div>;
-  return <BorderBeam size="md" colorVariant={variant} strength={1} brightness={1.35} borderRadius={radius} theme="dark" style={style}>{children}</BorderBeam>;
+/**
+ * The border beam on every card, button and field. A light travels round the edge, drawn as a rotating gradient behind an opaque child:
+ * only `rotate` animates, which the browser runs on the compositor thread (no repaint, no layout), and it pauses while off screen.
+ * The heavier library beam is kept for reward moments only (see Reward). Reduced motion gets a still glowing edge.
+ */
+export function Beam({ children, radius = 20, style }: { children: React.ReactNode; radius?: number; variant?: "colorful" | "mono" | "ocean" | "sunset"; style?: React.CSSProperties }) {
+  const [ref, live] = useLive<HTMLDivElement>();
+  return <div ref={ref} className="cbeam" data-live={live ? "1" : "0"} style={{ ["--r" as string]: `${radius}px`, borderRadius: radius, ...style }}>{children}</div>;
 }
 
 export function LookupOrb() { const reduced = useReducedMotion(); return <ThinkingOrb state="searching" size={20} paused={reduced} aria-label="Looking up" />; }

@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "./Icons";
 import type { Lang, Sense } from "@core";
 import { say } from "@/lib/speech";
 import { Btn, Card } from "./ui";
@@ -15,7 +16,7 @@ export function SensePicker({ senses, lang, suggested, notes, onPick }: { senses
           <p>{lang === "hi" && s.explanations.hi ? s.explanations.hi : s.simple}</p>
           {s.examples[0] && <p className="sub small">Example: {s.examples[0].text}</p>}
           <div className="row">
-            <Btn kind="soft" icon="🔊" onClick={() => say(`${s.lemma}. ${s.simple}`)}>Listen</Btn>
+            <Btn kind="soft" icon={<Icon.Speaker />} onClick={() => say(`${s.lemma}. ${s.simple}`)}>Listen</Btn>
             <Btn onClick={() => onPick(s)}>This one</Btn>
           </div>
         </Card>

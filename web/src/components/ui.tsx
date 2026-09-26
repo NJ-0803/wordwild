@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Beam } from "./Companion";
 
-export function Btn({ kind = "primary", icon, children, ...p }: { kind?: "primary" | "ghost" | "soft"; icon?: string; children: ReactNode } & ButtonHTMLAttributes<HTMLButtonElement>) {
+export function Btn({ kind = "primary", icon, children, ...p }: { kind?: "primary" | "ghost" | "soft"; icon?: ReactNode; children: ReactNode } & ButtonHTMLAttributes<HTMLButtonElement>) {
   return <Beam radius={16}><button {...p} className={`btn ${kind === "primary" ? "" : kind} ${p.className ?? ""}`}>{icon && <span aria-hidden>{icon}</span>}{children}</button></Beam>;
 }
 export function LinkBtn({ href, kind = "primary", children }: { href: string; kind?: "primary" | "ghost" | "soft"; children: ReactNode }) {

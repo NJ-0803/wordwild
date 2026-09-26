@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "./Icons";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
@@ -66,7 +67,7 @@ export function CoachSection({ senseId, lemma, auto = false }: { senseId: string
           {avail.map(i => <button key={i} className="chip" aria-pressed={i === intent} onClick={() => setIntent(i)}>{INTENT_LABEL[i].en}{hi ? <span lang="hi" style={{ marginLeft: 6, opacity: .8 }}>{INTENT_LABEL[i].hi}</span> : null}</button>)}
         </div>
         <SentenceHover text={ex.sentence} skip={[lemma]} style={{ marginTop: 14 }}><p className="sentence" style={{ margin: 0 }}>{ex.sentence}</p></SentenceHover>
-        <Btn kind="soft" icon="🔊" onClick={() => say(ex.sentence)}>Listen</Btn>
+        <Btn kind="soft" icon={<Icon.Speaker />} onClick={() => say(ex.sentence)}>Listen</Btn>
       </Card>
       {coach.memoryHook && <Card tone="good"><p className="label" style={{ margin: "0 0 6px" }}>Memory trick</p><p style={{ margin: 0 }}>{coach.memoryHook}</p><p className="sub small" style={{ margin: "6px 0 0" }}>A helper for remembering, not the history of the word.</p></Card>}
       {coach.confusables.length > 0 && (

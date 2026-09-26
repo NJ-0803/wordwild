@@ -12,6 +12,7 @@ import { useReducedMotion } from "@/lib/motion";
 import { useLemmas } from "@/lib/senses";
 import { useTown } from "@/lib/useTown";
 import { JourneyCard } from "@/components/JourneyCard";
+import { Icon } from "@/components/Icons";
 
 const KIND = { review: "Come back to", learn: "Learn", prerequisite: "Start with" } as const;
 const STAGE = { new: 0, seen: 1, practising: 2, secure: 3 } as const;
@@ -56,9 +57,9 @@ export default function Today() {
         </div>
       </section>
       <nav className="c12 tiles" aria-label="Add a word">
-        <Link href="/capture" className="tile"><i aria-hidden>＋</i><b>Type a word</b><span>Look it up and save it</span></Link>
-        <Link href="/voice" className="tile"><i aria-hidden>🎤</i><b>Ask by voice</b><span>Say what you did not understand</span></Link>
-        <Link href="/scan" className="tile"><i aria-hidden>📷</i><b>Scan a page</b><span>Tap any word in a photo</span></Link>
+        <Link href="/capture" className="tile"><i><Icon.Plus width={30} height={30} /></i><b>Type a word</b><span>Look it up and save it</span></Link>
+        <Link href="/voice" className="tile"><i><Icon.Mic width={30} height={30} /></i><b>Ask by voice</b><span>Say what you did not understand</span></Link>
+        <Link href="/scan" className="tile"><i><Icon.Scan width={30} height={30} /></i><b>Scan a page</b><span>Tap any word in a photo</span></Link>
       </nav>
       <div className="c7"><JourneyCard recs={recs} /></div>
       <div className="c5 stack">{townCard}</div>

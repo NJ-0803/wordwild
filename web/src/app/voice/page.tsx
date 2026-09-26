@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icons";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
@@ -79,8 +80,8 @@ export default function VoicePage() {
       {isSignedIn && consent && (
         <div className="stack" style={{ alignItems: "center", textAlign: "center" }}>
           <div aria-live="polite"><Orb size={176} state={phase === "recording" ? "listening" : phase === "thinking" ? "solving" : "weaving"} label={phase === "recording" ? "Listening" : phase === "thinking" ? "Working out the word" : "Ready to listen"} /></div>
-          {phase === "idle" && <Btn onClick={start} icon="🎤">Tap and speak</Btn>}
-          {phase === "recording" && <Btn onClick={stop} icon="⏹">Done speaking</Btn>}
+          {phase === "idle" && <Btn onClick={start} icon={<Icon.Mic width={18} height={18} />}>Tap and speak</Btn>}
+          {phase === "recording" && <Btn onClick={stop} icon={<Icon.Stop />}>Done speaking</Btn>}
           {phase === "thinking" && <p role="status" className="sub">Listening to what you said…</p>}
         </div>
       )}

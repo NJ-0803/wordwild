@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icons";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { masteryLevel, tierOf, type Sense } from "@core";
@@ -88,10 +89,10 @@ function Lesson({ base }: { base: Sense }) {
         </div>
         <Card><h2 style={{ fontSize: "1.5rem", lineHeight: 1.3 }}>{text}</h2>
           {lang === "hi" && !hi && <p className="sub small" style={{ margin: "0 0 8px" }}>A Hindi explanation for this word is not available yet.</p>}
-          <div className="row"><Btn icon="🔊" onClick={() => say(`${s.lemma}. ${text}`)}>Listen</Btn>{canSimplify && <Btn kind="soft" onClick={() => setSimple(!isSimple)}>{isSimple ? "Fuller meaning" : "Explain simply"}</Btn>}</div>
+          <div className="row"><Btn icon={<Icon.Speaker />} onClick={() => say(`${s.lemma}. ${text}`)}>Listen</Btn>{canSimplify && <Btn kind="soft" onClick={() => setSimple(!isSimple)}>{isSimple ? "Fuller meaning" : "Explain simply"}</Btn>}</div>
         </Card>
         {lang === "hi" && hi && <Card><p lang="hi">{hi}</p><p className="sub small">Hindi text is an unreviewed draft.</p>
-          <Btn kind="soft" icon="🔊" onClick={() => say(hi, "hi")}>सुनिए</Btn>
+          <Btn kind="soft" icon={<Icon.Speaker />} onClick={() => say(hi, "hi")}>सुनिए</Btn>
           {!hasVoice("hi") && <p className="sub small">This device may not have a Hindi voice; the text is above.</p>}</Card>}
         {practice}
         <ShareButton filename={`${s.lemma}.png`} text={`${s.lemma}: ${s.simple}`} label="Share this word as a card" spec={() => ({ kicker: `Word · ${s.pos}`, title: s.lemma, lines: [{ text: "Meaning", sub: s.simple }, ...(s.examples[0] ? [{ text: "Example", sub: s.examples[0].text }] : [])], footer: "wordwild-seven.vercel.app" })} />
@@ -113,7 +114,7 @@ function Lesson({ base }: { base: Sense }) {
           {s.antonyms.length > 0 && <><h2>Opposite</h2><Card>{s.antonyms.join(", ")}</Card></>}
         </>)}
         {tab === "examples" && (<>
-          {s.examples.length > 0 ? <>{s.examples.map((e, i) => <Card key={i}><SentenceHover text={e.text} skip={[s.lemma]}><p className="sentence">{e.text}</p></SentenceHover><Btn kind="soft" icon="🔊" onClick={() => say(e.text)}>Listen</Btn></Card>)}</> : <Card><span className="sub">This dictionary has no example sentence for this meaning. Open <b>Use it</b> for examples written for a job interview, an essay, everyday talk and a story.</span></Card>}
+          {s.examples.length > 0 ? <>{s.examples.map((e, i) => <Card key={i}><SentenceHover text={e.text} skip={[s.lemma]}><p className="sentence">{e.text}</p></SentenceHover><Btn kind="soft" icon={<Icon.Speaker />} onClick={() => say(e.text)}>Listen</Btn></Card>)}</> : <Card><span className="sub">This dictionary has no example sentence for this meaning. Open <b>Use it</b> for examples written for a job interview, an essay, everyday talk and a story.</span></Card>}
           {s.suitableSituations.length > 0 && <><h2>When to use it</h2><Card tone="good">{s.suitableSituations.join(" ")}</Card></>}
           {s.unsuitableUses.length > 0 && <><h2>Careful</h2><Card tone="warn">{s.unsuitableUses.join(" ")}</Card></>}
         </>)}

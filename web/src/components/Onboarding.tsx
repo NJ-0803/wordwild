@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "./Icons";
 import { useEffect } from "react";
 import { Btn, Card } from "./ui";
 import { Lumi, SpeakingOrb } from "./Companion";
@@ -18,8 +19,8 @@ export function Onboarding() {
   return (
     <div className="stack">
       <div className="hero"><Lumi size={84} /><div><h1>Wordwild</h1><p className="sub">अपनी भाषा चुनिए · Choose your language</p></div></div>
-      <Btn kind={lang === "hi" ? "primary" : "ghost"} icon="🔊" onClick={() => pick("hi")} aria-label="Hindi. Plays a welcome message.">हिन्दी</Btn>
-      <Btn kind={lang === "en" ? "primary" : "ghost"} icon="🔊" onClick={() => pick("en")} aria-label="English. Plays a welcome message.">English</Btn>
+      <Btn kind={lang === "hi" ? "primary" : "ghost"} icon={<Icon.Speaker />} onClick={() => pick("hi")} aria-label="Hindi. Plays a welcome message.">हिन्दी</Btn>
+      <Btn kind={lang === "en" ? "primary" : "ghost"} icon={<Icon.Speaker />} onClick={() => pick("en")} aria-label="English. Plays a welcome message.">English</Btn>
       <SpeakingOrb />
       <Card><span className="sub small">ਪੰਜਾਬੀ (Punjabi) is not available yet.</span></Card>
       <Btn onClick={finishOnboarding}>{lang === "hi" ? "शुरू करें" : "Start"}</Btn>

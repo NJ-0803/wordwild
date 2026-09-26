@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icons";
 import { useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { SENSE_BY_ID, tierOf, type Sense, gradeChoice, gradeExplain, masteryLevel, nextActivity, recommend, submitAttempt, worldProgress,
@@ -86,7 +87,7 @@ function Session({ senseId, sense }: { senseId: string; sense: Sense }) {
       <Card>
         <div className="hero"><div style={{ flex: "0 0 auto" }}><WordBuddy lemma={sense.lemma} mastery={lvl} mood={fb?.correct === true ? "working" : "default"} size={56} /></div><h1 style={{ margin: 0, fontSize: "1.25rem" }}>{item.kind === "listen-and-find" ? "Listen, then choose." : item.prompt}</h1></div>
         <div className="row" style={{ marginTop: 12 }}>
-          <Btn kind="soft" icon="🔊" onClick={() => say(spoken)}>Listen again</Btn>
+          <Btn kind="soft" icon={<Icon.Speaker />} onClick={() => say(spoken)}>Listen again</Btn>
           <Btn kind="soft" icon="💡" onClick={() => { if (!showHint) { setShowHint(true); setHints(h => h + 1); } }}>{showHint ? "Hint shown" : "Hint"}</Btn>
         </div>
         {showHint && <div className="card warn" style={{ marginTop: 10 }}>{item.hint}</div>}
@@ -106,7 +107,7 @@ function Session({ senseId, sense }: { senseId: string; sense: Sense }) {
         return (
           <div className="row" key={oid}>
             <Btn className="opt" kind={good ? "primary" : was ? "soft" : "ghost"} disabled={fb?.correct === true || was} onClick={() => answerChoice(oid)}>{o.text}</Btn>
-            <Btn kind="soft" className="icon" icon="🔊" aria-label={`Listen: ${o.text}`} onClick={() => say(o.text)}>{""}</Btn>
+            <Btn kind="soft" className="icon" icon={<Icon.Speaker />} aria-label={`Listen: ${o.text}`} onClick={() => say(o.text)}>{""}</Btn>
           </div>
         );
       })}

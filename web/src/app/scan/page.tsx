@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icons";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { capture, heuristicLevel, safeLookup, sentenceAround, unfamiliarWords, type Sense } from "@core";
@@ -63,7 +64,7 @@ export default function ScanPage() {
       <p className="sub">Take a photo of a book, a sign, a message or a film subtitle. Tap any word to see its meaning. <b>The photo stays on your device and is never uploaded.</b></p>
       <input ref={cam} type="file" accept="image/*" capture="environment" hidden onChange={e => { void run(e.target.files?.[0]); e.target.value = ""; }} />
       <input ref={pick} type="file" accept="image/*" hidden data-testid="pick" onChange={e => { void run(e.target.files?.[0]); e.target.value = ""; }} />
-      <div className="row"><Btn onClick={() => cam.current?.click()} icon="📷" disabled={phase === "working"}>Take a photo</Btn><Btn kind="soft" onClick={() => pick.current?.click()} icon="🖼️" disabled={phase === "working"}>Choose a photo</Btn></div>
+      <div className="row"><Btn onClick={() => cam.current?.click()} icon={<Icon.Scan width={18} height={18} />} disabled={phase === "working"}>Take a photo</Btn><Btn kind="soft" onClick={() => pick.current?.click()} icon={<Icon.Image />} disabled={phase === "working"}>Choose a photo</Btn></div>
 
       {phase === "working" && (
         <Card><div className="row" style={{ justifyContent: "flex-start", gap: 14 }} role="status">
@@ -99,7 +100,7 @@ export default function ScanPage() {
           {look.status === "unknown" && <Card tone="warn"><p>We do not have &ldquo;{look.word}&rdquo; yet. It may have been misread. Nothing has been guessed.</p><LinkBtn href={`/capture?word=${encodeURIComponent(look.word)}`} kind="soft">Check the spelling</LinkBtn></Card>}
           {look.status === "error" && <Card tone="warn"><p>We could not look that up right now.</p><Btn kind="soft" onClick={() => void open(look.word)}>Try again</Btn></Card>}
           {look.status === "found" && <>
-            <Btn kind="soft" icon="🔊" onClick={() => say(look.word)}>Say the word</Btn>
+            <Btn kind="soft" icon={<Icon.Speaker />} onClick={() => say(look.word)}>Say the word</Btn>
             <SensePicker senses={look.senses} lang={state.prefs.explainLang} onPick={s => choose(s, look.word)} /></>}
         </section>
       )}

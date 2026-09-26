@@ -198,7 +198,7 @@ function Lights({ extent = 4.5 }: { extent?: number }) {
   return (
     <>
       <hemisphereLight args={[L.sky, L.ground, L.hemi * 1.15]} />
-      <directionalLight position={[L.pos[0] * 0.5, L.pos[1] * 0.6, 3]} intensity={L.intensity * 0.78} color={L.color} castShadow shadow-mapSize={[1024, 1024]}
+      <directionalLight position={[L.pos[0] * 0.5, L.pos[1] * 0.6, 3]} intensity={L.intensity * 0.78} color={L.color} castShadow shadow-mapSize={[512, 512]}
         shadow-camera-left={-extent} shadow-camera-right={extent} shadow-camera-top={extent} shadow-camera-bottom={-extent}
         shadow-camera-near={1} shadow-camera-far={20} shadow-bias={-0.0004} shadow-normalBias={0.03} />
       <directionalLight position={[-5, 2, -4]} intensity={0.12 + 0.33 * Math.max(0, Math.sin(Math.PI * (hour - 6) / 12))} color="#9fd4ff" />
@@ -210,7 +210,7 @@ export default function Garden({ plants, motion }: { plants: PlantSpec[]; motion
   const shown = plants.slice(0, 14);
   const spots = useMemo(() => shown.map((_, i) => spot(i)), [shown.length]);   // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <Canvas shadows frameloop={motion ? "always" : "demand"} dpr={[1, 2]} camera={{ position: [0, 4.3, 7.4], fov: 40 }}
+    <Canvas shadows frameloop={motion ? "always" : "demand"} dpr={[1, 1.5]} camera={{ position: [0, 4.3, 7.4], fov: 40 }}
       onCreated={({ camera }) => camera.lookAt(0, 0.1, 0)}>
       <FitWidth />
       <Lights />
@@ -219,7 +219,7 @@ export default function Garden({ plants, motion }: { plants: PlantSpec[]; motion
       {shown.map((p, i) => <Plant key={p.id} p={p} index={i} motion={motion} />)}
       <Fireflies motion={motion} />
       <Parallax motion={motion} y={4.3} look={0.1} />
-      <ContactShadows position={[0, 0.16, 0]} opacity={0.35} scale={8} blur={2.4} far={2} />
+      <ContactShadows position={[0, 0.16, 0]} opacity={0.35} scale={8} blur={2.4} far={2} frames={1} resolution={256} />
     </Canvas>
   );
 }
@@ -227,7 +227,7 @@ export default function Garden({ plants, motion }: { plants: PlantSpec[]; motion
 /** One word's own plant on a small island: used on the lesson and practice screens. `celebrate` bumps on each correct answer. */
 export function MiniGarden({ stage, label, celebrate, motion, index = 0 }: { stage: 0 | 1 | 2 | 3; label?: string; celebrate: number; motion: boolean; index?: number }) {
   return (
-    <Canvas shadows frameloop={motion ? "always" : "demand"} dpr={[1, 2]} camera={{ position: [0, 2.3, 5.0], fov: 40 }}
+    <Canvas shadows frameloop={motion ? "always" : "demand"} dpr={[1, 1.5]} camera={{ position: [0, 2.3, 5.0], fov: 40 }}
       onCreated={({ camera }) => camera.lookAt(0, 0.85, 0)}>
       <Lights extent={2.5} />
       <Island r={1.7} />
