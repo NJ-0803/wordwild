@@ -125,3 +125,8 @@ Tests: core 131, db-check, telegram, whatsapp, extension 3, qa:brief 8/8.
 Not built on purpose: leaderboards/battles/friend compare as specified (plan R8), streaks that break (replaced by learning days).
 Not verified visually: share card image, journey/vault on a phone. Browser connection dropped mid-session.
 Next recommended: privacy-respecting measurement (plan R9), then friend circle (R8).
+
+## First-run flow and the four questions (2026-09-26)
+- New visitor: signature screen with a big **Start** (the 4-card tour is a small optional link) -> Today shows one box, "Save your first word". Language comes from the browser (Hindi if the browser is Hindi), with an English/Hindi toggle on the first screen and on Today. Town, Puzzles, Scan, Voice and the extension move out of the sidebar's main list until they matter (Town after the first word, Puzzles after the first review or 3 words, tools after 3 words) and stay one tap away under "More". Cmd/Ctrl+K saves a word from anywhere. Create account stays quiet until 3 words are saved.
+- Measured (anonymous, allow-listed): `first_word` (bucketed time since first visit), `first_review`, `review_done`, `recall_unassisted|assisted|forgot`, and `app_open` for day 3 and day 7 returns. Read them with `cd web && npm run metrics`. The e2e test "a brand-new visitor saves their first word in under 30 seconds" guards the promise (about 4 s today).
+- Speed: `planPiece` and `cityView` are memoised; the welcome and its animation library load only on a first visit; trees, lamps and avenue trees are instanced.

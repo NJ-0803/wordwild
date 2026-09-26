@@ -1,5 +1,5 @@
 "use client";
-import type { Metric } from "@core";
+import { firstWordBucket, type Metric } from "@core";
 
 /**
  * Anonymous counts, off by switch, by Do Not Track and by Global Privacy Control. What is and is not sent is fixed in core/metrics.ts.
@@ -36,8 +36,18 @@ export function track(name: Metric["name"], label?: string) {
   if (!metricsEnabled()) return;
   queue.push(label ? { name, label } : { name }); if (!timer) timer = setTimeout(flush, 1500);
 }
+const FIRST = "ww.first", ONCE = "ww.once";
+/** Remembers when this device first arrived, only to time how long the first word takes. Stays on the device. */
+export function markFirstVisit() { if (!get(FIRST) && metricsEnabled()) set(FIRST, String(Date.now())); }
+/** An event that should be counted only once per device (first word, first review). */
+export function trackOnce(name: Metric["name"], label?: string) {
+  if (!metricsEnabled()) return;
+  let done: string[] = []; try { done = JSON.parse(get(ONCE) ?? "[]") as string[]; } catch { done = []; }
+  if (done.includes(name)) return; done.push(name); set(ONCE, JSON.stringify(done)); track(name, label);
+}
+export function trackFirstWord() { const t0 = Number(get(FIRST)) || Date.now(); trackOnce("first_word", firstWordBucket(Date.now() - t0)); }
 /** At most once per calendar day per device. */
 export function trackOpenOncePerDay() {
   const day = String(Math.floor(Date.now() / 86_400_000)); if (get(LAST) === day || !metricsEnabled()) return;
-  set(LAST, day); track("app_open");
+  set(LAST, day); markFirstVisit(); track("app_open");
 }

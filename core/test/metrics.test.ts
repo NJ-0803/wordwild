@@ -21,3 +21,11 @@ test('events are read from what changed in the learner state, never from its con
   assert.ok(deltaEvents(a, { saved: 50, practised: 0, secure: 0, scenes: 0 }).length <= 5, 'a big merge after sign-in cannot flood the counters');
   for (const e of ev) assert.equal(Object.keys(e).filter(k => k !== 'name').length, 0, 'no content fields');
 });
+
+import { firstWordBucket } from '../src/index.ts';
+test('first-word timing buckets and the new recall events are on the allow-list', () => {
+  assert.equal(firstWordBucket(12_000), 'lt30s'); assert.equal(firstWordBucket(45_000), 'lt60s'); assert.equal(firstWordBucket(100_000), 'lt3m'); assert.equal(firstWordBucket(900_000), 'slower');
+  assert.deepEqual(sanitizeMetric({ name: 'first_word', label: 'lt30s' }), { name: 'first_word', label: 'lt30s' });
+  assert.equal(sanitizeMetric({ name: 'first_word', label: 'serendipity' }), null, 'no free text');
+  for (const n of ['first_review', 'review_done', 'recall_unassisted', 'recall_assisted', 'recall_forgot']) assert.deepEqual(sanitizeMetric({ name: n }), { name: n });
+});

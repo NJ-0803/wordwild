@@ -7,14 +7,17 @@ import { masteryLevel } from './engine.ts';
  *  - It is tied to a random per-device id (no account id), so it cannot be linked to a person, and the person can reset or switch it off.
  *  - The server rejects anything not on these lists, so a bug or an attacker cannot make it store free text.
  */
-export const METRIC_EVENTS = ['app_open', 'word_saved', 'practice_done', 'word_secure', 'scene_finished', 'journey_complete', 'share_card', 'coach_seen', 'lookup'] as const;
+export const METRIC_EVENTS = ['app_open', 'word_saved', 'practice_done', 'word_secure', 'scene_finished', 'journey_complete', 'share_card', 'coach_seen', 'lookup', 'first_word', 'first_review', 'review_done', 'recall_unassisted', 'recall_assisted', 'recall_forgot'] as const;
 export type MetricName = (typeof METRIC_EVENTS)[number];
 
 /** The only labels allowed, per event. Everything else is refused. */
 const LABELS: Partial<Record<MetricName, readonly string[]>> = {
   lookup: ['found', 'found-form', 'unknown', 'unknown-suggested', 'empty', 'too-long', 'sentence', 'digits', 'url', 'non-latin', 'acronym', 'contraction', 'symbols'],
   share_card: ['word', 'vault'],
+  first_word: ['lt30s', 'lt60s', 'lt3m', 'slower'],        // how long after the first visit the first word was saved
 };
+/** Which bucket a time-to-first-word falls in. */
+export const firstWordBucket = (ms: number) => (ms < 30_000 ? 'lt30s' : ms < 60_000 ? 'lt60s' : ms < 180_000 ? 'lt3m' : 'slower');
 export interface Metric { name: MetricName; label?: string }
 
 export function sanitizeMetric(raw: unknown): Metric | null {

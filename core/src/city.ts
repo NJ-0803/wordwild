@@ -150,7 +150,11 @@ const atFor = (k: number) => { for (let i = atCache.length; i <= k; i++) atCache
 void extraAt;
 
 /** Piece number n (0-based over the whole plan). The first few are hand-made; everything after is generated, sector by sector. */
+const pieceCache: PieceDef[] = [];
 export function planPiece(n: number): PieceDef {
+  return (pieceCache[n] ??= makePiece(n));            // pure and deterministic, so each piece is worked out once
+}
+function makePiece(n: number): PieceDef {
   if (n < HAND) return PLAN[n];
   const k = n - HAND, sn = Math.floor(k / PER_SECTOR) + 1, idx = k % PER_SECTOR, sec = sectorAt(sn), [ox, oz] = sectorOrigin(sec);
   const at = atFor(k);
@@ -171,8 +175,13 @@ export interface CityView {
 export const CITY_TITLES: [number, string][] = [[0, 'Hamlet'], [6, 'Village'], [14, 'Town'], [26, 'Small city'], [37, 'City'], [70, 'Big city'], [130, 'Metropolis'], [260, 'Capital']];
 export const titleFor = (n: number) => [...CITY_TITLES].reverse().find(([k]) => n >= k)![1];
 
+let lastView: CityView | null = null;
 export function cityView(state: LearnerState): CityView {
   const points = cityPoints(state);
+  if (lastView && lastView.points === points) return lastView;          // same points, same city: keep the same object so screens do not redraw
+  return (lastView = buildView(points));
+}
+function buildView(points: number): CityView {
   const built: PieceView[] = []; let n = 0;
   for (;;) { const p = planPiece(n); if (p.at > points) break; built.push({ ...p, status: 'built' }); n++; }
   const nextDef = planPiece(n); const next: PieceView = { ...nextDef, status: 'next' };

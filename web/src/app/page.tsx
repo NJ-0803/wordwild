@@ -5,6 +5,8 @@ import { SENSE_BY_ID, capture, masteryLevel, recommend, recordRecommendations, w
 import { useStore } from "@/lib/store";
 import { Btn, Card, LinkBtn } from "@/components/ui";
 import { Onboarding } from "@/components/Onboarding";
+import { FirstWord } from "@/components/FirstWord";
+import { LangToggle } from "@/components/LangToggle";
 import { GardenScene } from "@/components/GardenScene";
 import { Loading, Orb } from "@/components/Companion";
 import { ThinkingOrb } from "thinking-orbs";
@@ -27,6 +29,8 @@ export default function Today() {
   const reduced = useReducedMotion();
   if (!ready) return <Loading />;
   if (!onboarded) return <Onboarding />;
+  const saved = Object.keys(state.senses).length;
+  if (saved === 0) return <FirstWord />;                 // a brand-new learner sees one box and one job
 
   const w = worldProgress(state);
   const recs = recommend(state, SENSE_BY_ID, now(), 3);
@@ -55,6 +59,7 @@ export default function Today() {
         <Orb state={readyCount > 0 ? "listening" : "weaving"} size={120} label={readyCount > 0 ? "Words are ready to review" : "Your words are resting"} />
         <div style={{ flex: 1 }}>
           <h1 className="display" style={{ margin: 0 }}>Today</h1>
+          <div style={{ marginTop: 8 }}><LangToggle /></div>
           <p className="sub" style={{ margin: "6px 0 0", fontSize: "1.1rem" }}>{readyCount > 0 ? `${readyCount} word${readyCount === 1 ? "" : "s"} ready to review. ` : ""}{w.discovered} saved · {w.practising} practising · {w.secure} secure</p>
         </div>
       </section>
@@ -65,8 +70,8 @@ export default function Today() {
       </nav>
       <div className="c7"><JourneyCard recs={recs} /></div>
       <div className="c5 stack">{townCard}</div>
-      <div className="c7"><GardenScene plants={plants} summary={summary} /><p className="sub small" style={{ margin: "10px 2px 0" }}>{w.secure === 0 ? "Nothing has sprouted yet. The first word you make secure plants a seed." : `${w.secure} secure ${w.secure === 1 ? "word has" : "words have"} grown here. Each new secure word adds growth.`}</p></div>
-      <section className="c5 stack" aria-label="Suggested for you">
+      {saved >= 3 && <div className="c7"><GardenScene plants={plants} summary={summary} /><p className="sub small" style={{ margin: "10px 2px 0" }}>{w.secure === 0 ? "Nothing has sprouted yet. The first word you make secure plants a seed." : `${w.secure} secure ${w.secure === 1 ? "word has" : "words have"} grown here. Each new secure word adds growth.`}</p></div>}
+      {saved >= 3 && <section className="c5 stack" aria-label="Suggested for you">
         <h2 style={{ fontSize: "1.5rem" }}>Suggested for you</h2>
         {recs.map(r => {
           const s = SENSE_BY_ID[r.senseId];
@@ -81,7 +86,7 @@ export default function Today() {
           );
         })}
         {recs.length === 0 && <Card>You are all caught up. Save a new word any time.</Card>}
-      </section>
+      </section>}
     </div>
   );
 }

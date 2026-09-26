@@ -5,7 +5,8 @@ import { StoreProvider } from "@/lib/store";
 import { Nav } from "@/components/Nav";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Account } from "@/components/Account";
-import { Welcome } from "@/components/Welcome";
+import { WelcomeGate } from "@/components/WelcomeGate";
+import { QuickAdd } from "@/components/QuickAdd";
 import { QuickSaved } from "@/components/QuickSaved";
 import { MetricsWatcher } from "@/components/MetricsWatcher";
 import { DepthMount } from "@/components/DepthMount";
@@ -31,7 +32,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ClerkProvider>
           <StoreProvider>
             <MetricsWatcher />
-            <Welcome />
+            <WelcomeGate />
+            <QuickAdd />
             <QuickSaved />
             <DepthMount />
             <div className="shell">

@@ -47,7 +47,7 @@ function Art({ kind, active }: { kind: Card["art"]; active: boolean }) {
 
 /** The very first screen. A glass welcome with a signature, a spatial tour, and one big Start that flows into Today. Shown once per device. */
 export function Welcome() {
-  const { onboarded, ready } = useStore();
+  const { onboarded, ready, update, finishOnboarding } = useStore();
   const reduced = useReducedMotion();
   const [show, setShow] = useState(false);
   const [step, setStep] = useState(0);            // 0 signature, 1-4 tour, 5 start
@@ -63,7 +63,12 @@ export function Welcome() {
     if (!onboarded && !seen) { setShow(true); document.documentElement.dataset.welcome = "1"; } else { delete document.documentElement.dataset.welcome; }
   }, [ready, onboarded]);
 
-  const finish = useCallback(() => { try { localStorage.setItem(KEY, "1"); } catch { /* memory only */ } setShow(false); delete document.documentElement.dataset.welcome; }, []);
+  const finish = useCallback(() => {
+    try { localStorage.setItem(KEY, "1"); } catch { /* memory only */ }
+    const hi = typeof navigator !== "undefined" && /^hi\b/i.test(navigator.language || "");          // the browser's language decides; it can be changed on the first word and in Settings
+    update(s => ({ ...s, prefs: { ...s.prefs, explainLang: hi ? "hi" : "en" } })); finishOnboarding();
+    setShow(false); delete document.documentElement.dataset.welcome;
+  }, [update, finishOnboarding]);
   const go = useCallback((n: number) => setStep(s => Math.max(0, Math.min(5, typeof n === "number" ? n : s))), []);
   useEffect(() => {
     if (!show) return;
@@ -92,7 +97,10 @@ export function Welcome() {
                     <svg viewBox="0 0 320 40" className="wl-flourish" aria-hidden><motion.path d="M6 26 C 60 8, 120 34, 190 18 S 290 10, 314 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" initial={reduced ? false : { pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.1, delay: 1.7, ease: EASE }} /></svg>
                   </div>
                   <p className="wl-line">Learn the words you meet, and watch a city grow from them.</p>
-                  <motion.button className="wl-pill" onClick={() => setStep(1)} whileTap={{ scale: 0.97 }} initial={reduced ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.2, duration: 0.5, ease: EASE }}>Take the tour <Icon.ArrowLeft style={{ transform: "rotate(180deg)" }} /></motion.button>
+                  <motion.div className="wl-actions" initial={reduced ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduced ? 0 : 0.9, duration: 0.5, ease: EASE }}>
+                    <button className="wl-cta" onClick={finish}>Start</button>
+                    <button className="wl-tour" onClick={() => setStep(1)}>Take the 30-second tour <Icon.ArrowLeft style={{ transform: "rotate(180deg)" }} /></button>
+                  </motion.div>
                 </motion.div>
               </motion.div>
             )}

@@ -8,6 +8,7 @@ import { Btn, LinkBtn } from "@/components/ui";
 import { Loading, WordBuddy } from "@/components/Companion";
 import { Icon } from "@/components/Icons";
 import { say } from "@/lib/speech";
+import { track, trackOnce } from "@/lib/metrics";
 
 const KEYS: Record<string, Rating> = { "1": "know", "2": "almost", "3": "forgot" };
 
@@ -18,14 +19,16 @@ export default function Review() {
   const [i, setI] = useState(0);
   const [shown, setShown] = useState(false);
   const [ratings, setRatings] = useState<Rating[]>([]);
-  const startedAt = useRef(0);
+  const startedAt = useRef(0); const doneSent = useRef(false);
   useEffect(() => { if (ready && queue === null) { startedAt.current = now(); setQueue(reviewQueue(state, now(), 5)); } }, [ready, queue, state, now]);   // eslint-disable-line react-hooks/set-state-in-effect -- the queue is fixed when the session starts, so answering does not reshuffle it
 
   const id = queue?.[i] ?? null;
+  useEffect(() => { if (queue && queue.length > 0 && !id && !doneSent.current) { doneSent.current = true; track("review_done"); } }, [queue, id]);
   const sense = useSense(id ?? "");
   const rate = useCallback((r: Rating) => {
     if (!id) return;
     update(s => submitAttempt(s, ratingAttempt(id, r, `review:${id}:${startedAt.current}`, now())).state);
+    track(r === "know" ? "recall_unassisted" : r === "almost" ? "recall_assisted" : "recall_forgot"); trackOnce("first_review");
     setRatings(x => [...x, r]); setShown(false); setI(n => n + 1);
   }, [id, update, now]);
 

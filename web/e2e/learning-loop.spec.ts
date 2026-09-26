@@ -83,19 +83,46 @@ test("finishing unscramble by voice records a real time", async ({ page }) => {
   expect(posted[0].ms).toBeGreaterThanOrEqual(1500);
 });
 
-test("first visit: welcome, tour, Start, choose a language, land on Today", async ({ browser }) => {
+test("first visit: welcome, optional tour, Start, first word saved, never shown again", async ({ browser }) => {
   const ctx = await browser.newContext(); const page = await ctx.newPage();     // no flags: a brand-new visitor
   await page.goto("/");
   await expect(page.getByLabel("NJ")).toBeVisible();
-  await page.getByRole("button", { name: /Take the tour/ }).click({ timeout: 15_000 });
+  await page.locator(".wl-tour").click({ timeout: 15_000 });
   await expect(page.getByText("Save any word you meet")).toBeVisible();
   await page.getByRole("button", { name: "Skip tour" }).click();
-  await page.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Choose your language" })).toBeVisible();
-  await page.getByRole("button", { name: /English/ }).dispatchEvent("click");           // the boxes float, so a synthetic click is steadier than a pointer
-  await page.locator(".ob-go").dispatchEvent("click");
-  await expect(page.getByRole("heading", { name: "Today" })).toBeVisible({ timeout: 10_000 });
-  await page.reload();                                                       // never shown again on this device
-  await expect(page.getByLabel("NJ")).toHaveCount(0);
+  await page.locator(".wl-big").click();
+  await expect(page.getByRole("heading", { name: "Save your first word" })).toBeVisible({ timeout: 10_000 });
+  await page.reload();
+  await expect(page.getByLabel("NJ")).toHaveCount(0);                            // the welcome is shown once per device
+  await expect(page.getByRole("heading", { name: "Save your first word" })).toBeVisible();
   await ctx.close();
+});
+
+// The promise: a completely new visitor can save a first word within 30 seconds.
+test("a brand-new visitor saves their first word in under 30 seconds", async ({ browser }) => {
+  const ctx = await browser.newContext(); const page = await ctx.newPage();
+  const t0 = Date.now();
+  await page.goto("/");
+  await page.getByRole("button", { name: "Start", exact: true }).click({ timeout: 15_000 });
+  await page.getByLabel("A word to save").fill("serendipity");
+  await page.getByLabel("A word to save").press("Enter");
+  await expect(page).toHaveURL(/\/learn\//, { timeout: 20_000 });
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/serendipity/i);
+  const secs = (Date.now() - t0) / 1000; console.log(`first word saved in ${secs.toFixed(1)}s`);
+  expect(secs).toBeLessThan(30);
+  await ctx.close();
+});
+
+test("day one is simple: only the essentials are in the sidebar, the rest sits under More, and everything unlocks by use", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.addInitScript(() => localStorage.setItem("wordwild.onboarded", "1"));
+  await page.goto("/");
+  const side = page.getByRole("complementary", { name: "Main" });
+  await expect(side.getByRole("link", { name: "Save a word" })).toBeVisible();
+  await expect(side.getByRole("link", { name: "Town", exact: true })).toHaveCount(0);
+  await side.getByText("More", { exact: true }).click();
+  await expect(side.getByRole("link", { name: "Town", exact: true })).toBeVisible();      // still one tap away
+  await page.goto("/capture?word=serendipity"); await expect(page).toHaveURL(/\/learn\//, { timeout: 30_000 });
+  await page.goto("/");
+  await expect(side.getByRole("link", { name: "Town", exact: true })).toBeVisible();      // unlocked by the first word
 });
