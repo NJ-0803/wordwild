@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="assets/audio-data.js"></script>
+<style>
+@font-face { font-family: "Instrument Serif"; font-style: normal; font-weight: 400; src: url("assets/fonts/InstrumentSerif.woff2") format("woff2"); }
+@font-face { font-family: "Instrument Serif"; font-style: italic; font-weight: 400; src: url("assets/fonts/InstrumentSerif-Italic.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; src: url("assets/fonts/Inter.woff2") format("woff2"); }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: #060a16; }
+#root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: "Inter", sans-serif; color: #f3f5fb; background: #060a16; }
+.fill { position: absolute; inset: 0; }
+.orb { position: absolute; border-radius: 50%; filter: blur(90px); }
+.o1 { width: 1300px; height: 1300px; left: -380px; top: -520px; background: radial-gradient(circle, rgba(70,92,230,.55), transparent 68%); }
+.o2 { width: 1100px; height: 1100px; right: -340px; bottom: -480px; background: radial-gradient(circle, rgba(42,163,154,.34), transparent 68%); }
+.o3 { width: 800px; height: 800px; left: 700px; top: 340px; background: radial-gradient(circle, rgba(154,134,230,.26), transparent 70%); }
+.grain { opacity: .07; mix-blend-mode: soft-light; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+.glass { position: absolute; border-radius: 44px; background: linear-gradient(155deg, rgba(255,255,255,.15), rgba(255,255,255,.04) 60%); border: 1.5px solid rgba(255,255,255,.22); box-shadow: inset 0 2px 0 rgba(255,255,255,.3), 0 60px 120px -40px rgba(0,0,0,.8), 0 0 var(--edge, 40px) rgba(110,130,255,.35); backdrop-filter: blur(28px) saturate(1.5); }
+.center { position: absolute; inset: 0; display: grid; place-items: center; }
+.serif { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; }
+/* scene 1 */
+.s1in { position: absolute; inset: 0; display: grid; place-items: center; }
+.sigbox { display: grid; justify-items: center; gap: 18px; width: 1120px; padding: 70px 40px 64px; }
+.kicker { font: 500 24px/1 "Inter"; letter-spacing: .3em; text-transform: uppercase; color: rgba(243,245,251,.65); }
+.nj { font-family: "Instrument Serif", serif; font-style: italic; font-size: 420px; line-height: 1; letter-spacing: -.04em; padding: 0 .1em; transform: rotate(-4deg); text-shadow: 0 16px 80px rgba(120,140,255,.5); }
+.flourish { width: 560px; height: 60px; margin-top: -24px; overflow: visible; color: rgba(190,205,255,.9); }
+.hook { font: 400 66px/1.1 "Instrument Serif", serif; color: rgba(243,245,251,.92); }
+/* scene 2 */
+.win { left: 400px; top: 170px; width: 1120px; height: 740px; }
+.layer { position: absolute; inset: 0; padding: 64px 72px; display: grid; align-content: center; justify-items: center; gap: 24px; text-align: center; }
+.h1 { font: 400 96px/1 "Instrument Serif", serif; }
+.sub { font: 400 34px/1.4 "Inter"; color: rgba(243,245,251,.75); }
+.input { width: 820px; height: 100px; border-radius: 26px; background: rgba(6,10,22,.6); border: 2px solid rgba(110,130,255,.7); box-shadow: 0 0 60px rgba(110,130,255,.35); display: flex; align-items: center; justify-content: center; font: 500 50px/1 "Inter"; }
+.caret { display: inline-block; width: 3px; height: 54px; background: #8fa3ff; margin-left: 4px; }
+.btn { width: 820px; height: 84px; border-radius: 26px; background: linear-gradient(180deg,#3550d0,#263a9c); font: 600 34px/84px "Inter"; }
+.chips { display: flex; gap: 16px; } .chip { padding: 14px 26px; border-radius: 99px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); font: 500 28px/1 "Inter"; }
+.word { font: 400 170px/1 "Instrument Serif", serif; }
+.pos { padding: 8px 22px; border-radius: 99px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); font: 500 26px/1 "Inter"; letter-spacing: .1em; }
+.mean { font: 400 44px/1.35 "Inter"; max-width: 900px; }
+.hi { font: 400 38px/1.4 "Inter"; padding: 14px 30px; border-radius: 22px; background: rgba(101,185,110,.18); border: 1.5px solid rgba(101,185,110,.5); }
+.rate { display: flex; gap: 20px; } .rb { width: 300px; height: 96px; border-radius: 24px; background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.2); font: 500 32px/1 "Inter"; display: grid; place-items: center; }
+.rb.know { border-color: rgba(101,185,110,.7); }
+.pts { position: absolute; right: 70px; top: 70px; padding: 14px 26px; border-radius: 99px; background: rgba(101,185,110,.2); border: 1.5px solid rgba(101,185,110,.6); font: 600 30px/1 "Inter"; }
+/* scene 3 */
+.lv { display: flex; gap: 12px; } .lvb { padding: 12px 26px; border-radius: 99px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); font: 500 26px/1 "Inter"; } .lvb.on { background: linear-gradient(180deg,#3550d0,#263a9c); border-color: transparent; }
+.timer { padding: 12px 24px; border-radius: 99px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); font: 500 28px/1 "Inter"; font-variant-numeric: tabular-nums; }
+.clue { width: 900px; padding: 24px 32px; border-radius: 26px; background: rgba(6,10,22,.5); border: 1px solid rgba(255,255,255,.16); font: 400 36px/1.4 "Inter"; }
+.tiles { display: flex; gap: 12px; } .tile { width: 92px; height: 100px; border-radius: 20px; border: 2px solid rgba(255,255,255,.2); background: rgba(6,10,22,.55); display: grid; place-items: center; font: 600 54px/1 "Inter"; text-transform: uppercase; }
+.pool { display: flex; gap: 12px; } .pk { width: 82px; height: 92px; border-radius: 18px; background: rgba(60,80,200,.35); border: 1.5px solid rgba(140,160,255,.5); display: grid; place-items: center; font: 600 48px/1 "Inter"; text-transform: uppercase; }
+.mic { padding: 16px 34px; border-radius: 99px; background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.25); font: 500 32px/1 "Inter"; }
+.friends { left: 1370px; top: 340px; width: 470px; padding: 30px 34px; border-radius: 34px; display: grid; gap: 12px; }
+.fh { font: 500 24px/1 "Inter"; letter-spacing: .14em; text-transform: uppercase; color: rgba(243,245,251,.65); }
+.fr { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 14px; padding: 12px 18px; border-radius: 16px; background: rgba(255,255,255,.08); font: 500 30px/1 "Inter"; } .fr.me { border: 1.5px solid rgba(110,130,255,.8); } .fr small { color: rgba(243,245,251,.6); font-size: 24px; } .fr span:last-child { font-variant-numeric: tabular-nums; }
+.wave { position: absolute; left: 740px; top: 540px; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%; border: 6px solid rgba(143,163,255,.9); }
+/* scene 4 */
+.plate { position: absolute; inset: 0; width: 1920px; height: 1080px; object-fit: cover; }
+.shade { background: linear-gradient(180deg, rgba(6,10,22,.35), rgba(6,10,22,0) 30%, rgba(6,10,22,0) 62%, rgba(6,10,22,.7)); }
+.hud { left: 90px; top: 80px; width: 640px; padding: 34px 40px; border-radius: 34px; display: grid; gap: 14px; }
+.hud b { font: 400 76px/1 "Instrument Serif", serif; } .hud small { font: 500 32px/1.2 "Inter"; color: rgba(243,245,251,.8); } .bar { height: 10px; border-radius: 99px; background: rgba(255,255,255,.18); overflow: hidden; } .bar i { display: block; height: 100%; width: 100%; transform-origin: left; background: linear-gradient(90deg,#6e82ff,#65b96e); }
+.cap { left: 90px; bottom: 90px; padding: 30px 46px; border-radius: 36px; font: 400 66px/1.1 "Instrument Serif", serif; }
+.veil { background: rgba(6,10,22,.78); }
+.hud, .cap { background: linear-gradient(155deg, rgba(10,16,40,.82), rgba(10,16,40,.66)); }
+.end { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 22px; text-align: center; }
+.wm { font: 400 220px/1 "Instrument Serif", serif; } .url { font: 500 40px/1.3 "Inter"; color: rgba(243,245,251,.9); } .sig { font: italic 400 84px/1 "Instrument Serif", serif; color: rgba(190,205,255,.9); transform: rotate(-4deg); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="18" data-width="1920" data-height="1080">
+
+  <div class="fill clip" id="bg" data-start="0" data-duration="18" data-track-index="0"><div class="orb o1" id="o1"></div><div class="orb o2" id="o2"></div><div class="orb o3" id="o3"></div><div class="fill grain"></div></div>
+
+  <!-- Scene 1 -->
+  <div class="fill clip" data-start="0" data-duration="3.7" data-track-index="1" id="sc1"><div class="s1in" id="s1in">
+    <div class="glass sigbox" id="sigbox" style="position:relative">
+      <p class="kicker" id="kick">Wordwild</p>
+      <div class="nj" id="nj">NJ</div>
+      <svg class="flourish" viewBox="0 0 320 40" aria-hidden="true"><path id="flo" d="M6 26 C 60 8, 120 34, 190 18 S 290 10, 314 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>
+      <p class="hook" id="hook">Learn the words you meet.</p>
+    </div></div></div>
+
+  <!-- Scene 2 -->
+  <div class="fill clip" data-start="3.7" data-duration="4.74" data-track-index="2" id="sc2">
+    <div class="glass win" id="win2">
+      <div class="layer" id="s2a">
+        <p class="h1">Save your first word</p>
+        <p class="sub">Type a word you heard or read today.</p>
+        <div class="input"><span id="typed"></span><span class="caret" id="caret"></span></div>
+        <div class="btn" id="findbtn">Find the meaning</div>
+        <div class="chips"><span class="chip">serendipity</span><span class="chip">resilient</span><span class="chip">ephemeral</span><span class="chip">candid</span></div>
+      </div>
+      <div class="layer" id="s2b" style="opacity:0">
+        <p class="word" id="wordb">serendipity</p>
+        <span class="pos">NOUN</span>
+        <p class="mean" id="meanb">good luck in making unexpected and fortunate discoveries</p>
+        <p class="hi" id="hib" lang="hi">अनजाने में मिली अच्छी किस्मत</p>
+        <div class="rate" id="rate"><span class="rb know" id="rknow">I know it</span><span class="rb">Almost</span><span class="rb">I forgot</span></div>
+        <span class="pts" id="pts" style="opacity:0">+3 points</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 3 -->
+  <div class="fill clip" data-start="8.44" data-duration="4.21" data-track-index="3" id="sc3">
+    <div class="glass win" id="win3" style="left:180px">
+      <div class="layer" style="gap:20px">
+        <div style="display:flex;gap:26px;align-items:center"><div class="lv"><span class="lvb">Easy</span><span class="lvb">Medium</span><span class="lvb on">Hard</span><span class="lvb">Super hard</span></div><span class="timer" id="timer">0:00</span></div>
+        <p class="clue" id="clue">recovering readily from adversity, depression, or the like</p>
+        <div class="tiles" id="tiles"></div>
+        <div class="pool" id="pool"></div>
+        <span class="mic" id="mic">Say the word</span>
+      </div>
+    </div>
+    <div class="wave" id="wave" style="opacity:0"></div>
+    <div class="glass friends" id="friends"><p class="fh">Friends today</p>
+      <div class="fr me"><small>1</small><span>You</span><span>0:13</span></div><div class="fr"><small>2</small><span>Riya</span><span>0:21</span></div><div class="fr"><small>3</small><span>Sam</span><span>0:34</span></div></div>
+  </div>
+
+  <!-- Scene 4 -->
+  <div class="fill clip" data-start="12.65" data-duration="5.35" data-track-index="4" id="sc4">
+    <img class="plate" id="p6" src="assets/city-6.jpg" alt="" />
+    <img class="plate" id="p25" src="assets/city-25.jpg" alt="" />
+    <img class="plate" id="p150" src="assets/city-150.jpg" alt="" />
+    <img class="plate" id="p400" src="assets/city-400.jpg" alt="" />
+    <div class="fill shade"></div>
+    <div class="glass hud" id="hud"><b id="hudt">Hamlet</b><small id="hudc">6 words</small><div class="bar"><i id="hudbar"></i></div></div>
+    <div class="glass cap" id="cap">Every word you log builds your city.</div>
+    <div class="fill veil" id="veil" style="opacity:0"></div>
+    <div class="end" id="end" style="opacity:0"><p class="wm">Wordwild</p><p class="url">wordwild-seven.vercel.app</p><p class="url" style="opacity:.75">github.com/NJ-0803/wordwild</p><p class="sig">NJ</p></div>
+  </div>
+
+  <audio id="bed" src="assets/music/bed.mp3" data-start="0" data-duration="18" data-track-index="20" data-volume="0.5"></audio>
+    <audio id="kp0" src="assets/sfx/keypress-001.wav" data-start="4.300" data-duration="0.4" data-track-index="30" data-volume="0.55"></audio>
+  <audio id="kp1" src="assets/sfx/keypress-003.wav" data-start="4.418" data-duration="0.4" data-track-index="31" data-volume="0.55"></audio>
+  <audio id="kp2" src="assets/sfx/keypress-005.wav" data-start="4.536" data-duration="0.4" data-track-index="32" data-volume="0.55"></audio>
+  <audio id="kp3" src="assets/sfx/keypress-001.wav" data-start="4.654" data-duration="0.4" data-track-index="33" data-volume="0.55"></audio>
+  <audio id="kp4" src="assets/sfx/keypress-003.wav" data-start="4.772" data-duration="0.4" data-track-index="34" data-volume="0.55"></audio>
+  <audio id="kp5" src="assets/sfx/keypress-005.wav" data-start="4.890" data-duration="0.4" data-track-index="35" data-volume="0.55"></audio>
+  <audio id="kp6" src="assets/sfx/keypress-001.wav" data-start="5.008" data-duration="0.4" data-track-index="36" data-volume="0.55"></audio>
+  <audio id="kp7" src="assets/sfx/keypress-003.wav" data-start="5.126" data-duration="0.4" data-track-index="37" data-volume="0.55"></audio>
+  <audio id="kp8" src="assets/sfx/keypress-005.wav" data-start="5.244" data-duration="0.4" data-track-index="38" data-volume="0.55"></audio>
+  <audio id="kp9" src="assets/sfx/keypress-001.wav" data-start="5.362" data-duration="0.4" data-track-index="39" data-volume="0.55"></audio>
+  <audio id="kp10" src="assets/sfx/keypress-003.wav" data-start="5.480" data-duration="0.4" data-track-index="40" data-volume="0.55"></audio>
+  <audio id="sfx-enter" src="assets/sfx/click_002.ogg" data-start="5.800" data-duration="0.5" data-track-index="41" data-volume="0.7"></audio>
+  <audio id="sfx-reveal" src="assets/sfx/select_008.ogg" data-start="6.340" data-duration="0.9" data-track-index="42" data-volume="0.55"></audio>
+  <audio id="sfx-review" src="assets/sfx/rollover2.ogg" data-start="7.300" data-duration="0.6" data-track-index="43" data-volume="0.5"></audio>
+  <audio id="sfx-know" src="assets/sfx/switch_004.ogg" data-start="7.900" data-duration="0.6" data-track-index="44" data-volume="0.7"></audio>
+  <audio id="sfx-mic" src="assets/sfx/click_002.ogg" data-start="9.400" data-duration="0.5" data-track-index="45" data-volume="0.55"></audio>
+  <audio id="sfx-quake" src="assets/sfx/bong_001.ogg" data-start="10.540" data-duration="1.6" data-track-index="46" data-volume="0.45"></audio>
+  <audio id="sfx-friends" src="assets/sfx/rollover2.ogg" data-start="11.600" data-duration="0.6" data-track-index="47" data-volume="0.5"></audio>
+  <audio id="sfx-city" src="assets/sfx/switch_004.ogg" data-start="12.650" data-duration="0.6" data-track-index="48" data-volume="0.6"></audio>
+  <audio id="sfx-end" src="assets/sfx/bong_001.ogg" data-start="16.450" data-duration="1.5" data-track-index="49" data-volume="0.4"></audio>
+</div>
+<script>
+var tl = gsap.timeline({ paused: true });
+var $ = function (s) { return document.querySelector(s); };
+var EASE = "expo.out";
+// ---- fixed initial states (no CSS/GSAP transform conflicts: set once, here)
+gsap.set("#pool", { opacity: 1 });
+var word = "resilient", scr = "ilrenseit".toUpperCase().split("");
+scr = ["I","L","R","E","S","I","E","N","T"]; // scrambled letters of the target, shown as tiles to fill
+word.split("").forEach(function () { var d = document.createElement("div"); d.className = "tile"; $("#tiles").appendChild(d); });
+scr.forEach(function (c) { var d = document.createElement("div"); d.className = "pk"; d.textContent = c; $("#pool").appendChild(d); });
+var tiles = document.querySelectorAll(".tile");
+
+// ---- Scene 1 (0 - 3.7): the signature
+tl.fromTo("#sigbox", { opacity: 0, scale: 0.94, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.9, ease: EASE }, 0.05);
+tl.fromTo("#nj", { clipPath: "inset(-15% 100% -15% -10%)" }, { clipPath: "inset(-15% -30% -15% -10%)", duration: 1.3, ease: "power2.inOut" }, 0.35);
+tl.to("#flo", { strokeDashoffset: 0, duration: 0.9, ease: "power2.out" }, 1.5);
+tl.fromTo("#hook", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.6, ease: EASE }, 2.0);
+tl.to("#s1in", { opacity: 0, scale: 1.03, filter: "blur(10px)", duration: 0.32, ease: "power2.in" }, 3.38);
+
+// ---- Scene 2 (3.7 - 8.44): save, reveal on the 6.34 beat, know it
+tl.fromTo("#win2", { opacity: 0, y: 70, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: EASE }, 3.7);
+var typed = [[4.300,"s"],[4.418,"se"],[4.536,"ser"],[4.654,"sere"],[4.772,"seren"],[4.890,"serend"],[5.008,"serendi"],[5.126,"serendip"],[5.244,"serendipi"],[5.362,"serendipit"],[5.480,"serendipity"]];
+typed.forEach(function (p) { tl.set("#typed", { textContent: p[1] }, p[0]); });
+tl.to("#caret", { opacity: 0.2, duration: 0.25, repeat: 3, yoyo: true }, 4.0);
+tl.to("#findbtn", { scale: 0.97, duration: 0.12 }, 5.78);
+tl.to("#findbtn", { scale: 1, duration: 0.2 }, 5.9);
+tl.to("#s2a", { opacity: 0, scale: 0.96, filter: "blur(8px)", duration: 0.3, ease: "power2.in" }, 6.02);
+tl.fromTo("#s2b", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.5, ease: EASE }, 6.34); // beat-locked: 6.34s
+tl.fromTo("#wordb", { y: 34 }, { y: 0, duration: 0.7, ease: EASE }, 6.34);
+tl.fromTo("#meanb", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: EASE }, 6.7);
+tl.fromTo("#hib", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: EASE }, 7.02);
+tl.fromTo("#rate", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: EASE }, 7.3);
+tl.to("#rknow", { scale: 0.95, duration: 0.1 }, 7.86);
+tl.to("#rknow", { scale: 1.03, background: "rgba(101,185,110,.28)", duration: 0.25, ease: "back.out(3)" }, 7.97);
+tl.fromTo("#pts", { opacity: 0, y: 20, scale: 0.8 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(2.4)" }, 7.96);
+tl.to("#win2", { opacity: 0, y: -40, scale: 0.97, duration: 0.24, ease: "power2.in" }, 8.2);
+
+// ---- Scene 3 (8.44 - 12.65): a hard puzzle solved by voice, quake on the 10.54 beat
+tl.fromTo("#win3", { opacity: 0, y: 60, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: EASE }, 8.44);
+tl.set("#timer", { textContent: "0:00" }, 8.44);
+[[9.4, "0:04"], [9.9, "0:08"], [10.4, "0:12"], [10.54, "0:13"]].forEach(function (p) { tl.set("#timer", { textContent: p[1] }, p[0]); });
+tl.to("#mic", { background: "rgba(110,130,255,.35)", borderColor: "rgba(143,163,255,.9)", duration: 0.2 }, 9.4);
+tl.set("#mic", { textContent: "Listening…" }, 9.4);
+for (var i = 0; i < tiles.length; i++) {
+  tl.set(tiles[i], { textContent: word[i] }, 10.54 + i * 0.045);
+  tl.to(tiles[i], { background: "linear-gradient(180deg,#2b5fe0,#1a3d9c)", borderColor: "#8fa3ff", scale: 1.12, duration: 0.14, ease: "power2.out" }, 10.54 + i * 0.045);
+  tl.to(tiles[i], { scale: 1, duration: 0.2, ease: "power2.inOut" }, 10.68 + i * 0.045);
+}
+tl.set("#mic", { textContent: "Solved" }, 10.95);
+// the quake
+[[0,0,0],[-14,4,-0.5],[16,-5,0.6],[-12,5,-0.4],[10,-3,0.3],[-6,2,-0.2],[0,0,0]].forEach(function (k, j) { tl.to("#win3", { x: k[0], y: k[1], rotation: k[2], duration: 0.07, ease: "none", overwrite: "auto" }, 10.54 + j * 0.07); });
+tl.fromTo("#wave", { opacity: 0.85, scale: 1 }, { opacity: 0, scale: 34, duration: 0.85, ease: "power2.out" }, 10.54);
+tl.fromTo("#friends", { opacity: 0, x: 60, y: 20 }, { opacity: 1, x: 0, y: 0, duration: 0.55, ease: EASE }, 11.6);
+tl.to(["#win3", "#friends"], { opacity: 0, duration: 0.2, ease: "power2.in" }, 12.45);
+
+// ---- Scene 4 (12.65 - 18): the city grows, then the end card
+tl.fromTo("#p6", { scale: 1.03 }, { scale: 1.14, duration: 2.0, ease: "none" }, 12.65);
+tl.fromTo("#p25", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1.14, duration: 1.4, ease: "none" }, 14.0);
+tl.fromTo("#p150", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1.14, duration: 1.4, ease: "none" }, 15.2);
+tl.fromTo("#p400", { opacity: 0, scale: 1.0 }, { opacity: 1, scale: 1.1, duration: 1.7, ease: "none" }, 16.3);
+tl.set(["#p25", "#p150", "#p400"], { opacity: 0 }, 12.65);
+tl.fromTo("#hud", { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.6, ease: EASE }, 12.75);
+[[12.65, "Hamlet", "6 words", 0.35], [14.05, "Town", "25 words", 0.55], [15.25, "Small city", "150 words", 0.72], [16.35, "Big city", "400 words", 0.9]].forEach(function (p) {
+  tl.set("#hudt", { textContent: p[1] }, p[0]); tl.set("#hudc", { textContent: p[2] }, p[0]);
+  tl.to("#hudbar", { scaleX: p[3], duration: 0.7, ease: EASE }, p[0]);
+});
+tl.set("#hudbar", { scaleX: 0.1 }, 12.65);
+tl.fromTo("#cap", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.7, ease: EASE }, 13.55);
+tl.to("#cap", { opacity: 0, y: -10, duration: 0.3, ease: "power2.in" }, 16.2);
+tl.to("#hud", { opacity: 0, duration: 0.3 }, 16.3);
+tl.to("#veil", { opacity: 1, duration: 0.5, ease: "power2.out" }, 16.4);
+tl.fromTo("#end", { opacity: 0, y: 30, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: EASE }, 16.5);
+
+// ---- audio-reactive: bass breathes the background glows, treble lifts the glass edge light (subtle)
+for (var f = 0; f < AUDIO_DATA.totalFrames; f++) {
+  tl.call((function (fr) { return function () {
+    var b = fr.bands, bass = (b[0] + b[1]) / 2, treb = (b[12] + b[13] + b[14]) / 3;
+    gsap.set("#o1", { scale: 1 + bass * 0.12, opacity: 0.75 + bass * 0.25 });
+    gsap.set("#o2", { scale: 1 + bass * 0.08, opacity: 0.7 + bass * 0.3 });
+    document.documentElement.style.setProperty("--edge", (34 + treb * 60).toFixed(1) + "px");
+  }; })(AUDIO_DATA.frames[f]), [], f / AUDIO_DATA.fps);
+}
+window.__timelines = window.__timelines || {};
+window.__timelines["main"] = tl;
+tl.seek(0);
+</script>
+</body>
+</html>

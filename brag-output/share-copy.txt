@@ -1,0 +1,1 @@
+I built Wordwild: save a word in seconds, get the meaning in simple words (with Hindi help), and watch a city grow from every word you learn. wordwild-seven.vercel.app

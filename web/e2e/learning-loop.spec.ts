@@ -126,3 +126,13 @@ test("day one is simple: only the essentials are in the sidebar, the rest sits u
   await page.goto("/");
   await expect(side.getByRole("link", { name: "Town", exact: true })).toBeVisible();      // unlocked by the first word
 });
+
+test("the extension page has a picture guide and a step checklist", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("wordwild.onboarded", "1"));
+  await page.goto("/extension");
+  await expect(page.getByRole("region", { name: /Picture guide/ })).toBeVisible();
+  await page.getByRole("button", { name: /Show step 4: Load unpacked/ }).click();
+  await expect(page.getByText(/Click Load unpacked/)).toBeVisible();
+  await page.getByLabel("I did this step").first().check();
+  await expect(page.getByText(/1 of 5 steps done/)).toBeVisible();
+});
