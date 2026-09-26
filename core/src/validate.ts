@@ -3,7 +3,9 @@ import type { Sense, ChoiceItem, PracticeItem, SenseTier } from './types.ts';
 /** Fixture ids look like "euphemism.n.1"; dictionary ids are WordNet sense keys like "skeptical%5:00:00:doubting:00". */
 const FIXTURE_ID = /^[a-z' -]+\.(n|v|adj|adv)\.\d+$/;
 const WN_KEY = /^[\p{L}0-9'_. -]{1,60}%[1-5]:\d\d:\d\d:[\p{L}0-9'_. -]*:[0-9]*$/u;
-export const isSenseId = (id: unknown): id is string => typeof id === 'string' && id.length <= 90 && (FIXTURE_ID.test(id) || WN_KEY.test(id));
+// Wiktionary-sourced meanings: lemma%w:pos:n  (the % keeps them in the same family as WordNet keys, so shared routes treat them alike)
+const WIKT_KEY = /^[\p{L}'-]{1,60}%w:(?:n|v|adj|adv):\d{1,3}$/u;
+export const isSenseId = (id: unknown): id is string => typeof id === 'string' && id.length <= 90 && (FIXTURE_ID.test(id) || WN_KEY.test(id) || WIKT_KEY.test(id));
 export const tierOf = (s: Sense): SenseTier => s.provenance.tier ?? 'curated';
 
 /** Returns a list of problems; empty means the sense is structurally acceptable. Does NOT prove accuracy. */

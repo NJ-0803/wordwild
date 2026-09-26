@@ -45,6 +45,9 @@ create table if not exists ww_dict (
   arpabet text
 );
 ;
+-- Which dictionary a meaning came from ('wordnet' or 'wiktionary'), so provenance and licence are always shown truthfully.
+alter table ww_dict add column if not exists source text not null default 'wordnet'
+;
 create extension if not exists pg_trgm
 ;
 create extension if not exists fuzzystrmatch

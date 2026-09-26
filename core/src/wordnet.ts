@@ -4,8 +4,11 @@ import type { Sense } from './types.ts';
 export interface DictRow {
   sense_id: string; lemma: string; pos: 'n' | 'v' | 'adj' | 'adv'; rank: number; synset_id: string; definition: string;
   examples: string[]; synonyms: string[]; antonyms: string[]; broader: string[]; ipa: string | null; arpabet: string | null;
+  /** 'wordnet' (default) or 'wiktionary'. */
+  source?: string;
 }
 const POS = { n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb' } as const;
+export const WIKTIONARY_PROVENANCE = { source: 'English Wiktionary (Wikimedia contributors), extracted by Wiktextract / kaikki.org', licence: 'CC BY-SA 4.0 (attribution and share-alike apply)', status: 'dictionary-source', updated: '2026-09-26', tier: 'dictionary' } as const;
 export const WORDNET_PROVENANCE = { source: 'Open English WordNet 2025 (McCrae et al.) + CMU Pronouncing Dictionary', licence: 'CC BY 4.0 (WordNet); CMUdict unrestricted, acknowledged', status: 'dictionary-source', updated: '2025-12-31', tier: 'dictionary' } as const;
 
 /**
@@ -22,7 +25,7 @@ export function rowToSense(r: DictRow): Sense {
     collocations: [], relatedForms: [], grammar: [],
     nearSynonyms: r.synonyms.map(lemma => ({ lemma, distinction: '' })),   // WordNet lists them as similar; it does not explain differences
     antonyms: r.antonyms, register: 'neutral', suitableSituations: [], unsuitableUses: [], prerequisites: [], related: [], practice: [],
-    provenance: { ...WORDNET_PROVENANCE },
+    provenance: { ...(r.source === 'wiktionary' ? WIKTIONARY_PROVENANCE : WORDNET_PROVENANCE) },
   };
 }
 

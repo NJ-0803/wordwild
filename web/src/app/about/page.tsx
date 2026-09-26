@@ -12,6 +12,10 @@ export default function About() {
         <p className="sub small">McCrae, J. P., Rademaker, A., Bond, F., Rudnicka, E., Fellbaum, C. (2019). English WordNet 2019: an open-source WordNet for English. Based on Princeton WordNet. We have reformatted the data and removed proper nouns.</p>
       </Card>
       <Card>
+        <h2>More words</h2>
+        <p>Some standard English words that WordNet does not list have their meaning, example sentences and pronunciation from <b>English Wiktionary</b> (Wikimedia contributors), extracted by Wiktextract / kaikki.org, under <b>Creative Commons Attribution-ShareAlike 4.0</b>. Those entries show Wiktionary as their source, and only standard words are included: no slang, offensive, obsolete or informal senses. If you reuse them, the same licence applies.</p>
+      </Card>
+      <Card>
         <h2>Pronunciation</h2>
         <p>Pronunciation data comes from the <b>CMU Pronouncing Dictionary</b> (Carnegie Mellon University), used with acknowledgement as its authors request.</p>
       </Card>

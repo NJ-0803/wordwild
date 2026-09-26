@@ -13,6 +13,7 @@ import { ConstellationSection } from "@/components/ConstellationSection";
 import { DepthSection } from "@/components/DepthSection";
 import { CoachSection } from "@/components/CoachSection";
 import { ShareButton } from "@/components/ShareButton";
+import { SentenceHover } from "@/components/SentenceHover";
 import { hasVoice, say } from "@/lib/speech";
 
 export default function LearnPage() {
@@ -83,7 +84,7 @@ function Lesson({ base }: { base: Sense }) {
       <CoachSection senseId={s.senseId} lemma={s.lemma} />
       <DepthSection senseId={s.senseId} lemma={s.lemma} />
       <ConstellationSection senseId={s.senseId} lemma={s.lemma} />
-      {s.examples.length > 0 && <><h2>Examples</h2>{s.examples.map((e, i) => <Card key={i}><p>{e.text}</p><Btn kind="soft" icon="🔊" onClick={() => say(e.text)}>Listen</Btn></Card>)}</>}
+      {s.examples.length > 0 && <><h2>Examples</h2>{s.examples.map((e, i) => <Card key={i}><SentenceHover text={e.text} skip={[s.lemma]}><p>{e.text}</p></SentenceHover><Btn kind="soft" icon="🔊" onClick={() => say(e.text)}>Listen</Btn></Card>)}</>}
       {s.suitableSituations.length > 0 && <><h2>When to use it</h2><Card tone="good">{s.suitableSituations.join(" ")}</Card></>}
       {s.unsuitableUses.length > 0 && <><h2>Careful</h2><Card tone="warn">{s.unsuitableUses.join(" ")}</Card></>}
       {s.nearSynonyms.length > 0 && <>

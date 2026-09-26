@@ -48,3 +48,12 @@ test('lookup: found, ambiguous, unknown, invalid, provider failure, unverified c
   const u = await safeLookup(evil, 'euphemism');
   assert.ok(u.status === 'pending' && u.reason === 'unverified-content');
 });
+
+test('Wiktionary-sourced ids are valid and carry their own provenance', async () => {
+  const { isSenseId, rowToSense } = await import('../src/index.ts');
+  for (const ok of ['aardvark%w:n:1', 'well-known%w:adj:2', 'run%w:v:12']) assert.ok(isSenseId(ok), ok);
+  for (const bad of ['aardvark%w:x:1', 'a b%w:n:1', 'x%w:n:', '%w:n:1', "x';drop%w:n:1"]) assert.ok(!isSenseId(bad), bad);
+  const s = rowToSense({ sense_id: 'aardvark%w:n:1', lemma: 'aardvark', pos: 'n', rank: 1, synset_id: 'wikt', definition: 'An African burrowing mammal.', examples: [], synonyms: [], antonyms: [], broader: [], ipa: null, arpabet: null, source: 'wiktionary' });
+  assert.match(s.provenance.source, /Wiktionary/); assert.match(s.provenance.licence, /CC BY-SA/);
+  assert.match(rowToSense({ ...{ sense_id: 'x%1:00:00::', lemma: 'x', pos: 'n', rank: 1, synset_id: 's', definition: 'd', examples: [], synonyms: [], antonyms: [], broader: [], ipa: null, arpabet: null } }).provenance.source, /WordNet/);
+});

@@ -8,6 +8,7 @@ import { Orb } from "./Companion";
 import { say } from "@/lib/speech";
 import { useStore } from "@/lib/store";
 import { track } from "@/lib/metrics";
+import { SentenceHover } from "./SentenceHover";
 
 async function call(senseId: string, onlyCached: boolean): Promise<{ coach?: Coach; status: number; error?: string }> {
   const r = await fetch("/api/coach", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ senseId, onlyCached }) });
@@ -64,7 +65,7 @@ export function CoachSection({ senseId, lemma, auto = false }: { senseId: string
         <div className="chips" role="group" aria-label="Choose a situation">
           {avail.map(i => <button key={i} className="chip" aria-pressed={i === intent} onClick={() => setIntent(i)}>{INTENT_LABEL[i].en}{hi ? <span lang="hi" style={{ marginLeft: 6, opacity: .8 }}>{INTENT_LABEL[i].hi}</span> : null}</button>)}
         </div>
-        <p className="sentence" style={{ marginTop: 14 }} aria-live="polite">{ex.sentence}</p>
+        <SentenceHover text={ex.sentence} skip={[lemma]} style={{ marginTop: 14 }}><p className="sentence" style={{ margin: 0 }}>{ex.sentence}</p></SentenceHover>
         <Btn kind="soft" icon="🔊" onClick={() => say(ex.sentence)}>Listen</Btn>
       </Card>
       {coach.memoryHook && <Card tone="good"><p className="label" style={{ margin: "0 0 6px" }}>Memory trick</p><p style={{ margin: 0 }}>{coach.memoryHook}</p><p className="sub small" style={{ margin: "6px 0 0" }}>A helper for remembering, not the history of the word.</p></Card>}

@@ -69,7 +69,7 @@ export async function deleteAll(userId: string) {
 // ---- Dictionary (read-only reference data, shared by everyone) ----
 import { lookupCandidates, rowToSense, type DictRow, type Sense } from "@core";
 
-const dictCols = "sense_id, lemma, pos, rank, synset_id, definition, examples, synonyms, antonyms, broader, ipa, arpabet";
+const dictCols = "sense_id, lemma, pos, rank, synset_id, definition, examples, synonyms, antonyms, broader, ipa, arpabet, source";
 export interface DictHit {
   senses: Sense[]; matched: string;
   /** senseId -> why it is shown, when it is not the word as typed ("“went” is a form of “go”."). */
