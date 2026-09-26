@@ -26,6 +26,7 @@ export default function TownPage() {
     if (!ready || started.current) return; started.current = true;
     let before: string[] | null = null; try { const raw = localStorage.getItem(SEEN_KEY); before = raw ? (JSON.parse(raw) as string[]) : null; } catch { /* first visit */ }
     const ids = view.built.map(p => p.id); const added = before ? ids.filter(id => !before!.includes(id)) : [];
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading the last visit from storage is syncing with an external system
     if (added.length) { setFresh(added); const names = view.built.filter(p => added.includes(p.id)).map(p => p.name); setToast(added.length === 1 ? `New in your town: ${names[0]}` : `${added.length} new pieces: ${names.slice(0, 3).join(", ")}${added.length > 3 ? "…" : ""}`); setGlow(true); }
     try { localStorage.setItem(SEEN_KEY, JSON.stringify(ids)); } catch { /* memory only */ }
     const a = setTimeout(() => setGlow(false), 4000), b = setTimeout(() => setToast(null), 5000);
