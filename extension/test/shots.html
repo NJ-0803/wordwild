@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><title>Screenshot page</title>
+<style>body{margin:0;background:#f7f5f0;color:#1d1d1f;font:20px/1.75 Georgia,"Times New Roman",serif}
+header{background:#fff;border-bottom:1px solid #e3ded3;padding:18px 0}header div,article{max-width:760px;margin:0 auto;padding:0 24px}
+header b{font:600 18px system-ui,sans-serif;letter-spacing:.02em}h1{font-size:44px;line-height:1.1;margin:46px 0 8px}.by{font:15px system-ui,sans-serif;color:#77726a;margin-bottom:28px}
+::selection{background:#b9caff}</style>
+<header><div><b>The Evening Reader</b></div></header>
+<article><h1>Learning a language, one small word at a time</h1><p class="by">Essay · 4 min read</p>
+<p>When Meena started her job at the market, she did not need a dictionary so much as a friend who could explain what people really meant. A customer who said the price was <span id="w1">a little high</span> was not making a comment about numbers. He was asking, gently and without asking, for a lower one.</p>
+<p>Her manager, always careful with words, would say a colleague had been <span id="w2">let go</span> when everyone in the room knew the truth. It is a <span id="w3">euphemism</span>, a soft way to say something hard, and learning to hear it was part of learning to work here.</p>
+<p>Last week a stranger told her the shop <span id="w4">went</span> quiet after the rain, and on another day someone wrote that they would <span id="w5">recieve</span> the delivery on Friday. Small things like these are where a language is really learned.</p>
+<p>Finding it <span id="w6">serendipity</span> she had met her neighbour, Meena decided to keep a list.</p></article>
+<script>
+const DATA = JSON.parse(new URLSearchParams(location.search).has("x") ? "{}" : "{}");
+fetch("shots-data.json").then(r => r.json()).then(all => {
+  window.chrome = { storage: { sync: { get: async () => ({ trigger: "any" }) }, onChanged: { addListener() {} } },
+    runtime: { sendMessage: async (m) => m.type === "base" ? { base: "https://wordwild-seven.vercel.app" } : (all[m.q] || { status: "unknown", suggestions: [] }) } };
+  const s = document.createElement("script"); s.src = "../shared.js"; s.onload = () => { const c = document.createElement("script"); c.src = "../content.js"; c.onload = go; document.body.appendChild(c); }; document.body.appendChild(s);
+});
+function go() {
+  const id = new URLSearchParams(location.search).get("w") || "w3"; const el = document.getElementById(id); if (!el) return;
+  const r = document.createRange(); r.selectNodeContents(el); getSelection().removeAllRanges(); getSelection().addRange(r);
+  setTimeout(() => dispatchEvent(new KeyboardEvent("keydown", { key: "e", bubbles: true, cancelable: true })), 300);
+}
+</script>

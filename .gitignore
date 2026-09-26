@@ -16,3 +16,4 @@ assets-src/
 dictionary/build/
 .vercel
 .env*
+dist/

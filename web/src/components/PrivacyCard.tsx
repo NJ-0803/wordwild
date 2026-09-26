@@ -16,7 +16,7 @@ export function PrivacyCard() {
       <Btn kind={on && !signal ? "primary" : "soft"} disabled={signal} aria-pressed={on && !signal} onClick={() => { const n = !on; setMetricsEnabled(n); setOn(n); setNote(n ? "Counting is on." : "Counting is off, and the random number on this device was deleted."); }}>{on && !signal ? "Counting is on: turn it off" : "Counting is off: turn it on"}</Btn>
       <Btn kind="ghost" onClick={() => { resetDeviceId(); setNote("The random number on this device was deleted. A new one is made next time."); }}>Forget my random number</Btn>
       {note && <p role="status" className="sub small">{note}</p>}
-      <p className="sub small"><Link href="/about">Full details</Link></p>
+      <p className="sub small"><Link href="/privacy">Read the full privacy policy</Link></p>
     </Card>
   );
 }

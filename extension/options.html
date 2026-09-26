@@ -5,7 +5,10 @@
 <label class="label" for="trigger">When should the meaning appear?</label>
 <div class="beam"><select id="trigger"><option value="any">Select a word, then press any letter key</option><option value="d">Select a word, then press D</option><option value="off">Never (use the toolbar button only)</option></select></div>
 <p class="s">The meaning never opens while you are typing in a box, and never when you hold Ctrl, Cmd or Alt.</p>
+<div id="addr">
 <label class="label" for="base">Wordwild address</label>
 <div class="beam"><input id="base" placeholder="https://wordwild-seven.vercel.app"></div>
 <p class="s">Where your Wordwild lives. Only the word you select is sent there, never the page or its address.</p>
-<div class="beam" style="margin-top:18px"><button id="save">Save</button></div><div id="msg" role="status"></div><script src="options.js"></script>
+</div>
+<div class="beam" style="margin-top:18px"><button id="save">Save</button></div><div id="msg" role="status"></div>
+<p class="s" style="margin-top:24px">Only the word you select is sent to Wordwild, and only when you press the key. <a href="https://wordwild-seven.vercel.app/privacy" target="_blank" rel="noopener">Privacy policy</a></p><script src="options.js"></script>
