@@ -23,8 +23,15 @@ const cropFor = (p: Plot): { path: string; size: number } | null =>
   p.stage === 0 ? null : p.stage === 1 ? { path: "nature/crops_wheatStageA", size: 0.95 } : p.stage === 2 ? { path: "nature/crops_wheatStageB", size: 1.0 }
   : { path: MATURE[hash(p.senseId) % MATURE.length], size: MATURE[hash(p.senseId) % MATURE.length].includes("corn") ? 1.0 : 0.8 };
 
-const FARM_COLS = 8, FARM_ROWS = 3, MAX_PLOTS = FARM_COLS * FARM_ROWS;
-const plotPos = (i: number): [number, number, number] => [-4.9 + (i % FARM_COLS) * 1.4, 0, 2.6 + Math.floor(i / FARM_COLS) * 1.3];
+// The town is laid out on a tile grid (1 tile = 2 world units): a north road and a south road joined by a middle road, buildings on lots along them,
+// and two fenced fields south of the south road where the words grow.
+const T = 2;
+const FIELD_COLS = 6, FIELD_ROWS = 2, PER_FIELD = FIELD_COLS * FIELD_ROWS, MAX_PLOTS = PER_FIELD * 2;
+const FIELD_Z = [9.2, 11.4];
+const plotPos = (i: number): [number, number, number] => {
+  const f = i < PER_FIELD ? 0 : 1, k = i % PER_FIELD, col = k % FIELD_COLS, row = Math.floor(k / FIELD_COLS);
+  return [(f === 0 ? -11 : 3.2) + col * 1.6, 0, FIELD_Z[row]];
+};
 
 const markerTexture = (() => {
   if (typeof document === "undefined") return null;
@@ -50,7 +57,7 @@ function PlotView({ p, i, lemma, motion, onPlot }: { p: Plot; i: number; lemma?:
       <Model path="nature/crops_dirtSingle" size={1.15} />
       <group ref={g}>{crop && <Model path={crop.path} size={crop.size} position={[0, 0.08, 0]} rotationY={(hash(p.senseId) % 6) * 0.5} />}</group>
       {p.stage === 0 && <mesh position={[0, 0.1, 0]} scale={[0.3, 0.14, 0.3]}><sphereGeometry args={[1, 12, 8]} /><meshStandardMaterial color="#8a5a2b" roughness={1} /></mesh>}
-      {p.ripe && <><Ripe y={1.5} motion={motion} seed={i} />{lemma && <Label3D text={lemma} position={[0, -0.05, 0.75]} scale={0.22} bg="rgba(12,29,71,0.96)" />}</>}
+      {p.ripe && <><Ripe y={1.5} motion={motion} seed={i} />{lemma && <Label3D text={lemma} position={[0, -0.05, 0.75]} scale={0.3} bg="rgba(12,29,71,0.96)" />}</>}
     </group>
   );
 }
@@ -66,17 +73,18 @@ function Smoke({ position, motion }: { position: [number, number, number]; motio
 
 function Site({ b }: { b: TownView["buildings"][number] }) {
   const dim = b.status === "locked";
-  const post = (x: number, z: number) => <mesh key={`${x}${z}`} position={[x, 0.32, z]} castShadow><boxGeometry args={[0.1, 0.56, 0.1]} /><meshStandardMaterial color={dim ? "#8b8378" : "#8a5a30"} roughness={0.9} /></mesh>;
+  const rail = (x: number, z: number, r: number, size: number) => <Model key={`${x}${z}`} path="nature/fence_planks" size={size} position={[x, 0, z]} rotationY={r} />;
   return (
     <group>
-      <mesh position={[0, 0.04, 0]} receiveShadow><boxGeometry args={[2.4, 0.08, 2.1]} /><meshStandardMaterial color={dim ? "#b5ae9f" : "#d2b88a"} roughness={1} /></mesh>
-      <mesh position={[0, 0.09, 0]} receiveShadow><boxGeometry args={[2.1, 0.03, 1.8]} /><meshStandardMaterial color={dim ? "#a59f91" : "#c2a677"} roughness={1} /></mesh>
-      {post(-1.1, -0.95)}{post(1.1, -0.95)}{post(-1.1, 0.95)}{post(1.1, 0.95)}
-      <Model path="nature/log_stack" size={0.75} position={[0.55, 0.08, 0.3]} rotationY={0.6} tint={dim ? "#9a9488" : undefined} />
-      <Model path="nature/rock_smallA" size={0.5} position={[-0.6, 0.08, -0.3]} />
-      {b.status === "ready" && <Ripe y={1.6} motion seed={b.unlockLevel} />}
-      <Label3D text={b.name} position={[0, 1.15, 0]} scale={0.26} bg={dim ? "rgba(70,80,90,0.9)" : "rgba(12,29,71,0.96)"} />
-      <Label3D text={b.status === "locked" ? `Level ${b.unlockLevel}` : b.status === "ready" ? "Tap to build!" : `${b.needCoins} more coins`} position={[0, 0.78, 0]} scale={0.2} bg={b.status === "ready" ? "rgba(230,150,20,0.95)" : "rgba(20,24,26,0.8)"} />
+      <mesh position={[0, 0.03, 0]} receiveShadow><boxGeometry args={[3.6, 0.06, 3.2]} /><meshStandardMaterial color={dim ? "#7d7566" : "#9b7a4a"} roughness={1} /></mesh>
+      {rail(-0.9, -1.55, 0, 1.8)}{rail(0.9, -1.55, 0, 1.8)}{rail(-0.9, 1.55, 0, 1.8)}{rail(0.9, 1.55, 0, 1.8)}{rail(-1.75, -0.8, Math.PI / 2, 1.6)}{rail(-1.75, 0.8, Math.PI / 2, 1.6)}{rail(1.75, -0.8, Math.PI / 2, 1.6)}{rail(1.75, 0.8, Math.PI / 2, 1.6)}
+      <Model path="roads/construction-cone" size={0.42} position={[1.2, 0, 1.05]} />
+      <Model path="roads/construction-cone" size={0.42} position={[-1.2, 0, 1.05]} />
+      <Model path="nature/log_stack" size={0.8} position={[0.7, 0.06, -0.4]} rotationY={0.6} tint={dim ? "#9a9488" : undefined} />
+      <Model path="nature/stone_largeA" size={0.7} position={[-0.7, 0.06, -0.3]} />
+      {b.status === "ready" && <Ripe y={1.9} motion seed={b.unlockLevel} />}
+      <Label3D text={b.name} position={[0, 1.6, 0]} scale={0.42} bg={dim ? "rgba(70,80,90,0.9)" : "rgba(12,29,71,0.96)"} />
+      <Label3D text={b.status === "locked" ? `Level ${b.unlockLevel}` : b.status === "ready" ? "Tap to build" : `${b.needCoins} more coins`} position={[0, 1.12, 0]} scale={0.32} bg={b.status === "ready" ? "rgba(230,150,20,0.95)" : "rgba(20,24,26,0.8)"} />
     </group>
   );
 }
@@ -89,7 +97,7 @@ function BuildingView({ b, selected, motion, onBuilding }: { b: TownView["buildi
     <group position={[b.slot[0], 0, b.slot[1]]} {...pointer} onClick={click(() => onBuilding(b.id))}>
       {built ? <>
         <Model path={b.model} size={2.6} />
-        <Label3D text={b.name} position={[0, 2.7, 0]} scale={0.26} bg="rgba(12,29,71,0.96)" />
+        <Label3D text={b.name} position={[0, 3.0, 0]} scale={0.42} bg="rgba(12,29,71,0.96)" />
         {(b.id === "home" || b.id === "cafe") && <Smoke position={[0.5, 1.7, 0]} motion={motion} />}
       </> : <Site b={b} />}
       {selected && <mesh ref={ring} position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[1.5, 1.68, 48]} /><meshBasicMaterial color="#ffd166" transparent opacity={0.9} /></mesh>}
@@ -97,31 +105,80 @@ function BuildingView({ b, selected, motion, onBuilding }: { b: TownView["buildi
   );
 }
 
+/** Streets: two horizontal roads and a middle road, with crossroads where they meet. */
+function Roads() {
+  const at = (tx: number, tz: number): [number, number, number] => [tx * T, 0.02, tz * T];
+  const pieces: { path: string; tx: number; tz: number; r: number }[] = [];
+  for (const tz of [-2, 2]) for (let tx = -6; tx <= 6; tx++) pieces.push({ path: tx === 0 ? "roads/road-crossroad" : "roads/road-straight", tx, tz, r: 0 });
+  for (let tz = -7; tz <= 5; tz++) { if (tz === -2 || tz === 2) continue; pieces.push({ path: tz === 5 ? "roads/road-end" : "roads/road-straight", tx: 0, tz, r: tz === 5 ? Math.PI : Math.PI / 2 }); }
+  return <>{pieces.map((p, i) => <Model key={i} path={p.path} size={T} position={at(p.tx, p.tz)} rotationY={p.r} />)}</>;
+}
+
+/** Street lamps along both sides of the two main roads. */
+function Lamps() {
+  const out: { x: number; z: number; r: number }[] = [];
+  for (const tz of [-2, 2]) for (const tx of [-5, -2, 2, 5]) out.push({ x: tx * T + 1, z: tz * T + (tz < 0 ? -1.15 : 1.15), r: tz < 0 ? 0 : Math.PI });
+  return <>{out.map((l, i) => <Model key={i} path="roads/light-square" size={0.95} position={[l.x, 0, l.z]} rotationY={l.r} />)}</>;
+}
+
+/** Background houses and gardens: the town beyond the chapter buildings, so the streets look lived in. */
+function Houses() {
+  const homes: [string, number, number, number][] = [
+    ["suburban/building-type-a", -16.5, -8, Math.PI / 2], ["suburban/building-type-b", -16.5, -1, Math.PI / 2], ["suburban/building-type-c", -16.5, 6, Math.PI / 2],
+    ["suburban/building-type-e", 16.5, -8, -Math.PI / 2], ["suburban/building-type-g", 16.5, -1, -Math.PI / 2], ["suburban/building-type-j", 16.5, 6, -Math.PI / 2],
+    ["suburban/building-type-c", -7.5, -13, 0], ["suburban/building-type-a", 7, -13, 0],
+  ];
+  return <>{homes.map(([path, x, z, r], i) => <group key={i}><Model path={path} size={3.0} position={[x, 0, z]} rotationY={r} /><Model path="nature/plant_bushLarge" size={0.9} position={[x + (x < 0 ? 1.9 : -1.9), 0, z + 1.4]} /></group>)}</>;
+}
+
+/** A river across the top of the map with a wooden bridge where the middle road meets it. */
+function River() {
+  return (
+    <>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.006, -16.5]} receiveShadow><planeGeometry args={[110, 5.6]} /><meshStandardMaterial color="#d9caa0" roughness={1} /></mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, -16.5]}><planeGeometry args={[110, 4]} /><meshStandardMaterial color="#3f8fd0" roughness={0.25} metalness={0.05} emissive="#123a66" emissiveIntensity={0.25} /></mesh>
+      <Model path="nature/bridge_woodNarrow" size={5.4} position={[0, 0.06, -16.5]} rotationY={Math.PI / 2} />
+    </>
+  );
+}
+
+/** Trees and bushes: dense on the edges, cleared where the town and fields are. */
 function Decor() {
   const items = useMemo(() => {
     const out: { path: string; size: number; x: number; z: number; r: number }[] = [];
-    const trees = ["nature/tree_oak", "nature/tree_detailed", "nature/tree_default", "nature/tree_fat", "nature/tree_small", "nature/tree_plateau"];
-    const keepOut = (x: number, z: number) => Math.abs(x) < 8.4 && z > -6.4 && z < 7.4;
-    let nt = 0, nb = 0;
-    for (let i = 0; i < 400 && (nt < 26 || nb < 14); i++) {
-      const x = (rand(i) - 0.5) * 30, z = (rand(i + 500) - 0.5) * 24 - 1; if (keepOut(x, z)) continue;
-      if (nt < 26) { out.push({ path: trees[i % trees.length], size: 1.2 + rand(i + 9) * 0.9, x, z, r: rand(i + 3) * 6.28 }); nt++; }
-      else if (nb < 14) { out.push({ path: ["nature/plant_bush", "nature/plant_bushDetailed", "nature/plant_bushSmall"][i % 3], size: 0.8, x, z, r: rand(i) * 6 }); nb++; }
+    const trees = ["nature/tree_oak", "nature/tree_detailed", "nature/tree_default", "nature/tree_fat", "nature/tree_small", "nature/tree_plateau", "nature/tree_tall", "nature/tree_pineRoundA", "nature/tree_pineTallA"];
+    const keepOut = (x: number, z: number) => (Math.abs(x) < 19.5 && z > -15 && z < 15.5) || Math.abs(z + 16.5) < 3.4 || (z > 15 && x > -22) || (x > 19 && z > 5);   // clear the town, the river, and the view toward the camera
+    let n = 0;
+    for (let i = 0; i < 2600 && n < 130; i++) {
+      const x = (rand(i) - 0.5) * 66, z = (rand(i + 500) - 0.5) * 60 - 2; if (keepOut(x, z)) continue;
+      out.push({ path: trees[i % trees.length], size: 1.5 + rand(i + 9) * 1.3, x, z, r: rand(i + 3) * 6.28 }); n++;
     }
-    for (let i = 0; i < 40; i++) {                                                               // flowers and rocks between buildings and farm
-      const x = (rand(i + 900) - 0.5) * 14, z = 1.3 - rand(i + 1300) * 1.6 + (i % 2) * 5.6; if (Math.abs(z + 3.6) < 1.7 || Math.abs(z + 0.8) < 1.7 || z > 2.0 && z < 6.2) continue;
-      out.push({ path: ["nature/flower_redA", "nature/flower_yellowA", "nature/flower_purpleA", "nature/flower_redB", "nature/rock_smallC"][i % 5], size: 0.42, x, z, r: rand(i) * 6 });
+    for (let i = 0; i < 40; i++) {                                                                // hedges and bushes along the town edge
+      const x = (rand(i + 70) - 0.5) * 34, z = rand(i + 11) > 0.5 ? -14.2 : 14.2; out.push({ path: ["nature/plant_bush", "nature/plant_bushLarge", "nature/plant_bushSmall"][i % 3], size: 0.9, x, z, r: rand(i) * 6 });
+    }
+    for (let i = 0; i < 70; i++) {                                                                // flowers and stones between the streets
+      const x = (rand(i + 900) - 0.5) * 30, z = (rand(i + 1300) - 0.5) * 24 - 1; if (Math.abs(z + 4) < 2.2 || Math.abs(z - 4) < 2.2 || Math.abs(x) < 1.8 || z > 6 || Math.abs(z + 8) < 3 && Math.abs(x) < 12) continue;
+      out.push({ path: ["nature/flower_redA", "nature/flower_yellowA", "nature/flower_purpleA", "nature/flower_redB", "nature/stone_smallA"][i % 5], size: 0.45, x, z, r: rand(i) * 6 });
     }
     return out;
   }, []);
   return <>{items.map((it, i) => <Model key={i} path={it.path} size={it.size} position={[it.x, 0, it.z]} rotationY={it.r} />)}</>;
 }
 
-function Paths() {
-  const tiles: [number, number][] = [];
-  for (let x = -6.6; x <= 6.6; x += 1.1) tiles.push([x, 1.2]);
-  for (let z = 0.2; z >= -2.0; z -= 1.1) tiles.push([0, z]);
-  return <>{tiles.map(([x, z], i) => <Model key={i} path="nature/path_stone" size={1.15} position={[x, 0.01, z]} rotationY={i % 2 ? 0 : Math.PI / 2} />)}</>;
+/** Two fenced fields: tilled soil and a rail fence, with a gap at the road. */
+function Fields() {
+  const rails: React.ReactNode[] = [];
+  for (const [x0, x1] of [[-12.2, -0.9], [0.9, 12.2]] as const) {
+    const z0 = 7.6, z1 = 12.9;
+    for (let x = x0 + 0.9; x <= x1 - 0.9; x += 1.8) { rails.push(<Model key={`a${x}${x0}`} path="nature/fence_planks" size={1.8} position={[x, 0, z1]} />); if (x < x1 - 3.6 || x0 > 0) rails.push(<Model key={`b${x}${x0}`} path="nature/fence_planks" size={1.8} position={[x, 0, z0]} />); }
+    for (let z = z0 + 0.9; z <= z1 - 0.9; z += 1.8) { rails.push(<Model key={`c${z}${x0}`} path="nature/fence_planks" size={1.8} position={[x0, 0, z]} rotationY={Math.PI / 2} />, <Model key={`d${z}${x0}`} path="nature/fence_planks" size={1.8} position={[x1, 0, z]} rotationY={Math.PI / 2} />); }
+  }
+  return (
+    <>
+      {[[-6.5, 10.2], [6.5, 10.2]].map(([x, z], i) => <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.025, z]} receiveShadow><planeGeometry args={[10.6, 5.2]} /><meshStandardMaterial color="#6a4a2a" roughness={1} /></mesh>)}
+      {rails}
+    </>
+  );
 }
 
 function Lights({ hour }: { hour: number }) {
@@ -129,10 +186,16 @@ function Lights({ hour }: { hour: number }) {
   return (
     <>
       <hemisphereLight args={[L.sky, L.ground, L.hemi]} />
-      <directionalLight position={L.pos} intensity={L.intensity} color={L.color} castShadow shadow-mapSize={[1024, 1024]}
-        shadow-camera-left={-14} shadow-camera-right={14} shadow-camera-top={14} shadow-camera-bottom={-14} shadow-camera-near={1} shadow-camera-far={40} shadow-bias={-0.0004} shadow-normalBias={0.04} />
+      <directionalLight position={L.pos} intensity={L.intensity} color={L.color} castShadow shadow-mapSize={[2048, 2048]}
+        shadow-camera-left={-26} shadow-camera-right={26} shadow-camera-top={26} shadow-camera-bottom={-26} shadow-camera-near={1} shadow-camera-far={90} shadow-bias={-0.0004} shadow-normalBias={0.04} />
     </>
   );
+}
+
+/** Horizon: the sky colour and a soft distance fog follow the time of day, so the edge of the map fades into the air instead of ending. */
+function Sky({ hour }: { hour: number }) {
+  const c = useMemo(() => lightAt(hour).sky.clone().lerp(new THREE.Color("#ffffff"), 0.18), [hour]);
+  return <><color attach="background" args={[c]} /><fog attach="fog" args={[c, 70, 190]} /></>;
 }
 
 function Clouds({ motion }: { motion: boolean }) {
@@ -148,26 +211,31 @@ const PRELOAD = [
   "nature/tree_oak", "nature/tree_detailed", "nature/tree_default", "nature/tree_fat", "nature/tree_small", "nature/tree_plateau",
   "nature/plant_bush", "nature/plant_bushDetailed", "nature/plant_bushSmall", "nature/flower_redA", "nature/flower_yellowA", "nature/flower_purpleA", "nature/flower_redB",
 ];
-preload(PRELOAD);
+preload([...PRELOAD, "roads/road-straight", "roads/road-crossroad", "roads/road-end", "roads/light-square", "roads/construction-fence", "roads/construction-cone", "roads/construction-barrier", "nature/fence_planks", "nature/ground_riverStraight", "nature/bridge_woodNarrow", "nature/tree_tall", "nature/tree_pineRoundA", "nature/tree_pineTallA", "nature/plant_bushLarge", "nature/stone_largeA", "nature/stone_smallA", "suburban/building-type-a", "suburban/building-type-b", "suburban/building-type-c", "suburban/building-type-e", "suburban/building-type-g", "suburban/building-type-j"]);
 
 export default function TownScene(p: TownSceneProps) {
   const controls = useRef<{ target: THREE.Vector3 } | null>(null);
   const shown = p.plots.slice(0, MAX_PLOTS);
   return (
-    <Canvas shadows frameloop={p.motion ? "always" : "demand"} dpr={[1, 1.5]} camera={{ position: [12, 14, 15.5], fov: 36, near: 0.5, far: 90 }} gl={{ antialias: true }}>
+    <Canvas shadows frameloop={p.motion ? "always" : "demand"} dpr={[1, 1.5]} camera={{ position: [27, 27, 37], fov: 30, near: 1, far: 300 }} gl={{ antialias: true }}>
       <Lights hour={p.hour} />
+      <Sky hour={p.hour} />
       <Suspense fallback={null}>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, -0.01, -0.5]}><planeGeometry args={[60, 50]} /><meshStandardMaterial color="#6c9f50" roughness={1} /></mesh>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 4.15]}><planeGeometry args={[13.2, 4.7]} /><meshStandardMaterial color="#65984a" roughness={1} /></mesh>
-        <Paths />
+        <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, -0.01, -1]}><planeGeometry args={[400, 360]} /><meshStandardMaterial color="#6c9f50" roughness={1} /></mesh>
+        <River />
+        <Roads />
+        <Lamps />
+        <Houses />
+        <Fields />
         <Decor />
         {p.buildings.map(b => <BuildingView key={b.id} b={b} selected={p.selectedBuilding === b.id} motion={p.motion} onBuilding={p.onBuilding} />)}
         {shown.map((pl, i) => <PlotView key={pl.senseId} p={pl} i={i} lemma={p.lemmas[pl.senseId]} motion={p.motion} onPlot={p.onPlot} />)}
+        {Array.from({ length: MAX_PLOTS - shown.length }, (_, k) => <Model key={`bed${k}`} path="nature/crops_dirtSingle" size={1.15} position={plotPos(shown.length + k)} />)}   {/* empty tilled beds: room for the next words */}
         <Clouds motion={p.motion} />
       </Suspense>
-      <OrbitControls ref={controls as never} enableRotate={false} enablePan enableZoom enableDamping dampingFactor={0.12} minDistance={10} maxDistance={30} target={[0, 0, 0.6]}
+      <OrbitControls ref={controls as never} enableRotate={false} enablePan enableZoom enableDamping dampingFactor={0.12} minDistance={18} maxDistance={64} target={[0, 0, 2]}
         mouseButtons={{ LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN }} touches={{ ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN }}
-        onChange={() => { const t = controls.current?.target; if (t) { t.x = THREE.MathUtils.clamp(t.x, -7, 7); t.z = THREE.MathUtils.clamp(t.z, -6, 7); } }} />
+        onChange={() => { const t = controls.current?.target; if (t) { t.x = THREE.MathUtils.clamp(t.x, -14, 14); t.z = THREE.MathUtils.clamp(t.z, -12, 14); } }} />
     </Canvas>
   );
 }
