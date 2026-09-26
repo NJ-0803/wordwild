@@ -50,7 +50,7 @@ export default function ExtensionPage() {
       <Step n={2} title="Open Chrome's extensions page">
         <p className="sub" style={{ margin: 0 }}>Websites are not allowed to open this page for you. Open a new tab, paste the address below, and press Enter.</p>
         <div className="row" style={{ justifyContent: "flex-start" }}>
-          <code style={{ flex: 1, padding: "14px 16px", borderRadius: 14, background: "#03040a", border: "1px solid var(--line)", fontFamily: "var(--font-mono), monospace", fontSize: "1.05rem" }}>chrome://extensions</code>
+          <code style={{ flex: 1, padding: "14px 16px", borderRadius: 14, background: "#070a14", border: "1px solid var(--line)", fontFamily: "var(--font-mono), monospace", fontSize: "1.05rem" }}>chrome://extensions</code>
           <div style={{ flex: "0 0 auto" }}><Btn kind="soft" onClick={copy} style={{ width: "auto", minWidth: 110 }}>{copied ? "Copied" : "Copy"}</Btn></div>
         </div>
         <p className="sub small" style={{ margin: 0 }}>On Edge use <code>edge://extensions</code>, on Brave <code>brave://extensions</code>.</p>
