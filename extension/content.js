@@ -14,10 +14,10 @@
     shadow.innerHTML = `<style>
       *{box-sizing:border-box}
       /* Frosted glass: the page shows through, blurred, so the text on the card stays readable. The moving light is a thin ring drawn on top. */
-      .beam{position:fixed;padding:2px;border-radius:20px;width:324px;max-width:calc(100vw - 8px);box-shadow:0 24px 70px rgba(0,0,0,.45),0 0 40px rgba(50,90,220,.28);animation:open .42s cubic-bezier(.34,1.45,.64,1) both}
+      .beam{position:fixed;padding:2px;border-radius:20px;width:324px;max-width:calc(100vw - 8px);box-shadow:0 24px 70px rgba(0,0,0,.45),0 0 40px rgba(50,90,220,.28);animation:open .42s cubic-bezier(.34,1.45,.64,1) backwards}
       .ring{position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:20px;padding:2px;overflow:hidden;background:rgba(120,150,235,.32);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
       .ring::before{content:"";position:absolute;left:50%;top:50%;width:260%;aspect-ratio:1;translate:-50% -50%;background:conic-gradient(from 0deg,transparent 0 55%,rgba(80,120,255,.95) 78%,#dfe7ff 90%,transparent 100%);animation:spin 3.6s linear infinite}
-      .c{position:relative;font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#f3f5fb;text-shadow:0 1px 2px rgba(0,0,0,.55);background:linear-gradient(180deg,rgba(11,22,54,var(--g1,.6)),rgba(5,7,15,var(--g2,.5)) 65%);-webkit-backdrop-filter:blur(2px) saturate(1.3);backdrop-filter:blur(2px) saturate(1.3);border-radius:18px;padding:16px 18px;outline:none}
+      .c{position:relative;font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#f3f5fb;text-shadow:0 1px 2px rgba(0,0,0,.55);background:linear-gradient(180deg,rgba(11,22,54,var(--g1,.6)),rgba(5,7,15,var(--g2,.5)) 65%);-webkit-backdrop-filter:blur(7px) saturate(1.4);backdrop-filter:blur(7px) saturate(1.4);border-radius:18px;padding:16px 18px;outline:none}
       .w{font:400 30px/1.05 "Instrument Serif",Georgia,"Times New Roman",serif;letter-spacing:-.01em;color:#fff;margin:0}
       .p{font:500 11px/1.4 "IBM Plex Mono",ui-monospace,Menlo,monospace;text-transform:uppercase;letter-spacing:.07em;color:#a4aec6;margin:4px 0 8px}
       .m{margin:6px 0;font-size:16px}.e{color:#a4aec6;font-size:13px;margin:6px 0}.h{margin:6px 0;font-size:15px}
@@ -73,7 +73,7 @@
     card.innerHTML = html;
     const pos = S.placePopup(rect, innerWidth, innerHeight, 324, wrap.offsetHeight || 190); wrap.style.left = pos.left + "px"; wrap.style.top = pos.top + "px";
     const light = pageIsLight(pos.left + 162, pos.top + 90);   // darker tint over light pages, more see-through over dark ones
-    card.style.setProperty("--g1", light ? ".56" : ".36"); card.style.setProperty("--g2", light ? ".5" : ".3");
+    card.style.setProperty("--g1", light ? ".68" : ".4"); card.style.setProperty("--g2", light ? ".6" : ".32");
     card.querySelector(".x").onclick = close;
     card.querySelectorAll("[data-sug]").forEach(b => b.addEventListener("click", () => open(b.dataset.sug, rect)));
     card.querySelector('[data-a="say"]')?.addEventListener("click", () => speak(`${res.senses[i].lemma}. ${res.senses[i].simple}`));
