@@ -175,7 +175,7 @@ function Fields() {
   }
   return (
     <>
-      {[[-6.5, 10.2], [6.5, 10.2]].map(([x, z], i) => <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.025, z]} receiveShadow><planeGeometry args={[10.6, 5.2]} /><meshStandardMaterial color="#6a4a2a" roughness={1} /></mesh>)}
+      {[[-6.5, 10.2], [6.5, 10.2]].map(([x, z], i) => <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.025, z]} receiveShadow><planeGeometry args={[10.6, 5.2]} /><meshStandardMaterial color="#6a4a2a" roughness={1} emissive="#5a3d1e" emissiveIntensity={0.32} /></mesh>)}
       {rails}
     </>
   );
