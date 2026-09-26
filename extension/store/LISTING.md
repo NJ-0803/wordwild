@@ -1,6 +1,6 @@
 # Chrome Web Store listing: Wordwild (copy each block into the dashboard)
 
-Package: `node build-store.mjs` -> `dist/wordwild-extension-1.0.1.zip`
+Package: `node build-store.mjs` -> `dist/wordwild-extension-1.0.2.zip`
 Privacy policy URL: https://wordwild-seven.vercel.app/privacy
 Homepage / support URL: https://wordwild-seven.vercel.app
 Category: Education      Language: English

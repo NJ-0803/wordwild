@@ -1,8 +1,10 @@
 // Select a word on any page, press a key, see the meaning. Only the selected word (never the page, URL or your other text) is sent.
 (() => {
   const S = self.WordwildShared; let mode = "any"; let host, shadow, card, wrap, state = null;
-  chrome.storage.sync.get(["trigger"]).then(v => { mode = v.trigger || "any"; });
-  chrome.storage.onChanged.addListener(c => { if (c.trigger) mode = c.trigger.newValue || "any"; });
+  // After the extension is updated or reloaded, a page that was already open still runs the old copy of this script, and every call to the
+  // extension throws "Extension context invalidated". That is normal, so it is caught here and turned into a plain "refresh this page" message.
+  const send = async (msg) => { try { return await chrome.runtime.sendMessage(msg); } catch { return { status: "stale" }; } };
+  try { chrome.storage.sync.get(["trigger"]).then(v => { mode = v.trigger || "any"; }).catch(() => {}); chrome.storage.onChanged.addListener(c => { if (c.trigger) mode = c.trigger.newValue || "any"; }); } catch { /* stale copy: nothing to do */ }
 
   const inEditable = el => !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
   const speak = (t) => { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.rate = 0.9; speechSynthesis.speak(u); } catch {} };
@@ -65,6 +67,7 @@
       html += `<p class="n">Only the word you selected was sent.${s.ai ? ' <span class="ai">Extra help drafted by AI.</span>' : ""}</p>`;
     } else if (res.status === "busy") html += `<p class="m">Please wait a moment and try again.</p>`;
     else if (res.status === "error") html += `<p class="m">Could not reach Wordwild. Is your connection on, and the address set in the extension options?</p>`;
+    else if (res.status === "stale") html += `<p class="m">Wordwild was just updated. Please refresh this page to keep using it.</p>`;
     else if (res.status === "unsearchable") html += `<p class="m">${esc(res.message)}</p>`;
     else {
       html += `<p class="w">${esc(q)}</p><p class="m">Not in our dictionary yet. Nothing has been guessed.</p>${res.hint ? `<p class="e">${esc(res.hint)}</p>` : ""}`;
@@ -82,9 +85,9 @@
   }
 
   async function open(word, rect) {
-    const { base } = await chrome.runtime.sendMessage({ type: "base" });
+    const b = (await send({ type: "base" })) || {}; const base = b.base || "";
     state = { q: word, res: null, i: 0, base, rect }; render();
-    const res = await chrome.runtime.sendMessage({ type: "lookup", q: word }).catch(() => ({ status: "error" }));
+    const res = b.status === "stale" ? b : ((await send({ type: "lookup", q: word })) || { status: "error" });
     if (state && state.q === word) { state.res = res; render(); }
   }
 

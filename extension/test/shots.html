@@ -14,7 +14,7 @@ const __attach = Element.prototype.attachShadow; Element.prototype.attachShadow 
 const DATA = JSON.parse(new URLSearchParams(location.search).has("x") ? "{}" : "{}");
 fetch("shots-data.json").then(r => r.json()).then(all => {
   window.chrome = { storage: { sync: { get: async () => ({ trigger: "any" }) }, onChanged: { addListener() {} } },
-    runtime: { sendMessage: async (m) => m.type === "base" ? { base: "https://wordwild-seven.vercel.app" } : (all[m.q] || { status: "unknown", suggestions: [] }) } };
+    runtime: { sendMessage: async (m) => new URLSearchParams(location.search).has("stale") ? (() => { throw new Error("Extension context invalidated."); })() : m.type === "base" ? { base: "https://wordwild-seven.vercel.app" } : (all[m.q] || { status: "unknown", suggestions: [] }) } };
   const s = document.createElement("script"); s.src = "../shared.js"; s.onload = () => { const c = document.createElement("script"); c.src = "../content.js?" + Date.now(); c.onload = go; document.body.appendChild(c); }; document.body.appendChild(s);
 });
 function go() {
