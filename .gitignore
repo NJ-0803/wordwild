@@ -7,13 +7,12 @@ node_modules/
 *.log
 .vercel/
 # heavy or third-party, not part of the product
-app/
-tools/
-dictionary/raw/
-source-original/
-blender-deliverables/
-assets-src/
-dictionary/build/
-.vercel
+/app/
+/tools/
+/dictionary/raw/
+/source-original/
+/blender-deliverables/
+/assets-src/
+/dictionary/build/
 .env*
-dist/
+/extension/dist/
