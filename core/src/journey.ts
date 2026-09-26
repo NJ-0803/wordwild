@@ -23,7 +23,7 @@ export interface LearningDays {
 
 /** Local day indexes on which the learner did something real: saved a word, practised, or finished a scene. */
 export function learningDayIndexes(state: LearnerState, tz: number): number[] {
-  const at: number[] = [...state.captures.map(c => c.at), ...Object.values(state.attempts).map(a => a.at), ...state.town.filter(e => e.kind === 'scene').map(e => e.at)];
+  const at: number[] = [...state.captures.map(c => c.at), ...Object.values(state.attempts).map(a => a.at), ...state.town.filter(e => e.kind === 'scene' || e.kind === 'play').map(e => e.at)];
   return [...new Set(at.filter(t => t > 0).map(t => dayIndex(t, tz)))].sort((a, b) => a - b);
 }
 

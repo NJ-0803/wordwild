@@ -20,3 +20,5 @@ export * from './query.ts';
 export * from './coach.ts';
 export * from './journey.ts';
 export * from './metrics.ts';
+export * from './play.ts';
+export * from './playwords.ts';

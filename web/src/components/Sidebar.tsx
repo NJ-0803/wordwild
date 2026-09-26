@@ -5,7 +5,7 @@ import { Orb } from "./Companion";
 import { Icon } from "./Icons";
 
 const ITEMS = [
-  ["/", "Today", Icon.Today], ["/notebook", "My words", Icon.Words], ["/town", "Town", Icon.Town], ["/capture", "Save a word", Icon.Plus], ["/scan", "Scan", Icon.Scan], ["/voice", "Voice", Icon.Mic], ["/extension", "Chrome extension", Icon.Puzzle], ["/settings", "Settings", Icon.Gear],
+  ["/", "Today", Icon.Today], ["/notebook", "My words", Icon.Words], ["/town", "Town", Icon.Town], ["/play", "Puzzles", Icon.Puzzle], ["/capture", "Save a word", Icon.Plus], ["/scan", "Scan", Icon.Scan], ["/voice", "Voice", Icon.Mic], ["/extension", "Chrome extension", Icon.Plug], ["/settings", "Settings", Icon.Gear],
 ] as const;
 
 /** Desktop navigation: a bold rail down the left. Small screens use the bottom bar instead (Nav). */

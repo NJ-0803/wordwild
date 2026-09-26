@@ -2,6 +2,7 @@ import type { LearnerState, TownEvent } from './types.ts';
 import { dayIndex } from './state.ts';
 import { masteryLevel } from './engine.ts';
 import { SCENES, SCENE_BY_ID, SCENE_REWARD } from './story.ts';
+import { GAMES, PLAY_REWARD, type Game } from './play.ts';
 
 /**
  * Wordwild Town: a Township-style town whose every fun loop IS the learning loop.
@@ -86,9 +87,10 @@ export interface TownView {
 }
 
 const sceneCount = (s: LearnerState) => s.town.filter(e => e.kind === 'scene').length;
-const earnedXp = (s: LearnerState) => s.rewards.reduce((n, r) => n + r.points, 0) + s.town.filter(e => e.kind === 'claim').reduce((n, e) => n + (ORDER_BY_ID[parseRef(e.ref).id]?.xp ?? 0), 0) + sceneCount(s) * SCENE_REWARD.xp;
+const playCount = (s: LearnerState) => s.town.filter(e => e.kind === 'play').length;
+const earnedXp = (s: LearnerState) => s.rewards.reduce((n, r) => n + r.points, 0) + s.town.filter(e => e.kind === 'claim').reduce((n, e) => n + (ORDER_BY_ID[parseRef(e.ref).id]?.xp ?? 0), 0) + sceneCount(s) * SCENE_REWARD.xp + playCount(s) * PLAY_REWARD.xp;
 const spentCoins = (s: LearnerState) => s.town.filter(e => e.kind === 'build').reduce((n, e) => n + (BUILDING_BY_ID[e.ref]?.cost ?? 0), 0);
-const claimedCoins = (s: LearnerState) => s.town.filter(e => e.kind === 'claim').reduce((n, e) => n + (ORDER_BY_ID[parseRef(e.ref).id]?.coins ?? 0), 0) + sceneCount(s) * SCENE_REWARD.coins;
+const claimedCoins = (s: LearnerState) => s.town.filter(e => e.kind === 'claim').reduce((n, e) => n + (ORDER_BY_ID[parseRef(e.ref).id]?.coins ?? 0), 0) + sceneCount(s) * SCENE_REWARD.coins + playCount(s) * PLAY_REWARD.coins;
 export const builtIds = (s: LearnerState) => new Set(['home', ...s.town.filter(e => e.kind === 'build').map(e => e.ref)]);
 
 const STAGE = { new: 0, seen: 1, practising: 2, secure: 3 } as const;
@@ -150,8 +152,20 @@ export function finishScene(state: LearnerState, sceneId: string, now: number): 
 export const scenesFor = (buildingId: string) => SCENES.filter(s => s.building === buildingId);
 export const seenScenes = (s: LearnerState) => new Set(s.town.filter(e => e.kind === 'scene').map(e => e.ref));
 
+/** Finishing a daily puzzle is rewarded once per game per day. `ref` is `game:day`; a puzzle from another day cannot be claimed today. */
+export const playRef = (game: Game, day: number) => `${game}:${day}`;
+const parsePlay = (ref: string): { game: Game; day: number } | null => { const [g, d] = String(ref).split(':'); const day = Number(d); return (GAMES as readonly string[]).includes(g) && Number.isInteger(day) && day > 0 ? { game: g as Game, day } : null; };
+export function finishPlay(state: LearnerState, ref: string, now: number): ActionResult {
+  const p = parsePlay(ref); if (!p) return { ok: false, reason: 'bad-puzzle' };
+  if (Math.abs(p.day - dayIndex(now, 0)) > 1) return { ok: false, reason: 'not-today' };
+  if (state.town.some(e => e.kind === 'play' && e.ref === ref)) return { ok: false, reason: 'already-played' };
+  const ev: TownEvent = { key: `play:${ref}`, kind: 'play', ref, at: Math.max(now, state.lastClock) };
+  return { ok: true, state: { ...state, lastClock: ev.at, town: [...state.town, ev] } };
+}
+export const playedToday = (s: LearnerState, day: number) => new Set(s.town.filter(e => e.kind === 'play').map(e => e.ref).filter(r => parsePlay(r)?.day === day).map(r => parsePlay(r)!.game));
+
 export function applyTownEvent(state: LearnerState, e: TownEvent): LearnerState {
-  const r = e.kind === 'build' ? buildBuilding(state, e.ref, e.at) : e.kind === 'scene' ? finishScene(state, e.ref, e.at) : claimOrder(state, e.ref, e.at);
+  const r = e.kind === 'build' ? buildBuilding(state, e.ref, e.at) : e.kind === 'scene' ? finishScene(state, e.ref, e.at) : e.kind === 'play' ? finishPlay(state, e.ref, e.at) : claimOrder(state, e.ref, e.at);
   return r.ok ? { ...r.state, town: r.state.town.map(t => (t.key === e.key ? { ...t, at: e.at } : t)) } : state;
 }
 
@@ -160,6 +174,7 @@ export const sanitizeTownEvents = (raw: unknown): TownEvent[] => {
   for (const e of (Array.isArray(raw) ? raw : []).slice(0, 300)) {
     if (!e || typeof e.key !== 'string' || e.key.length > 80 || !Number.isFinite(e.at)) continue;
     if (e.kind === 'build' && BUILDING_BY_ID[e.ref] && e.key === `build:${e.ref}`) out.push({ key: e.key, kind: 'build', ref: e.ref, at: e.at });
+    else if (e.kind === 'play' && typeof e.ref === 'string' && e.ref.length < 30 && parsePlay(e.ref) && e.key === `play:${e.ref}`) out.push({ key: e.key, kind: 'play', ref: e.ref, at: e.at });
     else if (e.kind === 'scene' && SCENE_BY_ID[e.ref] && e.key === `scene:${e.ref}`) out.push({ key: e.key, kind: 'scene', ref: e.ref, at: e.at });
     else if (e.kind === 'claim' && typeof e.ref === 'string' && e.ref.length < 60 && ORDER_BY_ID[parseRef(e.ref).id] && e.key === `claim:${e.ref}`) out.push({ key: e.key, kind: 'claim', ref: e.ref, at: e.at });
   }

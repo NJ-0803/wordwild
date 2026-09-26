@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const tabs = [["/", "Today"], ["/notebook", "My words"], ["/settings", "Settings"]] as const;
+const tabs = [["/", "Today"], ["/notebook", "My words"], ["/play", "Puzzles"], ["/settings", "Settings"]] as const;
 export function Nav() {
   const p = usePathname();
   if (p.startsWith("/learn") || p.startsWith("/practice") || p === "/capture" || p === "/voice" || p === "/town" || p === "/scan") return null;   // focus screens hide the tab bar

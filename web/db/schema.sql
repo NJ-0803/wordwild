@@ -147,7 +147,7 @@ create table if not exists ww_town_events (
 -- Story scenes were added later: widen the allowed kinds on existing databases.
 alter table ww_town_events drop constraint if exists ww_town_events_kind_check
 ;
-alter table ww_town_events add constraint ww_town_events_kind_check check (kind in ('build','claim','scene'))
+alter table ww_town_events add constraint ww_town_events_kind_check check (kind in ('build','claim','scene','play'))
 ;
 -- Telegram: one-time link codes (10 minutes) and the linked chat per learner.
 create table if not exists ww_telegram_links (

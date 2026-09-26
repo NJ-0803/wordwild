@@ -90,7 +90,7 @@ export interface Prefs {
   profile?: import('./level.ts').LearnerProfile;
 }
 /** A town action. Grow-only and idempotent by key, so it syncs like attempts do. */
-export interface TownEvent { key: string; kind: 'build' | 'claim' | 'scene'; ref: string; at: number }
+export interface TownEvent { key: string; kind: 'build' | 'claim' | 'scene' | 'play'; ref: string; at: number }
 
 export interface LearnerState {
   version: 2;

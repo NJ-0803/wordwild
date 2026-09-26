@@ -11,6 +11,7 @@ export const Icon = {
   Mic: (p: SVGProps<SVGSVGElement>) => <svg {...base(p)}><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M6 11a6 6 0 0 0 12 0M12 17v4" /></svg>,
   Gear: (p: SVGProps<SVGSVGElement>) => <svg {...base(p)}><circle cx="12" cy="12" r="3" /><path d="M12 3v2.5M12 18.5V21M4.6 6.5l1.8 1.8M17.6 15.7l1.8 1.8M3 12h2.5M18.5 12H21M4.6 17.5l1.8-1.8M17.6 8.3l1.8-1.8" /></svg>,
   Puzzle: (p: SVGProps<SVGSVGElement>) => <svg {...base(p)}><path d="M9 4h3v2a2 2 0 1 0 4 0V4h3a1 1 0 0 1 1 1v4h-2a2 2 0 1 0 0 4h2v5a1 1 0 0 1-1 1h-5v-2a2 2 0 1 0-4 0v2H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h4z" /></svg>,
+  Plug: (p: SVGProps<SVGSVGElement>) => <svg {...base(p)}><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4" /></svg>,
   Speaker: (p: SVGProps<SVGSVGElement>) => <svg {...base({ width: 18, height: 18, ...p })}><path d="M4 9v6h4l5 4V5L8 9z" /><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" /></svg>,
   Image: (p: SVGProps<SVGSVGElement>) => <svg {...base({ width: 18, height: 18, ...p })}><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" /><circle cx="9" cy="10" r="1.6" /><path d="m4 17 5-5 4 4 3-3 4 4" /></svg>,
   Stop: (p: SVGProps<SVGSVGElement>) => <svg {...base({ width: 18, height: 18, ...p })}><rect x="6" y="6" width="12" height="12" rx="2" /></svg>,

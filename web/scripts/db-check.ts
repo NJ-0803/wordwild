@@ -12,14 +12,14 @@ try {
   s = submitAttempt(s, { key: "k2", senseId: "euphemism.n.1", activityId: "eu-2", skill: "usage", correct: false, hintsUsed: 0, errorType: "register", at: T0 + 2000 }).state;
   const ev = sanitizeEvents(exportEvents(s));
 
-  const town = [{ key: "build:market", kind: "build" as const, ref: "market", at: T0 + 5000 }, { key: "claim:5:plant2:0", kind: "claim" as const, ref: "5:plant2:0", at: T0 + 6000 }, { key: "scene:home-tea", kind: "scene" as const, ref: "home-tea", at: T0 + 7000 }];
+  const town = [{ key: "build:market", kind: "build" as const, ref: "market", at: T0 + 5000 }, { key: "claim:5:plant2:0", kind: "claim" as const, ref: "5:plant2:0", at: T0 + 6000 }, { key: "scene:home-tea", kind: "scene" as const, ref: "home-tea", at: T0 + 7000 }, { key: "play:word:20000", kind: "play" as const, ref: "word:20000", at: T0 + 8000 }];
   await saveEvents(A, { ...ev, town }, { explainLang: "hi", textScale: 1.25, reducedMotion: false, audioFirst: true, simpleMode: true }, 100);
   await saveEvents(A, { ...ev, town }, null, 0);                       // retried request: must not duplicate
   await saveEvents(A, { ...ev, town }, null, 0);
   let got = await loadAll(A);
   assert.equal(got.attempts.length, 2, "idempotent attempts"); assert.equal(got.captures.length, 1, "idempotent captures");
   assert.equal(got.captures[0].context, "my private note");
-  assert.equal(got.town?.length, 3, "town events are stored once, idempotently"); assert.equal(got.town?.[0].ref, "market");
+  assert.equal(got.town?.length, 4, "town events are stored once, idempotently"); assert.equal(got.town?.[0].ref, "market");
   assert.equal(got.prefs?.textScale, 1.25);
 
   await saveEvents(A, { captures: [], attempts: [] }, { explainLang: "en", textScale: 1, reducedMotion: false, audioFirst: true, simpleMode: true }, 50);   // older write loses
