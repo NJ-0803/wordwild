@@ -5,13 +5,14 @@ import { StoreProvider } from "@/lib/store";
 import { Nav } from "@/components/Nav";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Account } from "@/components/Account";
+import { Welcome } from "@/components/Welcome";
 import { QuickSaved } from "@/components/QuickSaved";
 import { MetricsWatcher } from "@/components/MetricsWatcher";
 import { DepthMount } from "@/components/DepthMount";
 import { Sidebar } from "@/components/Sidebar";
 
 // next/font self-hosts these at build time, so no visitor request goes to Google.
-const serif = Instrument_Serif({ variable: "--font-serif", subsets: ["latin"], weight: "400" });
+const serif = Instrument_Serif({ variable: "--font-serif", subsets: ["latin"], weight: "400", style: ["normal", "italic"] });
 const inter = Inter({ variable: "--font-body", subsets: ["latin"] });
 const tight = Inter_Tight({ variable: "--font-head", subsets: ["latin"] });
 const mono = IBM_Plex_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400", "500"] });
@@ -25,11 +26,12 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" suppressHydrationWarning className={`${serif.variable} ${inter.variable} ${tight.variable} ${mono.variable}`}>
-      <head><script dangerouslySetInnerHTML={{ __html: `try{document.documentElement.dataset.theme=localStorage.getItem("ww.theme")==="light"?"light":"dark"}catch(e){document.documentElement.dataset.theme="dark"}` }} /></head>
+      <head><script dangerouslySetInnerHTML={{ __html: `try{document.documentElement.dataset.theme=localStorage.getItem("ww.theme")==="light"?"light":"dark";if(!localStorage.getItem("wordwild.onboarded")&&!localStorage.getItem("ww.welcomed"))document.documentElement.dataset.welcome="1"}catch(e){document.documentElement.dataset.theme="dark"}` }} /></head>
       <body suppressHydrationWarning>
         <ClerkProvider>
           <StoreProvider>
             <MetricsWatcher />
+            <Welcome />
             <QuickSaved />
             <DepthMount />
             <div className="shell">

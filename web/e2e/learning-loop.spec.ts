@@ -82,3 +82,20 @@ test("finishing unscramble by voice records a real time", async ({ page }) => {
   await expect.poll(() => posted.length).toBeGreaterThan(0);
   expect(posted[0].ms).toBeGreaterThanOrEqual(1500);
 });
+
+test("first visit: welcome, tour, Start, choose a language, land on Today", async ({ browser }) => {
+  const ctx = await browser.newContext(); const page = await ctx.newPage();     // no flags: a brand-new visitor
+  await page.goto("/");
+  await expect(page.getByLabel("NJ")).toBeVisible();
+  await page.getByRole("button", { name: /Take the tour/ }).click({ timeout: 15_000 });
+  await expect(page.getByText("Save any word you meet")).toBeVisible();
+  await page.getByRole("button", { name: "Skip tour" }).click();
+  await page.getByRole("button", { name: "Start", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Choose your language" })).toBeVisible();
+  await page.getByRole("button", { name: /English/ }).dispatchEvent("click");           // the boxes float, so a synthetic click is steadier than a pointer
+  await page.locator(".ob-go").dispatchEvent("click");
+  await expect(page.getByRole("heading", { name: "Today" })).toBeVisible({ timeout: 10_000 });
+  await page.reload();                                                       // never shown again on this device
+  await expect(page.getByLabel("NJ")).toHaveCount(0);
+  await ctx.close();
+});

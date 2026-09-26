@@ -20,7 +20,7 @@ export function Sidebar() {
       <nav className="side-nav">
         {ITEMS.map(([href, label, Ic]) => <Link key={href} href={href} aria-current={on(href) ? "page" : undefined}><Ic />{label}</Link>)}
       </nav>
-      <p className="side-foot"><ThemeToggle /></p>
+      <div className="side-foot"><ThemeToggle /></div>
       <p className="side-foot"><Link href="/about">Credits</Link> · <Link href="/privacy">Privacy</Link></p>
     </aside>
   );
