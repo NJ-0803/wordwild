@@ -15,7 +15,6 @@ export default function PlayHub() {
       <div className="pz-hub">
         {GAMES.map((g, i) => (
           <Link key={g} href={`/play/${g}`} className="pz-tilecard" style={{ ["--i" as string]: i }}>
-            <span className="pz-num">{i + 1}</span>
             <b>{GAME_LABEL[g].title}</b>
             <span className="sub">{GAME_LABEL[g].blurb}</span>
             <span className={`pz-state${played.has(g) ? " on" : ""}`}>{played.has(g) ? "Done today" : "Play"}</span>

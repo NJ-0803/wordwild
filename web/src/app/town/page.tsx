@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icons";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -60,7 +61,7 @@ export default function TownPage() {
         <Link href="/" className="hud-back" aria-label="Back to Today">‹</Link>
         <div className="hud-level" aria-label={`Level ${view.level}, ${view.xpToNext} points to the next level. Levels only go up.`} title={`${view.xpToNext} points to level ${view.level + 1}`}>
           <span className="lv">{view.level}</span>
-          <span className="bar"><i style={{ width: `${Math.round(view.levelProgress * 100)}%` }} /></span>
+          <span className="bar"><i style={{ transform: `scaleX(${Math.max(0.02, view.levelProgress)})`, width: "100%" }} /></span>
         </div>
         <div style={{ width: 56, height: 56 }} aria-hidden={false}><Orb state={ripe.length > 0 ? "listening" : "weaving"} size={56} label={ripe.length > 0 ? "Words are ready" : "Town is calm"} /></div>
         <Reward on={glow} colorVariant="sunset"><div className="hud-coins" aria-label={`${view.coins} coins`}><span className="coin" aria-hidden />{view.coins}</div></Reward>
@@ -71,7 +72,7 @@ export default function TownPage() {
         <button onClick={() => setPanel({ kind: "orders" })} aria-label={`Orders, ${claimable} ready to collect`}><span aria-hidden>📋</span>Orders{claimable > 0 && <b className="dot">{claimable}</b>}</button>
         <button onClick={() => setPanel({ kind: "ripe" })} aria-label={`${ripe.length} words ready to harvest`}><span aria-hidden>🌾</span>Harvest{ripe.length > 0 && <b className="dot">{ripe.length}</b>}</button>
         <button onClick={() => setPanel({ kind: "building", id: (view.buildings.find(x => x.status === "ready") ?? view.buildings.find(x => x.status !== "built") ?? view.buildings[0]).id })}><span aria-hidden>🏗️</span>Build</button>
-        <Link href="/capture" className="dockbtn"><span aria-hidden>🌱</span>Plant</Link>
+        <Link href="/capture" className="dockbtn"><span aria-hidden><Icon.Leaf /></span>Plant</Link>
       </nav>
 
       {panel && (
@@ -89,7 +90,7 @@ export default function TownPage() {
                       <div className="hero" style={{ gap: 10 }}><div style={{ flex: "0 0 auto" }}><WordBuddy lemma={o.giver} size={44} /></div><div><b>{o.giver}</b><p style={{ margin: 0 }}>{o.line}</p></div></div>
                       <div className="prog" aria-label={`${Math.min(o.progress, o.target)} of ${o.target} ${o.unit}`}><i style={{ width: `${Math.min(100, (o.progress / o.target) * 100)}%` }} /></div>
                       <div className="row"><span className="sub small">{Math.min(o.progress, o.target)} / {o.target} {o.unit}</span><span className="small"><b>+{o.coins}</b> coins · <b>+{o.xp}</b> XP</span></div>
-                      {o.claimed ? <p className="small" style={{ margin: 0 }}><b>Collected ✓</b></p> : <Btn disabled={!o.done} onClick={() => { const r = claim(o.ref); if (!r.ok) setToast(REASON[r.reason] ?? "Not now"); }}>{o.done ? "Collect reward" : "Keep going"}</Btn>}
+                      {o.claimed ? <p className="small" style={{ margin: 0 }}><b>Collected <Icon.Check style={{ verticalAlign: "-2px" }} /></b></p> : <Btn disabled={!o.done} onClick={() => { const r = claim(o.ref); if (!r.ok) setToast(REASON[r.reason] ?? "Not now"); }}>{o.done ? "Collect reward" : "Keep going"}</Btn>}
                     </div>
                   </Reward>
                 </li>))}
@@ -119,13 +120,13 @@ export default function TownPage() {
             {b && (<>
               <h2>{b.name}</h2><p className="sub small" style={{ marginTop: -6 }}>Chapter: {b.chapter}</p>
               <p>{b.story}</p>
-              {b.status === "built" && <p><b>Built ✓</b> Save words about {b.topics.join(", ")} and they will belong here.</p>}
+              {b.status === "built" && <p><b>Built <Icon.Check style={{ verticalAlign: "-2px" }} /></b> Save words about {b.topics.join(", ")} and they will belong here.</p>}
               {b.status === "locked" && <p>Reach <b>level {b.unlockLevel}</b> to unlock this. Levels come from words you truly learn.</p>}
               {b.status === "saving" && <p>You need <b>{b.needCoins} more coins</b>. Coins come from learning words, not from waiting.</p>}
               {b.status === "ready" && <Btn onClick={() => { const r = build(b.id); if (r.ok) { setToast(`${b.name} built!`); setGlow(true); setTimeout(() => setGlow(false), 3500); setPanel(null); } else setToast(REASON[r.reason] ?? "Not now"); }}>Build for {b.cost} coins</Btn>}
               {b.status === "built" && scenesFor(b.id).length > 0 && (<div style={{ display: "grid", gap: 8, margin: "10px 0" }}>
                 {scenesFor(b.id).map((sc: Scene) => (<Reward key={sc.id} on={!seen.has(sc.id)} colorVariant="sunset"><button className="order" style={{ textAlign: "left", cursor: "pointer", font: "inherit", color: "inherit", width: "100%" }} onClick={() => setPanel({ kind: "scene", id: sc.id })}>
-                  <b>📖 {sc.title}</b><span className="sub small">{seen.has(sc.id) ? "Seen ✓ · replay any time" : `A short story · +${SCENE_REWARD.coins} coins the first time`}</span></button></Reward>))}
+                  <b><Icon.Book style={{ verticalAlign: "-3px", marginRight: 6 }} />{sc.title}</b><span className="sub small">{seen.has(sc.id) ? "Seen · replay any time" : `A short story · +${SCENE_REWARD.coins} coins the first time`}</span></button></Reward>))}
               </div>)}
               <div className="row" style={{ marginTop: 10 }}>{view.buildings.map(x => <button key={x.id} className="chip" aria-pressed={x.id === b.id} onClick={() => setPanel({ kind: "building", id: x.id })}>{x.name}</button>)}</div>
             </>)}

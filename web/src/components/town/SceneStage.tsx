@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icons";
 import { useEffect, useMemo, useState } from "react";
 import { capture, safeLookup, SENSE_BY_ID, type Beat, type Scene } from "@core";
 import { WebDictionary } from "@/lib/senses";
@@ -40,17 +41,17 @@ export function SceneStage({ scene, done, onFinish }: { scene: Scene; done: bool
           <div key={i} className="order" style={{ gap: 4 }}>
             <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
               <b>{SPEAKERS[b.who] ?? "💬"} {b.who}</b>
-              <button className="chip" onClick={() => say(b.text)} aria-label={`Listen: ${b.who}`}>🔊 Listen</button>
+              <button className="chip" onClick={() => say(b.text)} aria-label={`Listen: ${b.who}`}><Icon.Speaker /> Listen</button>
             </div>
             <p style={{ margin: 0 }}>{b.text}</p>
             {hi && b.hi && <p lang="hi" className="sub" style={{ margin: 0 }}>{b.hi}</p>}
           </div>);
         if (b.kind === "word") { const s = SENSE_BY_ID[b.senseId]; const have = saved[b.senseId] || known.has(b.senseId); return (
           <div key={i} className="order" style={{ borderColor: "var(--navy-glow)" }}>
-            <p style={{ margin: 0 }}>✨ New word: <b style={{ fontSize: "1.2rem" }}>{s?.lemma}</b></p>
+            <p style={{ margin: 0 }}><Icon.Spark style={{ verticalAlign: "-3px" }} /> New word: <b style={{ fontSize: "1.2rem" }}>{s?.lemma}</b></p>
             <p className="sub" style={{ margin: 0 }}>{b.note}</p>
-            <div className="row"><button className="chip" onClick={() => say(s?.lemma ?? "")}>🔊 Say it</button>
-              {have ? <span className="sub small" role="status">Saved to your garden ✓</span> : <Btn kind="soft" onClick={() => saveWord(b.senseId)}>Save this word</Btn>}</div>
+            <div className="row"><button className="chip" onClick={() => say(s?.lemma ?? "")}><Icon.Speaker /> Say it</button>
+              {have ? <span className="sub small" role="status">Saved to your garden</span> : <Btn kind="soft" onClick={() => saveWord(b.senseId)}>Save this word</Btn>}</div>
           </div>); }
         if (b.kind === "choose") return (
           <div key={i} className="order">
@@ -66,7 +67,7 @@ export function SceneStage({ scene, done, onFinish }: { scene: Scene; done: bool
             {picked[i] !== undefined && (() => { const o = b.options[picked[i]]; return (
               <Reward on={o.outcome === "best"} colorVariant="ocean"><div role="status" className="order" style={{ borderColor: o.outcome === "best" ? "var(--navy-glow)" : "var(--line)" }}>
                 <p style={{ margin: 0 }}><i>{o.reply}</i></p>
-                <p style={{ margin: 0 }}>{o.outcome === "best" ? "✓ " : "Let us think again. "}{o.why}</p>
+                <p style={{ margin: 0 }}>{o.outcome === "best" ? <Icon.Check style={{ verticalAlign: "-2px" }} /> : "Let us think again. "}{o.outcome === "best" ? " " : ""}{o.why}</p>
                 {o.outcome !== "best" && <p className="sub small" style={{ margin: 0 }}>Try another answer. There is no penalty.</p>}
               </div></Reward>); })()}
           </div>);

@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ANSWERS_5, MAX_TRIES, dailyAnswer, keyStates, scoreGuess, shareGrid, wordStatus, type Mark } from "@core";
@@ -88,7 +89,7 @@ export function WordGame() {
               <div key={row} className="pz-kr">
                 {ri === 2 && <button className="pz-key wide" onClick={() => void submit()}>Enter</button>}
                 {[...row].map(k => <button key={k} className={`pz-key${keys[k] ? " " + keys[k] : ""}`} onClick={() => type(k)} aria-label={k}>{k}</button>)}
-                {ri === 2 && <button className="pz-key wide" onClick={back} aria-label="Delete">⌫</button>}
+                {ri === 2 && <button className="pz-key wide" onClick={back} aria-label="Delete"><Icon.Back /></button>}
               </div>
             ))}
           </div>

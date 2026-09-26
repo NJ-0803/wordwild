@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icons";
 import { use } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -13,7 +14,7 @@ export default function PlayGame({ params }: { params: Promise<{ game: string }>
   const g = game as Game;
   return (
     <div className="stack">
-      <p><Link className="pz-link" href="/play">← Puzzles</Link></p>
+      <p><Link className="pz-link" href="/play"><Icon.ArrowLeft style={{ verticalAlign: "-3px", marginRight: 6 }} />Puzzles</Link></p>
       <h1>{GAME_LABEL[g].title}</h1>
       <p className="sub">{GAME_LABEL[g].blurb}</p>
       {g === "word" ? <WordGame /> : g === "unscramble" ? <Unscramble /> : <MeaningMatch />}
