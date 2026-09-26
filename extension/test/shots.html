@@ -10,11 +10,12 @@ header b{font:600 18px system-ui,sans-serif;letter-spacing:.02em}h1{font-size:44
 <p>Last week a stranger told her the shop <span id="w4">went</span> quiet after the rain, and on another day someone wrote that they would <span id="w5">recieve</span> the delivery on Friday. Small things like these are where a language is really learned.</p>
 <p>Finding it <span id="w6">serendipity</span> she had met her neighbour, Meena decided to keep a list.</p></article>
 <script>
+const __attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (i) { const r = __attach.call(this, { ...i, mode: "open" }); window.__sr = r; return r; };   // test only: lets the check read the card's styles
 const DATA = JSON.parse(new URLSearchParams(location.search).has("x") ? "{}" : "{}");
 fetch("shots-data.json").then(r => r.json()).then(all => {
   window.chrome = { storage: { sync: { get: async () => ({ trigger: "any" }) }, onChanged: { addListener() {} } },
     runtime: { sendMessage: async (m) => m.type === "base" ? { base: "https://wordwild-seven.vercel.app" } : (all[m.q] || { status: "unknown", suggestions: [] }) } };
-  const s = document.createElement("script"); s.src = "../shared.js"; s.onload = () => { const c = document.createElement("script"); c.src = "../content.js"; c.onload = go; document.body.appendChild(c); }; document.body.appendChild(s);
+  const s = document.createElement("script"); s.src = "../shared.js"; s.onload = () => { const c = document.createElement("script"); c.src = "../content.js?" + Date.now(); c.onload = go; document.body.appendChild(c); }; document.body.appendChild(s);
 });
 function go() {
   const id = new URLSearchParams(location.search).get("w") || "w3"; const el = document.getElementById(id); if (!el) return;
