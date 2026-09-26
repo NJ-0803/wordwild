@@ -132,7 +132,7 @@ test("the extension page has a picture guide and a step checklist", async ({ pag
   await page.goto("/extension");
   await expect(page.getByRole("region", { name: /Picture guide/ })).toBeVisible();
   await page.getByRole("button", { name: /Show step 4: Load unpacked/ }).click();
-  await expect(page.getByText(/Click Load unpacked/)).toBeVisible();
+  await expect(page.locator(".ig-cap")).toContainText("Load unpacked");
   await page.getByLabel("I did this step").first().check();
   await expect(page.getByText(/1 of 5 steps done/)).toBeVisible();
 });
