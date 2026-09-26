@@ -14,5 +14,7 @@ for (const f of FILES) cpSync(f, join(out, f), { recursive: true });
 writeFileSync(join(out, "manifest.json"), JSON.stringify(m, null, 2) + "\n");
 const zip = join("dist", `wordwild-extension-${m.version}.zip`);
 execFileSync("zip", ["-qr", `../${zip.split("/")[1]}`, "."], { cwd: out });
+// The website offers the same package as a do-it-yourself install for people who do not use the store (web/src/app/extension).
+mkdirSync("../web/public", { recursive: true }); cpSync(zip, "../web/public/wordwild-extension.zip");
 const list = []; const walk = (d, p = "") => { for (const n of readdirSync(d)) { const f = join(d, n); statSync(f).isDirectory() ? walk(f, p + n + "/") : list.push(p + n); } }; walk(out);
 console.log(`Built ${zip}\nFiles (${list.length}): ${list.sort().join(", ")}\nPermissions: ${JSON.stringify(m.permissions)}  Hosts: ${JSON.stringify(m.host_permissions)}  Optional hosts: ${JSON.stringify(m.optional_host_permissions ?? [])}`);

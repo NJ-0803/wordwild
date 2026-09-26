@@ -9,6 +9,7 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { TelegramCard } from "@/components/TelegramCard";
 import { WhatsAppCard } from "@/components/WhatsAppCard";
 import { PrivacyCard } from "@/components/PrivacyCard";
+import { ExtensionCallout } from "@/components/ExtensionCallout";
 
 export default function Settings() {
   const { state, update, ready, skipDay, devOffsetDays, sync, deleteAccountData } = useStore();
@@ -39,6 +40,7 @@ export default function Settings() {
         </Card>)}
       <WhatsAppCard />
       <TelegramCard />
+      <ExtensionCallout />
       <PrivacyCard />
       <h2>Your account</h2>
       {!isSignedIn ? <Card><span className="sub small">Your words and notes stay on this device. Sign in to keep them safe and use them on other devices.</span></Card> : (

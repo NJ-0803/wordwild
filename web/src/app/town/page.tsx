@@ -10,6 +10,7 @@ import { TownSceneLazy } from "@/components/town/TownSceneLazy";
 import { Loading, Orb, Reward, WordBuddy } from "@/components/Companion";
 import { Btn } from "@/components/ui";
 import { SceneStage } from "@/components/town/SceneStage";
+import { ExtensionCallout } from "@/components/ExtensionCallout";
 
 type Panel = null | { kind: "orders" } | { kind: "ripe" } | { kind: "building"; id: string } | { kind: "word"; id: string } | { kind: "scene"; id: string };
 
@@ -93,6 +94,7 @@ export default function TownPage() {
                   </Reward>
                 </li>))}
               </ul>
+              <div style={{ marginTop: 14 }}><ExtensionCallout compact /></div>
             </>)}
 
             {panel.kind === "ripe" && (<>

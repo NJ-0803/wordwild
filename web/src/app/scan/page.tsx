@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { capture, heuristicLevel, safeLookup, sentenceAround, unfamiliarWords, type Sense } from "@core";
 import { Orb } from "@/components/Companion";
+import { ExtensionCallout } from "@/components/ExtensionCallout";
 import { useStore } from "@/lib/store";
 import { WebDictionary } from "@/lib/senses";
 import { scanImage, type ScanResult, type ScanWord } from "@/lib/ocr";
@@ -71,6 +72,7 @@ export default function ScanPage() {
           <span><b>{prog.label}…</b>{prog.pct > 0 && <> {prog.pct}%</>}<br /><span className="sub small">The first photo takes a little longer while the reader starts.</span></span>
         </div></Card>
       )}
+      <ExtensionCallout compact />
       {phase === "error" && <Card tone="warn"><p role="alert">{err}</p><LinkBtn href="/capture" kind="soft">Type the word instead</LinkBtn></Card>}
 
       {phase === "done" && res && (<>
