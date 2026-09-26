@@ -145,8 +145,9 @@ export default function TownScene(p: TownSceneProps) {
   const controls = useRef<{ target: THREE.Vector3 } | null>(null);
   const built = p.pieces.filter(x => x.status === "built"); const next = p.pieces.find(x => x.status === "next") ?? null;
   const fresh = useMemo(() => new Set(p.fresh), [p.fresh]);
+  const narrow = typeof window !== "undefined" && window.innerWidth < 700;      // phones start zoomed out so the whole town fits
   return (
-    <Canvas shadows frameloop={p.motion ? "always" : "demand"} dpr={[1, 1.5]} camera={{ position: [32, 31, 46], fov: 30, near: 1, far: 300 }} gl={{ antialias: true }}>
+    <Canvas shadows frameloop={p.motion ? "always" : "demand"} dpr={[1, 1.5]} camera={{ position: narrow ? [50, 48, 72] : [32, 31, 46], fov: 30, near: 1, far: 300 }} gl={{ antialias: true }}>
       <Lights hour={p.hour} />
       <Sky hour={p.hour} />
       <NightGlow hour={p.hour} />
@@ -159,7 +160,7 @@ export default function TownScene(p: TownSceneProps) {
         {next && <NextSite p={next} points={p.points} motion={p.motion} />}
         <Clouds motion={p.motion} />
       </Suspense>
-      <OrbitControls ref={controls as never} enableRotate={false} enablePan enableZoom enableDamping dampingFactor={0.12} minDistance={20} maxDistance={70} target={[0, 0, 5.5]}
+      <OrbitControls ref={controls as never} enableRotate={false} enablePan enableZoom enableDamping dampingFactor={0.12} minDistance={20} maxDistance={100} target={[0, 0, 5.5]}
         mouseButtons={{ LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN }} touches={{ ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN }}
         onChange={() => { const t = controls.current?.target; if (t) { t.x = THREE.MathUtils.clamp(t.x, -16, 16); t.z = THREE.MathUtils.clamp(t.z, -12, 20); } }} />
     </Canvas>
