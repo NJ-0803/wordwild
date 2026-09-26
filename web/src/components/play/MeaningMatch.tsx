@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { dailyMatch, meaningOrder } from "@core";
+import { Lumi } from "@/components/Companion";
 import { useTown } from "@/lib/useTown";
 import { fetchMeanings, mask, type Meaning } from "@/lib/meanings";
 
@@ -47,6 +48,7 @@ export function MeaningMatch() {
       {sel === null && !all && <p className="sub small">Tap a word first, then its meaning.</p>}
       {all && (
         <section className="pz-end card" aria-live="polite">
+          <Lumi size={80} />
           <p className="pz-badge">All matched</p>
           <ul className="pz-list">{usable.map(i => <li key={i}><b>{words[i]}</b><span>{meanings.get(words[i])!.simple}</span></li>)}</ul>
           <p className="sub small">+8 coins and +8 XP for your town.</p>

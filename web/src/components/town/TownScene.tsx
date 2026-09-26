@@ -195,7 +195,7 @@ function Lights({ hour }: { hour: number }) {
 /** Horizon: the sky colour and a soft distance fog follow the time of day, so the edge of the map fades into the air instead of ending. */
 function Sky({ hour }: { hour: number }) {
   const c = useMemo(() => lightAt(hour).sky.clone().lerp(new THREE.Color("#ffffff"), 0.18), [hour]);
-  return <><color attach="background" args={[c]} /><fog attach="fog" args={[c, 70, 190]} /></>;
+  return <><color attach="background" args={[c]} /><fog attach="fog" args={[c, 48, 150]} /></>;
 }
 
 function Clouds({ motion }: { motion: boolean }) {

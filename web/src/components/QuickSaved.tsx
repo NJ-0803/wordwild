@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { capture, safeLookup } from "@core";
 import { WebDictionary } from "@/lib/senses";
+import { Lumi } from "./Companion";
 import { useStore } from "@/lib/store";
 
 interface Item { id: string; lemma: string }
@@ -48,7 +49,7 @@ export function QuickSaved() {
   if (!ready || !onboarded || gone || !items.length) return null;
   return (
     <aside className="quick" role="status">
-      <p><b>You saved {items.length === 1 ? "a new word" : `${items.length} new words`}</b> while you were reading: {items.slice(0, 4).map(i => i.lemma).join(", ")}{items.length > 4 ? "…" : ""}. Want to look?</p>
+      <div className="hero" style={{ gap: 12, marginBottom: 10 }}><Lumi size={52} /><p style={{ margin: 0 }}><b>You saved {items.length === 1 ? "a new word" : `${items.length} new words`}</b> while you were reading: {items.slice(0, 4).map(i => i.lemma).join(", ")}{items.length > 4 ? "…" : ""}. Want to look?</p></div>
       <div className="quick-b">
         <button className="btn" disabled={busy} onClick={() => void add(true)}>{busy ? "Adding…" : "Look at them"}</button>
         <button className="btn soft" disabled={busy} onClick={() => void add(false)}>Just add</button>

@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { dailyScramble } from "@core";
+import { Lumi } from "@/components/Companion";
 import { useTown } from "@/lib/useTown";
 import { usePersisted } from "@/lib/usePersisted";
 import { fetchMeanings, mask, type Meaning } from "@/lib/meanings";
@@ -36,6 +37,7 @@ export function Unscramble() {
 
   if (done) return (
     <section className="pz-end card">
+      <Lumi size={80} mood="default" />
       <p className="pz-badge">All five done</p>
       <ul className="pz-list">{items.map(i => <li key={i.word}><b>{i.word}</b><span>{meanings.get(i.word)?.simple ?? ""}</span></li>)}</ul>
       <p className="sub small">+8 coins and +8 XP for your town.</p>

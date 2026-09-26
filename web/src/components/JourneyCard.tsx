@@ -1,4 +1,5 @@
 "use client";
+import { WordBuddy } from "./Companion";
 import { useMemo } from "react";
 import { dailyJourney, learningDays, milestones, SENSE_BY_ID, type Recommendation } from "@core";
 import { useStore } from "@/lib/store";
@@ -29,6 +30,7 @@ export function JourneyCard({ recs }: { recs: Recommendation[] }) {
       </>) : (<>
         <div className="hero" style={{ alignItems: "flex-start" }}>
           <Orb state={j.complete ? "listening" : "weaving"} size={64} label={j.complete ? "Journey complete" : "Your word for today"} />
+          {lemma && <WordBuddy lemma={lemma} mastery={j.complete ? "secure" : "new"} size={64} />}
           <div style={{ flex: 1 }}>
             <h2 style={{ margin: 0, fontFamily: "var(--font-serif), Georgia, serif", fontWeight: 400, fontSize: "2rem" }}>{lemma ?? "…"}</h2>
             <p className="sub small" style={{ margin: 0 }}>{j.complete ? "You finished today's journey. Come back tomorrow for a new word." : `${j.doneCount} of 3 steps`}</p>

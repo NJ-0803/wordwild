@@ -12,6 +12,7 @@ import { useReducedMotion } from "@/lib/motion";
 import { useLemmas } from "@/lib/senses";
 import { useTown } from "@/lib/useTown";
 import { JourneyCard } from "@/components/JourneyCard";
+import { TiltCard } from "@/components/TiltCard";
 import { Icon } from "@/components/Icons";
 
 const KIND = { review: "Come back to", learn: "Learn", prerequisite: "Start with" } as const;
@@ -57,9 +58,9 @@ export default function Today() {
         </div>
       </section>
       <nav className="c12 tiles" aria-label="Add a word">
-        <Link href="/capture" className="tile"><i><Icon.Plus width={30} height={30} /></i><b>Type a word</b><span>Look it up and save it</span></Link>
-        <Link href="/voice" className="tile"><i><Icon.Mic width={30} height={30} /></i><b>Ask by voice</b><span>Say what you did not understand</span></Link>
-        <Link href="/scan" className="tile"><i><Icon.Scan width={30} height={30} /></i><b>Scan a page</b><span>Tap any word in a photo</span></Link>
+        <TiltCard className="tilt-fill"><Link href="/capture" className="tile"><i><Icon.Plus width={30} height={30} /></i><b>Type a word</b><span>Look it up and save it</span></Link></TiltCard>
+        <TiltCard className="tilt-fill"><Link href="/voice" className="tile"><i><Icon.Mic width={30} height={30} /></i><b>Ask by voice</b><span>Say what you did not understand</span></Link></TiltCard>
+        <TiltCard className="tilt-fill"><Link href="/scan" className="tile"><i><Icon.Scan width={30} height={30} /></i><b>Scan a page</b><span>Tap any word in a photo</span></Link></TiltCard>
       </nav>
       <div className="c7"><JourneyCard recs={recs} /></div>
       <div className="c5 stack">{townCard}</div>

@@ -9,9 +9,9 @@ export function lightAt(hour: number) {
   const sunColor = d < 0.06 ? mix("#8fa8ff", "#ffd9a8", d / 0.06) : mix("#fff4e0", "#ffb878", (low - 0.25) / 0.75);
   const a = Math.PI * (hour - 6) / 12;
   return {
-    color: sunColor, intensity: 0.5 + 2.4 * d, hemi: 0.55 + 0.85 * d,
+    color: sunColor, intensity: 0.5 + 2.9 * d, hemi: 0.5 + 0.55 * d,
     sky: mix("#33427a", "#cfe6ff", d * 1.4), ground: mix("#0e1626", "#6f9a55", d * 1.4),
-    pos: [d > 0.02 ? -11 * Math.cos(a) : 4, 3 + 11 * Math.max(d, 0.2), 6] as [number, number, number],
+    pos: [d > 0.02 ? -11 * Math.cos(a) : 4, 3 + 8 * Math.max(d, 0.2), 6] as [number, number, number],
   };
 }
 

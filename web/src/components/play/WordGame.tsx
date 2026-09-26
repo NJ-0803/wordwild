@@ -6,6 +6,7 @@ import { ANSWERS_5, MAX_TRIES, dailyAnswer, keyStates, scoreGuess, shareGrid, wo
 import { useTown } from "@/lib/useTown";
 import { usePersisted } from "@/lib/usePersisted";
 import { fetchMeanings, knownWord, mask, type Meaning } from "@/lib/meanings";
+import { WordBuddy } from "@/components/Companion";
 import { Btn } from "@/components/ui";
 
 const ROWS = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
@@ -99,6 +100,7 @@ export function WordGame() {
         </>
       ) : (
         <section className="pz-end card" aria-live="polite">
+          <WordBuddy lemma={answer} mastery={status === "won" ? "secure" : "new"} size={88} />
           <p className="pz-badge">{status === "won" ? `Got it in ${guesses.length}` : "Not this time, and that is fine"}</p>
           <h2 className="pz-answer">{answer}</h2>
           <p className="sub">{hint ? hint.simple : hint === null ? "Meaning not available offline." : "…"}</p>
