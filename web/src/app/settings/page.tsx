@@ -9,6 +9,7 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { TelegramCard } from "@/components/TelegramCard";
 import { WhatsAppCard } from "@/components/WhatsAppCard";
 import { PrivacyCard } from "@/components/PrivacyCard";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { ExtensionCallout } from "@/components/ExtensionCallout";
 
 export default function Settings() {
@@ -22,15 +23,16 @@ export default function Settings() {
     <div className="stack settings-cols">
       <Orb size={96} label="Wordwild" />
       <h1>Settings</h1>
-      <h2>Text size</h2>
-      {([[1, "Normal"], [1.25, "Large"], [1.5, "Extra large"]] as const).map(([v, l]) => <Btn key={v} kind={p.textScale === v ? "primary" : "ghost"} aria-pressed={p.textScale === v} onClick={() => set({ textScale: v })}>{l}</Btn>)}
-      <h2>Read aloud</h2>
-      <Btn kind={p.audioFirst ? "primary" : "ghost"} aria-pressed={p.audioFirst} onClick={() => set({ audioFirst: !p.audioFirst })}>{p.audioFirst ? "Reading questions aloud: on" : "Reading questions aloud: off"}</Btn>
-      <h2>Motion</h2>
-      <Btn kind={p.reducedMotion ? "primary" : "ghost"} aria-pressed={p.reducedMotion} onClick={() => set({ reducedMotion: !p.reducedMotion })}>{p.reducedMotion ? "Reduced motion: on" : "Reduced motion: off"}</Btn>
-      <h2>Meanings in</h2>
-      <Btn kind={p.explainLang === "hi" ? "primary" : "ghost"} aria-pressed={p.explainLang === "hi"} onClick={() => set({ explainLang: "hi" })}>हिन्दी</Btn>
-      <Btn kind={p.explainLang === "en" ? "primary" : "ghost"} aria-pressed={p.explainLang === "en"} onClick={() => set({ explainLang: "en" })}>English only</Btn>
+      <p className="sub" style={{ margin: 0 }}>Make Wordwild comfortable for you. Everything here is saved on this device.</p>
+      <section className="set-group" aria-label="Comfort">
+        <div className="set-row"><h2>Appearance</h2><ThemeToggle /></div>
+        <div className="set-row"><h2>Text size</h2><div className="seg">{([[1, "Normal"], [1.25, "Large"], [1.5, "Extra large"]] as const).map(([v, l]) => <button key={v} className="chip" aria-pressed={p.textScale === v} onClick={() => set({ textScale: v })}>{l}</button>)}</div></div>
+        <div className="set-row"><h2>Meanings in</h2><div className="seg">
+          <button className="chip" aria-pressed={p.explainLang === "hi"} onClick={() => set({ explainLang: "hi" })}>हिन्दी</button>
+          <button className="chip" aria-pressed={p.explainLang === "en"} onClick={() => set({ explainLang: "en" })}>English only</button></div></div>
+        <div className="set-row"><h2>Read questions aloud</h2><div className="seg"><button className="chip" aria-pressed={p.audioFirst} onClick={() => set({ audioFirst: !p.audioFirst })}>{p.audioFirst ? "On" : "Off"}</button></div></div>
+        <div className="set-row"><h2>Reduce motion</h2><div className="seg"><button className="chip" aria-pressed={p.reducedMotion} onClick={() => set({ reducedMotion: !p.reducedMotion })}>{p.reducedMotion ? "On" : "Off"}</button></div></div>
+      </section>
       <h2>About you</h2>
       {editProfile ? <ProfileCard onDone={() => setEditProfile(false)} /> : (
         <Card>
@@ -47,7 +49,7 @@ export default function Settings() {
         <Card>
           <p role="status" className="row" style={{ justifyContent: "flex-start", gap: 10 }}>{sync === "syncing" && <span style={{ flex: "0 0 auto" }}><ThinkingOrb state="weaving" size={20} /></span>}<b>{{ syncing: "Saving to your account…", synced: "Saved to your account", offline: "Offline. Changes will save when you are back online.", error: "Could not save right now. We will try again.", off: "Sync is not set up on this server." }[sync]}</b></p>
           <p className="sub small">Your private notes are stored only under your account, and only you can read them. You can delete everything at any time.</p>
-          {!confirm ? <Btn kind="ghost" onClick={() => { setConfirm(true); setMsg(""); }}>Delete all my data</Btn> : (
+          {!confirm ? <div className="danger"><Btn kind="ghost" onClick={() => { setConfirm(true); setMsg(""); }}>Delete all my data</Btn></div> : (
             <div className="stack">
               <p><b>This removes your words, progress and notes from your account and this device. It cannot be undone.</b></p>
               <div className="row">

@@ -15,7 +15,7 @@ export default function PlayHub() {
       <p className="sub">Three small puzzles every day, the same for everyone. Finish one and your town gets {PLAY_REWARD.coins} coins and {PLAY_REWARD.xp} XP. Skipping a day costs nothing.</p>
       <div className="pz-hub">
         {GAMES.map((g, i) => (
-          <TiltCard key={g} className="tilt-fill"><Link href={`/play/${g}`} className="pz-tilecard" style={{ ["--i" as string]: i }}>
+          <TiltCard key={g} className="tilt-fill"><Link href={`/play/${g}`} className="pz-tilecard" data-g={g} style={{ ["--i" as string]: i }}>
             <b>{GAME_LABEL[g].title}</b>
             <span className="sub">{GAME_LABEL[g].blurb}</span>
             <span className={`pz-state${played.has(g) ? " on" : ""}`}>{played.has(g) ? "Done today" : "Play"}</span>

@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { learningDays, masteryLevel, milestones, tierOf, vault, type SenseRecord } from "@core";
 import { useStore } from "@/lib/store";
 import { useSense } from "@/lib/senses";
-import { Card, LinkBtn } from "@/components/ui";
+import { Card, Field, LinkBtn } from "@/components/ui";
 import { Loading, Orb, Reward, WordBuddy } from "@/components/Companion";
 import { ShareButton } from "@/components/ShareButton";
 import { getSenseSync } from "@/lib/senses";
@@ -28,7 +28,7 @@ function Row({ r, note, fmt, due }: { r: SenseRecord; note?: string; fmt: (t: nu
 }
 
 type Tab = "review" | "fresh" | "learning" | "mastered" | "pending";
-const TAB_LABEL: Record<Tab, string> = { review: "Ready to review", fresh: "New", learning: "Learning", mastered: "Mastered", pending: "Waiting for a meaning" };
+const TAB_LABEL: Record<Tab, string> = { review: "Ready to review", fresh: "Saved", learning: "Practising", mastered: "Secure", pending: "Waiting for a meaning" };
 const DAY_NAMES = ["Today", "Tomorrow"];
 
 export default function Notebook() {
@@ -36,19 +36,20 @@ export default function Notebook() {
   const tz = useMemo(() => -new Date().getTimezoneOffset(), []);
   const [tab, setTab] = useState<Tab | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [q, setQ] = useState("");
   if (!ready) return <Loading />;
   const fmt = (t: number) => { const d = Math.round((t - now()) / 86_400_000); return d <= 0 ? "ready now" : d === 1 ? "tomorrow" : `in ${d} days`; };
   const v = vault(state, now(), tz);
   const days = learningDays(state, now(), tz);
   const ms = milestones(state, now(), tz);
   const active: Tab = tab ?? (v.review.length ? "review" : v.fresh.length ? "fresh" : v.learning.length ? "learning" : v.mastered.length ? "mastered" : "pending");
-  const ids = active === "pending" ? [] : v[active];
+  const ids = (active === "pending" ? [] : v[active]).filter(id => !q.trim() || (getSenseSync(id)?.lemma ?? "").toLowerCase().includes(q.trim().toLowerCase()));
   const max = Math.max(1, ...v.schedule);
   const dayName = (i: number) => DAY_NAMES[i] ?? new Date(now() + i * 86_400_000).toLocaleDateString(undefined, { weekday: "short" });
   return (
     <div className="grid g12">
-      <div className="c12 hero-band"><Orb size={96} label="Wordwild" /><h1 className="display" style={{ margin: 0 }}>My Word Vault</h1></div>
-      {v.total === 0 && <div className="c12"><Card>No words yet. Save your first word from Today.</Card></div>}
+      <div className="c12 hero-band"><Orb size={96} label="Wordwild" /><h1 className="display" style={{ margin: 0 }}>My words</h1></div>
+      {v.total === 0 && <div className="c12"><Card>Your library is empty for now. Save a word you met today and it will be waiting here, with a plan for when to revisit it.</Card></div>}
       {v.total > 0 && (<>
         <div className="c6"><Card>
           <div className="row" style={{ alignItems: "stretch" }}>
@@ -76,6 +77,7 @@ export default function Notebook() {
           {(Object.keys(TAB_LABEL) as Tab[]).map(t => { const n = t === "pending" ? v.pending.length : v[t].length; return <button key={t} className="chip" aria-pressed={active === t} onClick={() => setTab(t)}>{TAB_LABEL[t]} · {n}</button>; })}
         </div>
       </>)}
+      {v.total > 0 && <div className="c12"><Field><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search your words" aria-label="Search your words" style={{ width: "100%", minHeight: 52, padding: "0 16px", borderRadius: 16, border: "1px solid var(--line)", fontSize: "1rem" }} /></Field></div>}
       <div className="c12 cards">{ids.map(id => { const r = state.senses[id]; return <Row key={id} r={r} note={state.captures.find(c => c.senseId === id)?.context} fmt={fmt} due={r.lastAttemptAt > 0 && r.due <= now()} />; })}</div>
       {active === "pending" && <div className="c12 cards">{v.pending.map(q => <Card key={q} tone="warn"><b>{q}</b><p className="small">{state.captures.find(c => c.query === q)?.status === "unknown" ? "Not in our dictionary yet." : "Could not be checked yet."} Nothing has been guessed.</p></Card>)}</div>}
       {v.total > 0 && ids.length === 0 && active !== "pending" && <div className="c12"><Card>Nothing here right now.</Card></div>}

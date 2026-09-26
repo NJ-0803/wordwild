@@ -58,13 +58,13 @@ export default function Today() {
         </div>
       </section>
       <nav className="c12 tiles" aria-label="Add a word">
-        <TiltCard className="tilt-fill"><Link href="/capture" className="tile"><i><Icon.Plus width={30} height={30} /></i><b>Type a word</b><span>Look it up and save it</span></Link></TiltCard>
+        <TiltCard className="tilt-fill"><Link href="/capture" className="tile lead"><i><Icon.Plus width={30} height={30} /></i><b>Type a word</b><span>Look it up and save it</span></Link></TiltCard>
         <TiltCard className="tilt-fill"><Link href="/voice" className="tile"><i><Icon.Mic width={30} height={30} /></i><b>Ask by voice</b><span>Say what you did not understand</span></Link></TiltCard>
         <TiltCard className="tilt-fill"><Link href="/scan" className="tile"><i><Icon.Scan width={30} height={30} /></i><b>Scan a page</b><span>Tap any word in a photo</span></Link></TiltCard>
       </nav>
       <div className="c7"><JourneyCard recs={recs} /></div>
       <div className="c5 stack">{townCard}</div>
-      <div className="c7"><GardenScene plants={plants} summary={summary} /></div>
+      <div className="c7"><GardenScene plants={plants} summary={summary} /><p className="sub small" style={{ margin: "10px 2px 0" }}>{w.secure === 0 ? "Nothing has sprouted yet. The first word you make secure plants a seed." : `${w.secure} secure ${w.secure === 1 ? "word has" : "words have"} grown here. Each new secure word adds growth.`}</p></div>
       <section className="c5 stack" aria-label="Suggested for you">
         <h2 style={{ fontSize: "1.5rem" }}>Suggested for you</h2>
         {recs.map(r => {

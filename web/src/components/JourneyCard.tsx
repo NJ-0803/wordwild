@@ -21,7 +21,7 @@ export function JourneyCard({ recs }: { recs: Recommendation[] }) {
   const href = !id ? "/capture" : !state.senses[id] ? `/learn/${encodeURIComponent(id)}` : `/practice/${encodeURIComponent(id)}`;
 
   return (
-    <Card tone={j.complete ? "good" : undefined}>
+    <Card tone="good">
       <p className="label" style={{ margin: "0 0 6px" }}>Today&rsquo;s word journey</p>
       {!id ? (<>
         <h2 style={{ marginBottom: 6 }}>Pick a word to begin</h2>

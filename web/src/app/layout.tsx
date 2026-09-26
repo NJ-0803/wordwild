@@ -23,7 +23,8 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${serif.variable} ${inter.variable} ${tight.variable} ${mono.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${serif.variable} ${inter.variable} ${tight.variable} ${mono.variable}`}>
+      <head><script dangerouslySetInnerHTML={{ __html: `try{document.documentElement.dataset.theme=localStorage.getItem("ww.theme")==="light"?"light":"dark"}catch(e){document.documentElement.dataset.theme="dark"}` }} /></head>
       <body suppressHydrationWarning>
         <ClerkProvider>
           <StoreProvider>
