@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  FixtureProvider, safeLookup, freshState, capture, submitAttempt, townView, cityPoints, cityView, PLAN, POINTS, BUILDINGS, DAY, finishScene,
+  planPiece, sectorAt, SECTOR_W, FixtureProvider, safeLookup, freshState, capture, submitAttempt, townView, cityPoints, cityView, PLAN, POINTS, BUILDINGS, DAY, finishScene,
   exportEvents, mergeEvents, rebuildState, sanitizeEvents, restore, serialize, type LearnerState, type Attempt,
 } from '../src/index.ts';
 
@@ -58,4 +58,19 @@ test('scene events sync and rebuild', () => {
   const r = finishScene(freshState(), 'home-tea', T0); assert.ok(r.ok); if (!r.ok) return;
   const ev = exportEvents(r.state); assert.equal(rebuildState(mergeEvents(ev, ev)).town.length, 1);
   assert.deepEqual(restore(serialize(r.state)).state.town, r.state.town);
+});
+
+test('endless growth: pieces keep coming, ascending, never overlapping, sector by sector', () => {
+  const seen = new Set<string>(); let prev = -1;
+  for (let i = 0; i < 700; i++) { const p = planPiece(i); assert.ok(p.at > prev, `piece ${i}`); prev = p.at; const key = `${p.slot.join()}${p.opens ? 'o' : ''}`; assert.ok(!seen.has(key), `${p.id} overlaps`); seen.add(key); assert.ok(!seen.has(p.id)); seen.add(p.id); }
+  assert.deepEqual(sectorAt(0), [0, 0]); assert.equal(new Set(Array.from({ length: 60 }, (_, i) => sectorAt(i).join())).size, 60);
+  assert.ok(Array.from({ length: 60 }, (_, i) => sectorAt(i)).every(([, j]) => j >= 0), 'the city grows east, west and south of the river, never into it');
+  const gaps = Array.from({ length: 300 }, (_, i) => planPiece(i + 1).at - planPiece(i).at); assert.ok(gaps.every(g => g >= 3 && g <= 90), 'each new piece is always within reach');
+});
+test('a big learner gets a big city: sectors open with their avenues, and the town never shrinks', () => {
+  const big = (n: number) => ({ ...freshState(), senses: Object.fromEntries(Array.from({ length: n }, (_, i) => [`w${i}`, { senseId: `w${i}`, lastAttemptAt: 0, capturedAt: 1, due: 1, stage: 0, evidence: {} }])) }) as unknown as LearnerState;
+  const a = cityView(big(50)), b = cityView(big(400)), c = cityView(big(1500));
+  assert.ok(a.size < b.size && b.size < c.size); assert.ok(b.sectors.length >= 2 && c.sectors.length > b.sectors.length);
+  assert.equal(a.sectors[0].avenues, a.builtIds.has('avenues')); assert.ok(c.sectors.every(s => Math.abs(s.ox) % SECTOR_W === 0));
+  for (const p of a.built) assert.ok(b.builtIds.has(p.id), 'nothing built is ever removed');
 });

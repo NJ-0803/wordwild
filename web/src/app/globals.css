@@ -450,3 +450,4 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: non
 .plan button:disabled { cursor: default; opacity: .6; } .plan li.next button { border-color: color-mix(in srgb, #e6961f 60%, var(--line)); opacity: 1; background: color-mix(in srgb, #e6961f 10%, transparent); }
 .plan-dot { flex: 0 0 24px; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; color: #fff; } .plan li.built .plan-dot { background: var(--progress); border-color: var(--progress); }
 .plan-name { display: grid; } .plan-name small { color: var(--sub); }
+.plan-h { font-size: .8rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--sub); margin: 16px 0 6px; }

@@ -8,7 +8,7 @@ PAL = dict(
     cream="#F5E6BE", butter="#F7CF5F", pink="#F3A7A2", sky="#83B7EA", white="#F8F5EF", brick="#C9573F", wood="#A97240", darkwood="#7A4B2A",
     red="#DC4A3D", orange="#EC8A3C", teal="#2F9089", slate="#4F5F80", terracotta="#C9673F", green="#6FBE4E", dkgreen="#3F9440", lime="#A8D84E",
     gold="#F3C431", teal2="#38B8A7", purple="#8D6DD8", stone="#B9B4A8", dkstone="#8C8779", water="#57B8E8", earth="#7C5A34", hay="#E3B94F",
-    glass="GLASS", glasspane="PANE", cloth1="#E9564B", cloth2="#F8F5EF", cloth3="#3E7FD6", cloth4="#F2C230", black="#2B2F3A", crop_wheat="#E8B93E", crop_green="#57B24A", crop_corn="#9CCB3F",
+    glass="GLASS", glasspane="PANE", concrete="#CFCABD", concrete2="#B5AFA1", sand="#E8D8B0", rose="#E0567B", marine="#2F5FA8", olive="#8AA24A", plum="#8A4F7D", mint="#9ADBC0", coral="#F27C5F", sun="#FFD766", asphalt="#5A5F6B", cloth1="#E9564B", cloth2="#F8F5EF", cloth3="#3E7FD6", cloth4="#F2C230", black="#2B2F3A", crop_wheat="#E8B93E", crop_green="#57B24A", crop_corn="#9CCB3F",
 )
 _mat = {}
 def mat(key):
@@ -315,3 +315,165 @@ def bridge():
 ALL = [cottage, house_red, townhouse, villa, farmhouse, apartments, barn, windmill, greenhouse, bakery, cafe, school, workshop, clinic, hall, library,
        fountain, clocktower, bench, lamp, tree, orchard_tree, pine, lambda: field("field_wheat", "wheat"), lambda: field("field_corn", "corn"), lambda: field("field_veg", "veg"),
        pond, playground, gazebo, stall]
+
+# --------------------------------------------------------------------------------------------- more building types
+def museum():
+    k = Kit("museum"); w, d = 2.1, 1.4
+    k.box(0, 0, 0, w + 0.14, d + 0.14, 0.1, "concrete2", 0.02); k.box(0, 0, 0.1, w, d, 0.75, "concrete")
+    k.box(0, -0.02, 0.85, w + 0.4, d + 0.3, 0.1, "white", 0.03); k.box(0.3, 0, 0.95, 1.2, 0.8, 0.28, "concrete", 0.03, rz=0)
+    k.box(-0.3, -d / 2 - 0.003, 0.2, 1.1, 0.06, 0.6, "glasspane", 0.0); k.box(-0.3, -d / 2 - 0.01, 0.2, 1.16, 0.05, 0.05, "white", 0.0); k.box(-0.3, -d / 2 - 0.01, 0.75, 1.16, 0.05, 0.05, "white", 0.0)
+    for x in (-0.85, -0.3, 0.25): k.box(x, -d / 2 - 0.012, 0.2, 0.04, 0.05, 0.6, "white", 0.0)
+    k.door(0.65, -d / 2 - 0.005, "front", 0.34, 0.55, "marine")
+    for i in range(4): k.box(0, -d / 2 - 0.2 - i * 0.07, 0.1 - 0.02 * i, 1.0, 0.14, 0.02 + 0.02 * i, "stone", 0.005)
+    k.cyl(-0.95, -0.95, 0.0, 0.14, 0.2, "stone", 0.14, 10); k.sphere(-0.95, -0.95, 0.42, 0.16, "gold", 10)
+    return k.finish()
+def assembly():
+    k = Kit("assembly"); w, d = 2.3, 1.3
+    k.box(0, 0, 0, w + 0.14, d + 0.14, 0.1, "concrete2", 0.02); k.box(0, 0, 0.1, w, d, 0.7, "concrete")
+    k.cyl(-0.35, 0, 0.8, 0.5, d + 0.1, "sand", 0.5, 24, ry=math.pi / 2).rotation_mode = "XYZ"
+    k.box(0.75, 0.15, 0.1, 0.55, 0.55, 2.0, "concrete", 0.03); k.box(0.75, 0.15, 2.1, 0.7, 0.7, 0.08, "white", 0.02)
+    for x in (-0.95, -0.55, -0.15, 0.25): k.box(x, -d / 2 - 0.005, 0.18, 0.2, 0.06, 0.5, "glass", 0.0)
+    k.door(-0.05, -d / 2 - 0.005, "front", 0.3, 0.45, "marine")
+    for i in range(3): k.box(0, -d / 2 - 0.18 - i * 0.07, 0.1 - 0.03 * i, 1.4, 0.14, 0.02 + 0.03 * i, "stone", 0.005)
+    return k.finish()
+def hospital():
+    k = Kit("hospital"); w, d, H = 2.1, 1.3, 1.2
+    k.box(0, 0, 0, w + 0.1, d + 0.1, 0.1, "concrete2", 0.02); k.box(0, 0, 0.1, w, d, H, "white"); k.box(0, 0, 0.1 + H, w + 0.1, d + 0.1, 0.1, "teal2", 0.02)
+    for f in range(2):
+        for x in (-0.75, -0.25, 0.25, 0.75): k.window(x, -d / 2 - 0.005, 0.3 + f * 0.55, "front", 0.28, 0.32)
+    k.door(0, -d / 2 - 0.005, "front", 0.4, 0.5, "teal2"); k.awning(0, -d / 2 - 0.02, 0.62, 0.9, 0.34, ("teal2", "white"), 6)
+    k.cyl(0.55, 0.15, 0.2 + H, 0.4, 0.03, "stone", 0.4, 20); k.box(0.55, 0.15, 0.23 + H, 0.1, 0.34, 0.01, "white", 0.0); k.box(0.55, 0.15, 0.23 + H, 0.34, 0.1, 0.01, "white", 0.0); k.box(-0.6, 0.1, 0.2 + H, 0.5, 0.05, 0.3, "red", 0.0)
+    k.box(-0.6, 0.1, 0.32 + H, 0.16, 0.05, 0.5, "red", 0.0)
+    return k.finish()
+def college():
+    k = Kit("college"); w, d, H = 2.3, 1.1, 0.95
+    k.box(0, 0, 0, w + 0.1, d + 0.1, 0.1, "stone", 0.02); k.box(0, 0, 0.1, w, d, H, "sand"); k.box(0, 0, 0.1 + H, w + 0.14, d + 0.14, 0.1, "white", 0.02)
+    k.gable(0, 0, 0.2 + H, w, d, 0.3, "terracotta", 0.1, ridge_x=True)
+    for x in (-0.9, -0.6, -0.3, 0.3, 0.6, 0.9): k.box(x, -d / 2 - 0.005, 0.12, 0.2, 0.08, 0.6, "brick", 0.03); k.box(x, -d / 2 - 0.012, 0.16, 0.14, 0.07, 0.5, "glass", 0.0)
+    k.box(0, -0.0, 0.2 + H, 0.5, 0.5, 0.7, "sand", 0.02); k.hip(0, 0, 0.9 + H, 0.5, 0.5, 0.3, "marine", 0.05); k.cyl(0, -0.27, 0.2 + H + 0.38, 0.14, 0.03, "white", 0.14, 16)
+    k.door(0, -d / 2 - 0.005, "front", 0.4, 0.62, "darkwood")
+    return k.finish()
+def stadium():
+    k = Kit("stadium"); k.cyl(0, 0, 0, 1.05, 0.6, "concrete", 1.1, 32); k.cyl(0, 0, 0.35, 0.86, 0.3, "concrete2", 0.86, 32); k.cyl(0, 0, 0.3, 0.8, 0.05, "green", 0.8, 32)
+    k.box(0, 0, 0.35, 0.9, 0.4, 0.01, "lime", 0.0); k.box(0, 0, 0.36, 0.02, 1.4, 0.01, "white", 0.0); k.cyl(0, 0, 0.36, 0.14, 0.01, "white", 0.14, 16)
+    for a in (0.7, 2.4, 3.9, 5.5): k.cyl(math.cos(a) * 1.0, math.sin(a) * 1.0, 0.0, 0.03, 1.5, "black", 0.03, 6); k.box(math.cos(a) * 1.0, math.sin(a) * 1.0, 1.5, 0.22, 0.22, 0.1, "white", 0.01)
+    return k.finish()
+def hotel():
+    k = Kit("hotel"); w, d, H = 1.4, 1.1, 2.1
+    k.box(0, 0, 0, w + 0.1, d + 0.1, 0.1, "stone", 0.02); k.box(0, 0, 0.1, w, d, H, "sand"); k.box(0, 0, 0.1 + H, w + 0.14, d + 0.14, 0.1, "white", 0.02)
+    for f in range(4):
+        for x in (-0.4, 0, 0.4):
+            if f == 0 and x == 0: continue
+            k.window(x, -d / 2 - 0.005, 0.28 + f * 0.48, "front", 0.22, 0.28); k.box(x, -d / 2 - 0.1, 0.22 + f * 0.48, 0.32, 0.16, 0.04, "white", 0.01)
+    k.door(0, -d / 2 - 0.005, "front", 0.34, 0.5, "plum"); k.awning(0, -d / 2 - 0.02, 0.66, 0.6, 0.32, ("plum", "white"), 4)
+    k.box(0, 0, 0.2 + H, 1.0, 0.1, 0.34, "coral", 0.02); k.box(0, -0.0, 0.5 + H, 0.9, 0.06, 0.06, "gold", 0.0)
+    return k.finish()
+def bank():
+    k = Kit("bank"); w, d, H = 1.8, 1.3, 0.95
+    k.box(0, 0, 0, w + 0.14, d + 0.14, 0.12, "stone", 0.02); k.box(0, 0, 0.12, w, d, H, "concrete")
+    k.box(0, 0, 0.12 + H, w + 0.14, d + 0.14, 0.1, "white", 0.02)
+    k.box(0, -d / 2 - 0.3, 0.12, 1.4, 0.55, 0.06, "stone", 0.01)
+    for x in (-0.55, -0.2, 0.2, 0.55): k.cyl(x, -d / 2 - 0.42, 0.18, 0.07, 0.8, "white", 0.07, 12)
+    k.box(0, -d / 2 - 0.42, 0.98, 1.5, 0.4, 0.08, "white", 0.01); k.gable(0, -d / 2 - 0.42, 1.06, 1.4, 0.3, 0.26, "concrete2", 0.05, ridge_x=True)
+    k.door(0, -d / 2 - 0.005, "front", 0.4, 0.6, "marine"); k.sphere(0, -d / 2 - 0.42, 1.2, 0.06, "gold", 8)
+    k.cyl(0, 0.1, 0.22 + H, 0.42, 0.1, "white", 0.42, 20); k.sphere(0, 0.1, 0.32 + H, 0.42, "concrete2", 18, 0.6)
+    return k.finish()
+def postoffice():
+    k = Kit("postoffice"); w, d, H = 1.5, 1.15, 0.85
+    k.box(0, 0, 0, w + 0.1, d + 0.1, 0.1, "stone", 0.02); k.box(0, 0, 0.1, w, d, H, "cream"); k.gable(0, 0, 0.1 + H, w, d, 0.55, "red", 0.12, ridge_x=True)
+    k.window(-0.4, -d / 2 - 0.005, 0.32, "front", 0.34, 0.38); k.door(0.3, -d / 2 - 0.005, "front", 0.3, 0.5, "red"); k.box(0, -d / 2 - 0.06, 0.1 + H - 0.16, 0.7, 0.05, 0.18, "marine", 0.01)
+    k.cyl(0.95, -0.8, 0, 0.11, 0.4, "red", 0.11, 10); k.sphere(0.95, -0.8, 0.4, 0.11, "red", 10, 0.8); k.chimney(-0.45, 0.2, 0.1 + H + 0.25, 0.35)
+    return k.finish()
+def firestation():
+    k = Kit("firestation"); w, d, H = 1.9, 1.3, 1.0
+    k.box(0, 0, 0, w + 0.1, d + 0.1, 0.1, "stone", 0.02); k.box(0, 0, 0.1, w, d, H, "red"); k.box(0, 0, 0.1 + H, w + 0.12, d + 0.12, 0.08, "white", 0.02)
+    for x in (-0.45, 0.45): k.box(x, -d / 2 - 0.005, 0.1, 0.7, 0.06, 0.72, "white", 0.02); k.box(x, -d / 2 - 0.012, 0.14, 0.62, 0.06, 0.66, "concrete2", 0.01)
+    for x in (-0.45, 0.45):
+        for i in range(5): k.box(x, -d / 2 - 0.02, 0.2 + i * 0.12, 0.6, 0.02, 0.03, "white", 0.0)
+    k.box(0.75, 0.3, 0.1 + H, 0.4, 0.4, 0.9, "red", 0.02); k.hip(0.75, 0.3, 1.0 + H + 0.1, 0.4, 0.4, 0.25, "concrete2", 0.04); k.cyl(0.75, 0.1, 0.1 + H + 0.55, 0.08, 0.03, "gold", 0.08, 10)
+    k.window(-0.85, -d / 2 - 0.005, 0.9, "front", 0.22, 0.2)
+    return k.finish()
+def busstation():
+    k = Kit("busstation"); k.box(0, 0, 0, 2.2, 1.6, 0.06, "concrete2", 0.02); k.box(0, -0.35, 0.06, 2.0, 0.6, 0.06, "concrete", 0.01)
+    for x in (-0.9, 0.0, 0.9): k.box(x, -0.5, 0.06, 0.06, 0.06, 0.95, "white", 0.01)
+    k.box(0, -0.35, 1.0, 2.2, 0.8, 0.07, "marine", 0.02); k.box(0, -0.36, 1.07, 2.2, 0.8, 0.02, "white", 0.0)
+    k.box(0.2, 0.5, 0.06, 1.3, 0.5, 0.36, "sun", 0.05); k.box(0.2, 0.5, 0.42, 1.24, 0.46, 0.34, "sun", 0.05)
+    for x in (-0.25, 0.05, 0.35, 0.65): k.box(x, 0.24, 0.5, 0.2, 0.06, 0.2, "glass", 0.0)
+    for x in (-0.3, 0.7): k.cyl(x, 0.24, 0.06, 0.1, 0.05, "black", 0.1, 10, rx=math.pi / 2)
+    k.box(-0.7, -0.6, 0.06, 0.5, 0.14, 0.05, "wood", 0.01); k.box(-0.7, -0.66, 0.11, 0.5, 0.04, 0.2, "wood", 0.01)
+    return k.finish()
+def arcade():
+    k = Kit("arcade"); w, d, H = 2.4, 1.0, 0.85
+    k.box(0, 0, 0, w + 0.1, d + 0.4, 0.1, "concrete2", 0.02); k.box(0, 0.1, 0.1, w, d - 0.2, H, "coral"); k.box(0, -0.1, 0.1 + H, w + 0.1, d + 0.2, 0.1, "white", 0.02)
+    for i in range(7): k.box(-1.05 + i * 0.35, -d / 2 - 0.1, 0.1, 0.09, 0.09, 0.8, "white", 0.01)
+    k.box(0, -d / 2 - 0.1, 0.9, w, 0.1, 0.1, "white", 0.01)
+    k.awning(0, -d / 2 - 0.02, 0.7, 2.2, 0.32, ("cloth4", "cloth3"), 12)
+    for i in range(5): k.window(-0.9 + i * 0.45, d / 2 - 0.09, 0.3, "front", 0.2, 0.3) if False else k.box(-0.9 + i * 0.45, -d / 2 + 0.11, 0.25, 0.28, 0.05, 0.4, "glass", 0.0)
+    k.box(0, 0.1, 0.2 + H, w - 0.2, 0.5, 0.36, "cream", 0.02); k.gable(0, 0.1, 0.56 + H, w - 0.2, 0.5, 0.26, "terracotta", 0.06, ridge_x=True)
+    return k.finish()
+def rosegarden():
+    k = Kit("rosegarden"); k.box(0, 0, 0, 2.2, 2.2, 0.05, "green", 0.02)
+    k.box(0, 0, 0.05, 0.16, 2.2, 0.02, "sand", 0.0); k.box(0, 0, 0.05, 2.2, 0.16, 0.02, "sand", 0.0)
+    for (x, y, c) in [(-0.6, -0.6, "rose"), (0.6, -0.6, "butter"), (-0.6, 0.6, "pink"), (0.6, 0.6, "coral")]:
+        k.cyl(x, y, 0.05, 0.36, 0.08, "earth", 0.36, 16)
+        for i in range(9): a = i * 0.7; r = 0.08 + (i % 3) * 0.1; k.sphere(x + math.cos(a) * r, y + math.sin(a) * r, 0.16, 0.07, c, 8, 0.8)
+    k.cyl(0, 0, 0.05, 0.22, 0.12, "stone", 0.22, 14); k.cyl(0, 0, 0.17, 0.16, 0.02, "water", 0.16, 14); k.cyl(0, 0, 0.17, 0.03, 0.22, "water", 0.02, 6)
+    for s in (-1, 1):
+        k.box(0, s * 1.06, 0.05, 2.2, 0.08, 0.16, "dkgreen", 0.02); k.box(s * 1.06, 0, 0.05, 0.08, 2.2, 0.16, "dkgreen", 0.02)
+    k.box(0.0, 0.95, 0.05, 0.5, 0.12, 0.22, "wood", 0.01)
+    return k.finish()
+def lake():
+    k = Kit("lake"); k.cyl(0, 0, 0, 1.9, 0.08, "stone", 1.9, 36); k.cyl(0, 0, 0.08, 1.75, 0.03, "water", 1.75, 36)
+    for a in range(16): k.sphere(math.cos(a * 0.4) * 1.82, math.sin(a * 0.4) * 1.82, 0.1, 0.16, "dkstone", 8, 0.7)
+    k.box(-0.9, -1.25, 0.05, 0.4, 1.1, 0.05, "wood", 0.01, rz=0.5)
+    for (x, y, c, a) in [(0.4, 0.3, "cloth1", 0.4), (-0.3, -0.4, "cloth3", 2.0)]:
+        k.box(x, y, 0.11, 0.5, 0.2, 0.09, c, 0.03, rz=a); k.box(x, y, 0.2, 0.03, 0.03, 0.5, "white", 0.0)
+    for x, y in ((1.0, 0.6), (-0.9, 0.5), (0.2, -1.0)): k.cyl(x, y, 0.11, 0.16, 0.02, "green", 0.16, 10)
+    return k.finish()
+def monument():
+    k = Kit("monument"); k.cyl(0, 0, 0, 0.9, 0.08, "stone", 0.9, 24); k.cyl(0, 0, 0.08, 0.6, 0.08, "concrete", 0.6, 24); k.box(0, 0, 0.16, 0.5, 0.5, 0.2, "concrete2", 0.02)
+    k.box(-0.18, 0, 0.36, 0.14, 0.2, 1.2, "concrete", 0.02, ry=0.3); k.box(0.18, 0, 0.36, 0.14, 0.2, 1.2, "concrete", 0.02, ry=-0.3); k.sphere(0, 0, 1.55, 0.14, "gold", 12)
+    for a in range(6): k.sphere(math.cos(a * 1.05) * 0.78, math.sin(a * 1.05) * 0.78, 0.1, 0.12, "dkgreen", 8, 0.8)
+    return k.finish()
+def leisure():
+    k = Kit("leisure"); k.box(0, 0, 0, 2.2, 2.0, 0.05, "green", 0.02); k.cyl(0, 0, 0.05, 0.85, 0.02, "sand", 0.85, 28); k.cyl(0, 0, 0.06, 0.65, 0.02, "green", 0.65, 28)
+    for a, r in ((0.3, 1.0), (1.6, 0.9), (2.9, 1.0), (4.2, 0.9), (5.3, 1.0)):
+        x, y = math.cos(a) * r, math.sin(a) * r * 0.85; k.cyl(x, y, 0.05, 0.07, 0.4, "darkwood", 0.06, 8); k.sphere(x, y, 0.62, 0.32, ("green", "lime")[int(a) % 2], 10, 0.9)
+    k.box(0.0, -0.75, 0.05, 0.5, 0.12, 0.05, "wood", 0.01); k.box(0.0, -0.8, 0.09, 0.5, 0.04, 0.16, "wood", 0.01); k.cyl(0, 0, 0.05, 0.06, 0.6, "black", 0.05, 6); k.sphere(0, 0, 0.7, 0.1, "glass", 8)
+    return k.finish()
+def terrace():
+    k = Kit("terrace"); cols = ["butter", "pink", "sky"]; roofs = ["terracotta", "slate", "orange"]
+    for i in range(3):
+        x = (i - 1) * 0.72
+        k.box(x, 0, 0.08, 0.72, 1.0, 1.2, cols[i]); k.gable(x, 0, 1.28, 0.72, 1.0, 0.45, roofs[i], 0.06); k.door(x - 0.15, -0.505, "front", 0.22, 0.45)
+        k.window(x + 0.17, -0.505, 0.42, "front", 0.18, 0.24); k.window(x, -0.505, 0.85, "front", 0.22, 0.26); k.chimney(x + 0.2, 0.2, 1.4, 0.3)
+    k.box(0, 0, 0, 2.3, 1.15, 0.08, "stone", 0.02); return k.finish()
+def modern():
+    k = Kit("modern"); k.box(0, 0, 0, 1.7, 1.4, 0.08, "concrete2", 0.02); k.box(-0.2, 0, 0.08, 1.2, 1.2, 0.75, "white", 0.03); k.box(0.2, 0.1, 0.83, 1.2, 1.0, 0.65, "concrete", 0.03)
+    k.box(0.2, 0.1, 1.48, 1.3, 1.1, 0.06, "black", 0.02); k.box(-0.2, 0, 0.83, 1.3, 1.3, 0.06, "black", 0.02)
+    k.box(-0.2, -0.61, 0.2, 0.9, 0.05, 0.45, "glasspane", 0.0); k.box(0.2, -0.41, 0.95, 0.9, 0.05, 0.4, "glasspane", 0.0)
+    k.door(0.5, -0.61, "front", 0.26, 0.5, "coral"); k.box(0.8, -0.3, 0.08, 0.4, 0.5, 0.06, "wood", 0.01)
+    for i in range(3): k.sphere(0.7, -0.5 + i * 0.16, 0.2, 0.08, "green", 8)
+    return k.finish()
+def house_v(name, wall, roof, w=1.5, d=1.2, hip=False): return house(name, wall, roof, w, d, 0.9, hip=hip)
+def house_blue(): return house_v("house_blue", "sky", "butter")
+def house_mint(): return house_v("house_mint", "mint", "coral", 1.5, 1.2, True)
+def house_plum(): return house_v("house_plum", "cream", "plum", 1.6, 1.25)
+def house_sand(): return house_v("house_sand", "sand", "teal", 1.5, 1.2, True)
+def tree_avenue():
+    k = Kit("tree_avenue"); k.cyl(0, 0, 0, 0.09, 0.7, "darkwood", 0.07, 8); k.sphere(0, 0, 1.15, 0.34, "green", 12, 1.7); k.sphere(0.05, 0.03, 0.85, 0.3, "dkgreen", 10, 1.1); return k.finish()
+def tree_flower():
+    k = Kit("tree_flower"); k.cyl(0, 0, 0, 0.1, 0.55, "darkwood", 0.08, 8); k.sphere(0, 0, 0.95, 0.5, "pink", 14, 0.85)
+    for a in range(8): k.sphere(math.cos(a * 0.8) * 0.4, math.sin(a * 0.8) * 0.4, 0.75 + (a % 3) * 0.14, 0.13, "rose", 8)
+    return k.finish()
+def tree_shade():
+    k = Kit("tree_shade"); k.cyl(0, 0, 0, 0.14, 0.8, "darkwood", 0.1, 8)
+    for x, y, z, r in ((0, 0, 1.3, 0.75), (0.45, 0.2, 1.05, 0.5), (-0.45, -0.15, 1.1, 0.5), (0.1, -0.4, 1.0, 0.45)): k.sphere(x, y, z, r, "dkgreen", 12, 0.75)
+    k.sphere(0, 0.05, 1.5, 0.45, "green", 10, 0.7); return k.finish()
+def planter():
+    k = Kit("planter"); k.box(0, 0, 0, 0.7, 0.7, 0.22, "concrete", 0.05); k.box(0, 0, 0.22, 0.6, 0.6, 0.04, "earth", 0.0)
+    for i in range(5): k.sphere(-0.2 + (i % 3) * 0.2, -0.1 + (i // 3) * 0.2, 0.32, 0.1, ("rose", "butter", "pink", "coral", "purple")[i], 8)
+    return k.finish()
+NEW = [museum, assembly, hospital, college, stadium, hotel, bank, postoffice, firestation, busstation, arcade, rosegarden, lake, monument, leisure, terrace, modern,
+       house_blue, house_mint, house_plum, house_sand, tree_avenue, tree_flower, tree_shade, planter]
+ALL = ALL + NEW

@@ -52,7 +52,7 @@ export default function TownPage() {
   return (
     <div className={`town${panel ? " sheet-open" : ""}`}>
       <div className="town-canvas">
-        <TownSceneLazy pieces={view.pieces} points={view.points} fresh={fresh} motion={!reduced} hour={hour} selected={panel?.kind === "piece" ? panel.id : null} onPiece={id => setPanel({ kind: "piece", id })} />
+        <TownSceneLazy pieces={view.pieces} sectors={view.sectors} points={view.points} fresh={fresh} motion={!reduced} hour={hour} selected={panel?.kind === "piece" ? panel.id : null} onPiece={id => setPanel({ kind: "piece", id })} />
       </div>
 
       <header className="hud" aria-label="Your town">
@@ -83,15 +83,17 @@ export default function TownPage() {
             {panel.kind === "plan" && (<>
               <h2>Your city plan</h2>
               <p className="sub small">Every word you log builds your town. A saved word is worth {POINTS.saved} points, practising it {POINTS.practised} more, making it secure {POINTS.secure} more, and a puzzle {POINTS.puzzle}. Nothing is spent, and the town never shrinks.</p>
+              <h3 className="plan-h">Next up</h3>
               <ol className="plan">
-                {view.pieces.map(p => (
-                  <li key={p.id} className={p.status}>
-                    <button onClick={() => p.status === "built" && setPanel({ kind: "piece", id: p.id })} disabled={p.status !== "built"}>
-                      <span className="plan-dot" aria-hidden>{p.status === "built" ? <Icon.Check /> : null}</span>
-                      <span className="plan-name"><b>{p.name}</b><small>{p.status === "built" ? p.blurb : p.status === "next" ? `Next · ${p.at - view.points} more points` : `${p.at} points`}</small></span>
-                    </button>
-                  </li>))}
+                {view.upcoming.map((p, i) => (
+                  <li key={p.id} className={i === 0 ? "next" : "later"}><button disabled><span className="plan-dot" aria-hidden /><span className="plan-name"><b>{p.name}</b><small>{i === 0 ? `Next · ${p.at - view.points} more points` : `${p.at} points`}</small></span></button></li>))}
               </ol>
+              <h3 className="plan-h">Built · {view.built.length} pieces</h3>
+              <ol className="plan">
+                {[...view.built].reverse().slice(0, 14).map(p => (
+                  <li key={p.id} className="built"><button onClick={() => setPanel({ kind: "piece", id: p.id })}><span className="plan-dot" aria-hidden><Icon.Check /></span><span className="plan-name"><b>{p.name}</b><small>{p.blurb}</small></span></button></li>))}
+              </ol>
+              {view.built.length > 14 && <p className="sub small">…and {view.built.length - 14} more. Your city is {view.sectors.length === 1 ? "one sector" : `${view.sectors.length} sectors`} wide, and it keeps growing with every word.</p>}
             </>)}
 
             {panel.kind === "scene" && (() => { const sc = view.buildings.flatMap(b => scenesFor(b.id)).find(y => y.id === panel.id); if (!sc) return <p>This scene is not available yet.</p>; return (<>
