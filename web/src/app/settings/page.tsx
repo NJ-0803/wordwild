@@ -18,7 +18,7 @@ export default function Settings() {
   if (!ready) return null;
   const p = state.prefs; const set = (patch: Partial<typeof p>) => update(s => ({ ...s, prefs: { ...s.prefs, ...patch } }));
   return (
-    <div className="stack">
+    <div className="stack settings-cols">
       <Orb size={96} label="Wordwild" />
       <h1>Settings</h1>
       <h2>Text size</h2>

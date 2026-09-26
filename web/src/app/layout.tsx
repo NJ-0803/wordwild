@@ -6,6 +6,7 @@ import { Nav } from "@/components/Nav";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Account } from "@/components/Account";
 import { MetricsWatcher } from "@/components/MetricsWatcher";
+import { Sidebar } from "@/components/Sidebar";
 
 // next/font self-hosts these at build time, so no visitor request goes to Google.
 const serif = Instrument_Serif({ variable: "--font-serif", subsets: ["latin"], weight: "400" });
@@ -26,7 +27,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ClerkProvider>
           <StoreProvider>
             <MetricsWatcher />
-            <main className="wrap"><Account />{children}</main>
+            <div className="shell">
+              <Sidebar />
+              <main className="wrap"><Account />{children}</main>
+            </div>
             <Nav />
           </StoreProvider>
         </ClerkProvider>

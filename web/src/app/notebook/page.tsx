@@ -46,12 +46,11 @@ export default function Notebook() {
   const max = Math.max(1, ...v.schedule);
   const dayName = (i: number) => DAY_NAMES[i] ?? new Date(now() + i * 86_400_000).toLocaleDateString(undefined, { weekday: "short" });
   return (
-    <div className="stack">
-      <Orb size={96} label="Wordwild" />
-      <h1>My Word Vault</h1>
-      {v.total === 0 && <Card>No words yet. Save your first word from Today.</Card>}
+    <div className="grid g12">
+      <div className="c12 hero-band"><Orb size={96} label="Wordwild" /><h1 className="display" style={{ margin: 0 }}>My Word Vault</h1></div>
+      {v.total === 0 && <div className="c12"><Card>No words yet. Save your first word from Today.</Card></div>}
       {v.total > 0 && (<>
-        <Card>
+        <div className="c6"><Card>
           <div className="row" style={{ alignItems: "stretch" }}>
             <div><p className="label" style={{ margin: 0 }}>Saved</p><p style={{ fontSize: "1.8rem", margin: 0, fontVariantNumeric: "tabular-nums" }}>{Object.keys(state.senses).length}</p></div>
             <div><p className="label" style={{ margin: 0 }}>You own</p><p style={{ fontSize: "1.8rem", margin: 0, fontVariantNumeric: "tabular-nums" }}>{v.mastered.length}</p></div>
@@ -63,7 +62,8 @@ export default function Notebook() {
             return { kicker: "My Wordwild", title: "Words I am learning", stats: [{ value: String(Object.keys(state.senses).length), label: "saved" }, { value: String(v.mastered.length), label: "I own" }, { value: String(days.total), label: "learning days" }], lines: pick, footer: "wordwild-seven.vercel.app" };
           }} /></div>
         </Card>
-        <Card>
+        </div>
+        <div className="c6"><Card>
           <p className="label" style={{ margin: "0 0 8px" }}>Revision this week</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, alignItems: "end", height: 84 }} role="img" aria-label={`Words due each day this week: ${v.schedule.join(", ")}`}>
             {v.schedule.map((n, i) => <div key={i} style={{ display: "grid", gap: 4, justifyItems: "center", alignContent: "end", height: "100%" }}>
@@ -71,15 +71,15 @@ export default function Notebook() {
               <span className="small sub" style={{ fontVariantNumeric: "tabular-nums" }}>{n}</span></div>)}
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginTop: 4 }}>{v.schedule.map((_, i) => <span key={i} className="small sub" style={{ textAlign: "center", fontSize: ".65rem" }}>{dayName(i)}</span>)}</div>
-        </Card>
-        <div className="chips" role="group" aria-label="Word groups">
+        </Card></div>
+        <div className="c12 chips" role="group" aria-label="Word groups">
           {(Object.keys(TAB_LABEL) as Tab[]).map(t => { const n = t === "pending" ? v.pending.length : v[t].length; return <button key={t} className="chip" aria-pressed={active === t} onClick={() => setTab(t)}>{TAB_LABEL[t]} · {n}</button>; })}
         </div>
       </>)}
-      {ids.map(id => { const r = state.senses[id]; return <Row key={id} r={r} note={state.captures.find(c => c.senseId === id)?.context} fmt={fmt} due={r.lastAttemptAt > 0 && r.due <= now()} />; })}
-      {active === "pending" && v.pending.map(q => <Card key={q} tone="warn"><b>{q}</b><p className="small">{state.captures.find(c => c.query === q)?.status === "unknown" ? "Not in our dictionary yet." : "Could not be checked yet."} Nothing has been guessed.</p></Card>)}
-      {v.total > 0 && ids.length === 0 && active !== "pending" && <Card>Nothing here right now.</Card>}
-      <Card>
+      <div className="c12 cards">{ids.map(id => { const r = state.senses[id]; return <Row key={id} r={r} note={state.captures.find(c => c.senseId === id)?.context} fmt={fmt} due={r.lastAttemptAt > 0 && r.due <= now()} />; })}</div>
+      {active === "pending" && <div className="c12 cards">{v.pending.map(q => <Card key={q} tone="warn"><b>{q}</b><p className="small">{state.captures.find(c => c.query === q)?.status === "unknown" ? "Not in our dictionary yet." : "Could not be checked yet."} Nothing has been guessed.</p></Card>)}</div>}
+      {v.total > 0 && ids.length === 0 && active !== "pending" && <div className="c12"><Card>Nothing here right now.</Card></div>}
+      <div className="c12"><Card>
         <div className="row" style={{ justifyContent: "space-between" }}><h2 style={{ margin: 0 }}>Milestones</h2><span className="sub small" style={{ flex: "0 0 auto" }}>{ms.doneCount} of {ms.all.length}</span></div>
         <ul style={{ listStyle: "none", padding: 0, margin: "10px 0 0", display: "grid", gap: 8 }}>
           {(showAll ? ms.all : ms.all.filter(m => m.done || m.id === ms.next?.id).slice(-4)).map(m => (
@@ -90,7 +90,7 @@ export default function Notebook() {
         </ul>
         <button className="chip" style={{ marginTop: 10 }} onClick={() => setShowAll(x => !x)}>{showAll ? "Show fewer" : "Show all milestones"}</button>
         <p className="sub small" style={{ margin: "8px 0 0" }}>Milestones stay reached. Nothing is ever taken away.</p>
-      </Card>
+      </Card></div>
     </div>
   );
 }

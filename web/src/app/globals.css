@@ -133,3 +133,42 @@ input::placeholder, textarea::placeholder { color: #6a7796; }
   background: linear-gradient(180deg, rgba(14, 26, 60, .94), rgba(5, 7, 15, .94)); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 24px 60px rgba(0, 0, 0, .6), 0 0 34px rgba(60, 100, 220, .28); }
 @media (prefers-reduced-motion: no-preference) { .wh-panel { animation: wh-in .28s var(--spring, cubic-bezier(.34, 1.45, .64, 1)) both; } @keyframes wh-in { from { opacity: 0; transform: translateX(12px) scale(.97); } to { opacity: 1; transform: none; } } }
 .wh > div:focus-visible { outline: 2px dashed var(--navy-glow); border-radius: 10px; }
+
+/* ================= Layout: a real desktop frame. Sidebar + wide content; the phone layout stays a single column. ================= */
+.side { display: none; }
+@media (min-width: 1024px) {
+  .shell { display: grid; grid-template-columns: 264px minmax(0, 1fr); min-height: 100dvh; }
+  .side { display: flex; flex-direction: column; gap: 22px; position: sticky; top: 0; height: 100dvh; padding: 26px 18px 20px; border-right: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(10, 18, 44, .72), rgba(4, 5, 10, .55)); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+  .side-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+  .side-brand span { font: 400 2.1rem/1 var(--font-serif), Georgia, serif; letter-spacing: -.02em; }
+  .side-nav { display: grid; gap: 6px; }
+  .side-nav a { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 16px; border-radius: 16px; color: var(--sub); text-decoration: none; font: 600 1.05rem/1 var(--font-head), var(--font-body), system-ui, sans-serif;
+    border: 1px solid transparent; transition: background .2s, color .2s, border-color .2s; }
+  .side-nav a span { width: 22px; text-align: center; opacity: .9; }
+  .side-nav a:hover { color: #fff; background: rgba(20, 48, 111, .35); }
+  .side-nav a[aria-current="page"] { color: #fff; background: linear-gradient(180deg, var(--navy-2), var(--navy)); border-color: var(--navy-glow); box-shadow: 0 0 26px rgba(70, 110, 230, .5); }
+  .side-foot { margin: auto 0 0; font-size: .8rem; color: var(--sub); } .side-foot a { color: var(--sub); }
+  .wrap { max-width: 1240px; margin: 0; padding: 28px 44px 64px; width: 100%; }
+  .nav { display: none; }                               /* the sidebar replaces the bottom bar */
+  h1, .display { font-size: clamp(3rem, 5vw, 4.6rem); }
+}
+
+/* ---- Grids for wide screens ---- */
+.grid { display: grid; gap: 22px; }
+@media (min-width: 1024px) {
+  .g12 { grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: start; }
+  .c3 { grid-column: span 3; } .c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: 1 / -1; }
+  .sticky { position: sticky; top: 22px; align-self: start; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 22px; align-items: start; }
+}
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.tile { display: grid; gap: 4px; padding: 20px 18px; border-radius: 22px; text-decoration: none; color: var(--ink); background: linear-gradient(160deg, rgba(20, 48, 111, .55), rgba(6, 8, 16, .85)); border: 1px solid var(--navy-3); min-height: 116px; align-content: end;
+  transition: transform .3s var(--spring, cubic-bezier(.34, 1.45, .64, 1)), box-shadow .2s, border-color .2s; }
+.tile:hover { border-color: var(--navy-glow); box-shadow: 0 0 34px rgba(70, 110, 230, .45); transform: translateY(-3px); }
+.tile b { font: 600 1.35rem/1.1 var(--font-head), var(--font-body), system-ui, sans-serif; } .tile span { color: var(--sub); font-size: .85rem; } .tile i { font-style: normal; font-size: 1.9rem; line-height: 1; margin-bottom: 8px; }
+@media (max-width: 640px) { .tiles { grid-template-columns: 1fr; } .tile { min-height: 0; display: flex; align-items: center; gap: 14px; padding: 16px; } .tile i { margin: 0; } }
+.hero-band { display: flex; align-items: center; gap: 22px; }
+.hero-band .display { margin: 0; }
+
+@media (min-width: 1024px) { .settings-cols { display: block; columns: 2; column-gap: 26px; } .settings-cols > * { break-inside: avoid; margin: 0 0 18px !important; } .settings-cols > h1 { column-span: all; } }
