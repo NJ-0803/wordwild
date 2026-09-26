@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useStore } from "@/lib/store";
 
-const tabsFor = (puzzles: boolean) => [["/", "Today"], ["/notebook", "My words"], puzzles ? ["/play", "Puzzles"] : ["/capture", "Save a word"], ["/settings", "Settings"]] as const;
+const tabsFor = (puzzles: boolean) => [["/", "Today"], ["/notebook", "My words"], puzzles ? ["/play", "Puzzles"] : ["/capture", "Add"], ["/settings", "Settings"]] as const;
 export function Nav() {
   const p = usePathname();
   const { onboarded, state } = useStore(); const tabs = tabsFor(Object.keys(state.attempts).length > 0 || Object.keys(state.senses).length >= 3);
