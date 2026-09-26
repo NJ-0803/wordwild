@@ -1,11 +1,11 @@
 // Checks every puzzle word against the dictionary: it must exist as its own entry (not only as a form of another word) and have a definition.
 //   node --no-warnings --env-file=.env.local --import ./scripts/alias.mjs --experimental-strip-types scripts/play-check.ts [--fix]
 import { readFileSync, writeFileSync } from "node:fs";
-import { ANSWERS_5, SCRAMBLE, MATCH_WORDS } from "@core";
+import { ANSWERS_5, SCRAMBLE, MATCH_WORDS, SCRAMBLE_MEDIUM, SCRAMBLE_HARD, SCRAMBLE_SUPER } from "@core";
 import { lookupDict } from "../src/lib/db.ts";
 
 const FIX = process.argv.includes("--fix");
-const lists: [string, readonly string[]][] = [["ANSWERS_5", ANSWERS_5], ["SCRAMBLE", SCRAMBLE], ["MATCH_WORDS", MATCH_WORDS]];
+const lists: [string, readonly string[]][] = [["ANSWERS_5", ANSWERS_5], ["SCRAMBLE", SCRAMBLE], ["MATCH_WORDS", MATCH_WORDS], ["SCRAMBLE_MEDIUM", SCRAMBLE_MEDIUM], ["SCRAMBLE_HARD", SCRAMBLE_HARD], ["SCRAMBLE_SUPER", SCRAMBLE_SUPER]];
 const bad: Record<string, string[]> = {};
 for (const [name, list] of lists) {
   bad[name] = [];

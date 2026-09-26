@@ -43,3 +43,21 @@ test("theme choice is remembered", async ({ page }) => {
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
+
+test("unscramble: levels, timer and a solved word", async ({ page }) => {
+  await page.goto("/play/unscramble");
+  for (const l of ["Easy", "Medium", "Hard", "Super hard"]) await expect(page.getByRole("button", { name: l, exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Hard", exact: true }).click();
+  await expect(page.getByText(/Word 1 of 5/)).toBeVisible();
+  await expect(page.getByRole("timer")).toContainText("0:00");
+  await page.getByRole("button", { name: "Show the first letter" }).click();
+  await expect(page.getByText(/starts with/)).toBeVisible();
+});
+
+test("word of the day shows a clue from the start and friends ask you to sign in", async ({ page }) => {
+  await page.goto("/play/word");
+  await expect(page.locator(".pz-clue-line")).toBeVisible({ timeout: 15_000 });
+  await page.goto("/play");
+  await expect(page.getByRole("heading", { name: "Friends today" })).toBeVisible();
+  await expect(page.getByText(/Sign in to invite friends/)).toBeVisible();
+});

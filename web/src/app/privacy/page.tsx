@@ -23,6 +23,11 @@ export default function Privacy() {
       </Card>
 
       <Card>
+        <h2>Friends and puzzle times</h2>
+        <p><b>Friends (optional).</b> If you sign in and use the friends feature, we store your first name, a random invite code, who you accepted as friends, and your puzzle finish times. Friends can see your first name and your times for the day, nothing else. You can remove a friend at any time, and deleting your data removes all of this.</p>
+      </Card>
+
+      <Card>
         <h2>The browser extension</h2>
         <p><b>What it sends:</b> when you select one to three words and press a key, the extension sends that selected text (cleaned of punctuation) to <code>wordwild-seven.vercel.app</code> to look up its meaning. Nothing is sent until you press the key.</p>
         <p><b>What it does not do:</b> it does not read the rest of the page, record which sites you visit or your browsing history, read what you type in text boxes (it stays silent inside them), collect personal information, or contain analytics, ads or tracking.</p>

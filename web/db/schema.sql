@@ -190,3 +190,34 @@ create table if not exists ww_wa_seen (
   id text primary key,
   at timestamptz not null default now()
 )
+;
+-- Friends (opt-in). A profile carries only a display name and an invite code. Friends see each other's puzzle times, nothing else.
+create table if not exists ww_circle_profile (
+  user_id text primary key,
+  pid text not null unique,
+  name text not null,
+  code text not null unique,
+  created_at timestamptz not null default now()
+)
+;
+create table if not exists ww_friend (
+  a text not null,
+  b text not null,
+  at timestamptz not null default now(),
+  primary key (a, b)
+)
+;
+create table if not exists ww_play_result (
+  user_id text not null,
+  game text not null check (game in ('word','unscramble','match')),
+  day integer not null,
+  level text not null,
+  ms integer not null,
+  tries integer not null,
+  won boolean not null,
+  at timestamptz not null default now(),
+  primary key (user_id, game, day, level)
+)
+;
+create index if not exists ww_play_result_day on ww_play_result (day)
+;

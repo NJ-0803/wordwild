@@ -58,6 +58,9 @@ export async function saveEvents(userId: string, ev: SyncEvents, prefs: Prefs | 
 
 export async function deleteAll(userId: string) {
   const sql = db();
+  await sql`delete from ww_friend where a = ${userId} or b = ${userId}`;        // leaving Wordwild also leaves every friend list
+  await sql`delete from ww_play_result where user_id = ${userId}`;
+  await sql`delete from ww_circle_profile where user_id = ${userId}`;
   await sql`delete from ww_whatsapp where user_id = ${userId}`;          // phone numbers are personal data: gone with the account
   await sql`delete from ww_telegram where user_id = ${userId}`;
   await sql`delete from ww_town_events where user_id = ${userId}`;
@@ -263,4 +266,46 @@ export async function firstDefinition(lemma: string): Promise<string | null> {
 export async function lemmaExists(lemma: string): Promise<boolean> {
   const r = (await db().query(`select 1 from ww_dict where lemma = $1 limit 1`, [lemma])) as unknown as unknown[];
   return r.length > 0;
+}
+
+
+// ---- Friends and puzzle times ----
+const rid = (n: number) => Array.from(crypto.getRandomValues(new Uint8Array(n)), b => "abcdefghjkmnpqrstuvwxyz23456789"[b % 31]).join("");
+export interface Circle { pid: string; name: string; code: string }
+/** The caller's profile, made on first use. Only a display name is stored, and it is shown to friends only. */
+export async function ensureCircle(userId: string, name: string): Promise<Circle> {
+  const sql = db(); const clean = name.replace(/[^\p{L}\p{N} ._-]/gu, "").trim().slice(0, 24) || "A learner";
+  const got = (await sql`select pid, name, code from ww_circle_profile where user_id = ${userId}`) as Row[];
+  if (got[0]) return got[0] as unknown as Circle;
+  for (let i = 0; i < 5; i++) {
+    const pid = rid(8), code = rid(10);
+    try { await sql`insert into ww_circle_profile (user_id, pid, name, code) values (${userId}, ${pid}, ${clean}, ${code}) on conflict (user_id) do nothing`; } catch { continue; }
+    const again = (await sql`select pid, name, code from ww_circle_profile where user_id = ${userId}`) as Row[];
+    if (again[0]) return again[0] as unknown as Circle;
+  }
+  throw new Error("could not create profile");
+}
+export async function joinCircle(userId: string, code: string): Promise<"ok" | "unknown" | "self"> {
+  const sql = db(); const r = (await sql`select user_id from ww_circle_profile where code = ${code}`) as Row[];
+  if (!r[0]) return "unknown"; const other = r[0].user_id as string; if (other === userId) return "self";
+  await sql`insert into ww_friend (a, b) values (${userId}, ${other}), (${other}, ${userId}) on conflict do nothing`;
+  return "ok";
+}
+export async function leaveFriend(userId: string, pid: string) {
+  const sql = db(); const r = (await sql`select user_id from ww_circle_profile where pid = ${pid}`) as Row[];
+  if (r[0]) await sql`delete from ww_friend where (a = ${userId} and b = ${r[0].user_id as string}) or (a = ${r[0].user_id as string} and b = ${userId})`;
+}
+export async function saveResult(userId: string, r: { game: string; day: number; level: string; ms: number; tries: number; won: boolean }) {
+  await db()`insert into ww_play_result (user_id, game, day, level, ms, tries, won) values (${userId}, ${r.game}, ${r.day}, ${r.level}, ${r.ms}, ${r.tries}, ${r.won}) on conflict do nothing`;
+}
+export interface BoardRow { pid: string; name: string; game: string; level: string; ms: number; tries: number; won: boolean; me: boolean }
+export async function friendsBoard(userId: string, day: number): Promise<{ friends: { pid: string; name: string }[]; rows: BoardRow[] }> {
+  const sql = db();
+  const friends = (await sql`select p.pid, p.name from ww_friend f join ww_circle_profile p on p.user_id = f.b where f.a = ${userId} order by p.name`) as unknown as { pid: string; name: string }[];
+  const rows = (await sql`
+    select p.pid, p.name, r.game, r.level, r.ms, r.tries, r.won, (r.user_id = ${userId}) as me
+    from ww_play_result r join ww_circle_profile p on p.user_id = r.user_id
+    where r.day = ${day} and (r.user_id = ${userId} or r.user_id in (select b from ww_friend where a = ${userId}))
+    order by r.game, r.level, r.ms`) as unknown as BoardRow[];
+  return { friends, rows };
 }

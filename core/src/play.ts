@@ -1,4 +1,4 @@
-import { ANSWERS_5, MATCH_WORDS, SCRAMBLE } from './playwords.ts';
+import { ANSWERS_5, MATCH_WORDS, SCRAMBLE, SCRAMBLE_HARD, SCRAMBLE_MEDIUM, SCRAMBLE_SUPER } from './playwords.ts';
 
 /**
  * Daily puzzles. Pure and deterministic: the same day gives every learner the same puzzle, so people can talk about it, and nothing here
@@ -40,11 +40,27 @@ export const wordStatus = (answer: string, guesses: string[]): WordStatus => (gu
 /** Shareable result: squares only, never the letters, so it does not spoil the puzzle. */
 export const shareGrid = (answer: string, guesses: string[], day: number) => `Wordwild word ${day} ${wordStatus(answer, guesses) === 'won' ? guesses.length : 'X'}/${MAX_TRIES}\n${guesses.map(g => scoreGuess(answer, g).map(m => (m === 'correct' ? '🟦' : m === 'present' ? '🔹' : '⬛')).join('')).join('\n')}`;
 
-/** Five words for Unscramble, with letters scrambled (never left in the right order). */
-export function dailyScramble(day: number): { word: string; letters: string[] }[] {
-  const words = shuffled(SCRAMBLE, 104729 + Math.floor(day / 3)).slice(0, 5 * 3).slice((day % 3) * 5, (day % 3) * 5 + 5);
-  return words.map((w, i) => { let l = shuffled([...w], day * 31 + i * 7 + 1); for (let k = 2; l.join('') === w && k < 12; k++) l = shuffled([...w], day * 31 + i * 7 + k); return { word: w, letters: l }; });
+/** Unscramble difficulty. Each level has its own words, its own clue and its own time. */
+export const LEVELS = ['easy', 'medium', 'hard', 'super'] as const;
+export type Level = (typeof LEVELS)[number];
+export const LEVEL_LABEL: Record<Level, string> = { easy: 'Easy', medium: 'Medium', hard: 'Hard', super: 'Super hard' };
+const LEVEL_WORDS: Record<Level, readonly string[]> = { easy: SCRAMBLE, medium: SCRAMBLE_MEDIUM, hard: SCRAMBLE_HARD, super: SCRAMBLE_SUPER };
+
+/** Five words for Unscramble at a level, with letters scrambled (never left in the right order). */
+export function dailyScramble(day: number, level: Level = 'easy'): { word: string; letters: string[] }[] {
+  const list = LEVEL_WORDS[level], salt = LEVELS.indexOf(level) * 7;
+  const groups = Math.max(1, Math.floor(list.length / 5));
+  const words = shuffled(list, 104729 + salt + Math.floor(day / groups)).slice((day % groups) * 5, (day % groups) * 5 + 5);
+  return words.map((w, i) => { let l = shuffled([...w], day * 31 + i * 7 + 1 + salt); for (let k = 2; l.join('') === w && k < 12; k++) l = shuffled([...w], day * 31 + i * 7 + k + salt); return { word: w, letters: l }; });
 }
+
+/** "1:05" for 65 seconds. Whole seconds; hours are never needed for a puzzle. */
+export const formatTime = (ms: number) => { const s = Math.max(0, Math.floor(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+
+/** What was said, reduced to letters, so "Serendipity." or " serendipity " match. */
+export const spokenWord = (t: string) => String(t ?? '').toLowerCase().replace(/[^a-z]/g, '');
+/** Does any of the things the speech recogniser heard match the target? */
+export const heardMatches = (target: string, heard: string[]) => heard.some(h => spokenWord(h) === spokenWord(target));
 /** Five learner words for Meaning Match. */
 export function dailyMatch(day: number): string[] { return shuffled(MATCH_WORDS, 15485863 + Math.floor(day / 5)).slice((day % 5) * 5, (day % 5) * 5 + 5); }
 /** The meanings in a different order from the words, so position gives nothing away. */

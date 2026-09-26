@@ -8,6 +8,8 @@ import { usePersisted } from "@/lib/usePersisted";
 import { fetchMeanings, knownWord, mask, type Meaning } from "@/lib/meanings";
 import { WordBuddy } from "@/components/Companion";
 import { Btn } from "@/components/ui";
+import { MicButton, Stopwatch, spokenWordLetters, useQuake, useSpeech, useStopwatch } from "@/lib/puzzle";
+import { postResult } from "@/lib/results";
 
 const ROWS = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
 const MARK_LABEL: Record<Mark, string> = { correct: "right place", present: "in the word, wrong place", absent: "not in the word" };
@@ -21,8 +23,12 @@ export function WordGame() {
   const [msg, setMsg] = useState("");
   const [shake, setShake] = useState(false);
   const [hint, setHint] = useState<Meaning | null | undefined>(undefined);
+  const [letter, setLetter] = useState(false);
   const [copied, setCopied] = useState(false);
-  const busy = useRef(false);
+  const busy = useRef(false); const posted = useRef(false);
+  const sw = useStopwatch(`ww.play.word.${day}.t`);
+  const quake = useQuake(); const seen = useRef(0);
+  const [heard, setHeard] = useState("");
   const rewarded = useRef(false);
   const guesses = saved.guesses;
   const status = wordStatus(answer, guesses);
@@ -30,7 +36,9 @@ export function WordGame() {
   const [flipFrom, setFlipFrom] = useState(Infinity);   // only rows submitted in this visit flip; rows restored from storage just appear
 
   useEffect(() => { if (status !== "playing" && ready && loaded && !rewarded.current) { rewarded.current = true; play("word"); } }, [status, ready, loaded, play]);
-  useEffect(() => { if (status === "playing" && hint === undefined) return; if (status !== "playing" && hint === undefined) void fetchMeanings([answer]).then(m => setHint(m.get(answer) ?? null)); }, [status, hint, answer]);
+  useEffect(() => { if (status !== "playing" && loaded && !posted.current) { posted.current = true; const ms = sw.stop(); postResult({ game: "word", day, level: "-", ms, tries: guesses.length, won: status === "won" }); } }, [status, loaded, sw, day, guesses.length]);
+  useEffect(() => { if (loaded && guesses.length > seen.current) { const g = guesses[guesses.length - 1]; if (seen.current > 0 || guesses.length === 1) { if (status === "won") quake.trigger(true); else if (scoreGuess(answer, g).includes("correct")) quake.trigger(false); } seen.current = guesses.length; } }, [guesses, loaded, status, answer, quake]);
+  useEffect(() => { void fetchMeanings([answer]).then(m => setHint(m.get(answer) ?? null)); }, [answer]);      // the clue is there from the first guess
 
   const flash = useCallback((t: string) => { setMsg(t); setShake(false); requestAnimationFrame(() => setShake(true)); }, []);
   const submit = useCallback(async () => {
@@ -43,7 +51,12 @@ export function WordGame() {
       setSaved(s => ({ guesses: [...s.guesses, cur] })); setCur(""); setMsg("");
     } finally { busy.current = false; }
   }, [cur, status, guesses.length, flash, setSaved]);
-  const type = useCallback((k: string) => { if (status !== "playing") return; setMsg(""); setCur(c => (c.length < 5 ? c + k : c)); }, [status]);
+  const type = useCallback((k: string) => { if (status !== "playing") return; sw.start(); setMsg(""); setCur(c => (c.length < 5 ? c + k : c)); }, [status, sw]);
+  const speech = useSpeech(useCallback((alts: string[]) => {
+    sw.start(); const g = alts.map(spokenWordLetters).find(x => x.length === 5);
+    if (!g) { setHeard(alts[0] ?? ""); return flash("Say a five-letter word."); }
+    setHeard(g); setCur(g);
+  }, [sw, flash]));
   const back = useCallback(() => setCur(c => c.slice(0, -1)), []);
 
   useEffect(() => {
@@ -56,8 +69,7 @@ export function WordGame() {
     window.addEventListener("keydown", on); return () => window.removeEventListener("keydown", on);
   }, [submit, back, type]);
 
-  const askHint = async () => { if (hint === undefined) setHint(null); const m = (await fetchMeanings([answer])).get(answer); setHint(m ?? null); };
-  const share = async () => { try { await navigator.clipboard.writeText(shareGrid(answer, guesses, day)); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { setMsg("Could not copy. Select and copy it by hand."); } };
+    const share = async () => { try { await navigator.clipboard.writeText(shareGrid(answer, guesses, day)); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { setMsg("Could not copy. Select and copy it by hand."); } };
 
   const rows = Array.from({ length: MAX_TRIES }, (_, r) => {
     const g = guesses[r]; const marks = g ? scoreGuess(answer, g) : null;
@@ -66,7 +78,8 @@ export function WordGame() {
   });
 
   return (
-    <div className="pz" aria-live="off">
+    <><div className={`pz ${quake.cls}`} aria-live="off">
+      <div className="pz-bar"><Stopwatch ms={sw.ms} running={sw.running} /></div>
       <div className="pz-grid" role="grid" aria-label="Guesses">
         {rows.map(({ r, g, marks, letters }) => (
           <div key={r} role="row" className={`pz-row${r === guesses.length && shake ? " shake" : ""}`} onAnimationEnd={e => { if (e.target === e.currentTarget) setShake(false); }}>
@@ -94,8 +107,10 @@ export function WordGame() {
               </div>
             ))}
           </div>
+          {speech.supported && <div className="pz-bar"><MicButton listening={speech.listening} onClick={speech.listen} label="Say your guess" /><span className="pz-heard" role="status">{speech.note || (heard ? `I heard “${heard}”. Press Enter to send it.` : "")}</span></div>}
           <div className="pz-hint">
-            {hint === undefined ? <button className="pz-link" onClick={() => void askHint()}>Need a clue? Show the meaning</button> : hint ? <p className="sub"><b>Clue:</b> {mask(hint.simple, answer)}</p> : <p className="sub small">Looking for a clue…</p>}
+            {hint === undefined ? <p className="sub small">Getting today&apos;s clue…</p> : hint ? <p className="pz-clue-line"><b>Clue</b> · {hint.pos} · {mask(hint.simple, answer)}</p> : <p className="sub small">The clue is not available offline.</p>}
+            {letter ? <p className="sub small">It starts with <b>{answer[0].toUpperCase()}</b> and has {answer.length} letters.</p> : <button className="pz-link" onClick={() => setLetter(true)}>Need more? Show the first letter</button>}
           </div>
         </>
       ) : (
@@ -113,5 +128,7 @@ export function WordGame() {
         </section>
       )}
     </div>
+    {quake.wave}
+    </>
   );
 }

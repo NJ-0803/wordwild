@@ -3,6 +3,7 @@ import Link from "next/link";
 import { GAMES, GAME_LABEL, PLAY_REWARD } from "@core";
 import { useTown } from "@/lib/useTown";
 import { TiltCard } from "@/components/TiltCard";
+import { Friends } from "@/components/play/Friends";
 import { Loading, Lumi } from "@/components/Companion";
 
 export default function PlayHub() {
@@ -22,6 +23,7 @@ export default function PlayHub() {
           </Link></TiltCard>
         ))}
       </div>
+      <Friends />
       <p className="sub small">{n === GAMES.length ? "All three done today. See you tomorrow." : `${n} of ${GAMES.length} done today.`}</p>
     </div>
   );

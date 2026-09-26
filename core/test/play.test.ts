@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ANSWERS_5, SCRAMBLE, MATCH_WORDS, dailyAnswer, scoreGuess, keyStates, wordStatus, shareGrid, dailyScramble, dailyMatch, meaningOrder, MAX_TRIES } from '../src/index.ts';
+import { LEVELS, formatTime, heardMatches, ANSWERS_5, SCRAMBLE, MATCH_WORDS, dailyAnswer, scoreGuess, keyStates, wordStatus, shareGrid, dailyScramble, dailyMatch, meaningOrder, MAX_TRIES } from '../src/index.ts';
 
 test('lists are clean: lowercase letters only, right lengths, no duplicates', () => {
   assert.ok(ANSWERS_5.every(w => /^[a-z]{5}$/.test(w))); assert.equal(new Set(ANSWERS_5).size, ANSWERS_5.length);
@@ -50,4 +50,15 @@ test('finishing a puzzle pays once per game per day, only for today, and syncs',
   const ev = exportEvents(a.state); assert.equal(sanitizeTownEvents(ev.town).length, 1); assert.equal(rebuildState(ev).town.filter(e => e.kind === 'play').length, 1);
   assert.equal(sanitizeTownEvents([{ key: 'play:word:5', kind: 'play', ref: 'chess:5', at: 1 }, { key: 'play:x', kind: 'play', ref: 'word:5', at: 1 }]).length, 0, 'forged events are dropped');
   assert.equal(learningDays(a.state, now, 0).total, 1, 'playing a puzzle counts as a learning day');
+});
+
+test('unscramble levels: five words each, deterministic, scrambled, and harder levels use longer words', () => {
+  const avg = (l: typeof LEVELS[number]) => { const w = dailyScramble(20000, l); assert.equal(w.length, 5); for (const x of w) { assert.notEqual(x.letters.join(''), x.word); assert.equal([...x.letters].sort().join(''), [...x.word].sort().join('')); } return w.reduce((a, x) => a + x.word.length, 0) / 5; };
+  assert.ok(avg('easy') < avg('hard')); assert.ok(avg('medium') <= avg('super'));
+  assert.deepEqual(dailyScramble(20001, 'hard'), dailyScramble(20001, 'hard'));
+  for (const l of LEVELS) assert.notDeepEqual(dailyScramble(20000, l).map(x => x.word), dailyScramble(20001, l).map(x => x.word));
+});
+test('time and speech helpers', () => {
+  assert.equal(formatTime(65_000), '1:05'); assert.equal(formatTime(-5), '0:00'); assert.equal(formatTime(9_999), '0:09');
+  assert.ok(heardMatches('serendipity', ['Serendipity.'])); assert.ok(heardMatches('cat', ['bat', ' Cat '])); assert.ok(!heardMatches('cat', ['cot']));
 });

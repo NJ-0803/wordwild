@@ -87,7 +87,7 @@ function Lesson({ base }: { base: Sense }) {
           </div>
           <div style={{ flex: "0 0 auto" }}><SpeakingOrb size={64} /></div>
         </div>
-        <Card><h2 style={{ fontSize: "1.5rem", lineHeight: 1.3 }}>{text}</h2>
+        <Card><p className="meaning-text">{text}</p>
           {lang === "hi" && !hi && <p className="sub small" style={{ margin: "0 0 8px" }}>A Hindi explanation for this word is not available yet.</p>}
           <div className="row"><Btn icon={<Icon.Speaker />} onClick={() => say(`${s.lemma}. ${text}`)}>Listen</Btn>{canSimplify && <Btn kind="soft" onClick={() => setSimple(!isSimple)}>{isSimple ? "Fuller meaning" : "Explain simply"}</Btn>}</div>
         </Card>
@@ -119,7 +119,15 @@ function Lesson({ base }: { base: Sense }) {
           {s.unsuitableUses.length > 0 && <><h2>Careful</h2><Card tone="warn">{s.unsuitableUses.join(" ")}</Card></>}
         </>)}
         {tab === "about" && (<>
+          <Card>
+            <h2 style={{ fontSize: "1.15rem" }}>Why a garden?</h2>
+            <p className="sub" style={{ margin: 0 }}>Every word you save is a plant that shows how well you know it. It grows only when you really use the word, so a tall plant means a word you can count on. Secure words also bring coins and XP to your town.</p>
+          </Card>
           <WordScene stage={stage} label={s.lemma} summary={`${s.lemma} is ${lvl === "new" ? "a new seed" : lvl === "secure" ? "fully grown" : "growing"} in your garden.`} />
+          <ol className="grow-steps" aria-label="How this word grows">
+            {(["Seed: saved", "Sprout: practised once", "Growing: used in different ways", "Secure: yours to keep"] as const).map((t, i) => <li key={t} className={i < stage ? "done" : i === stage ? "now" : ""}><span aria-hidden>{i < stage ? <Icon.Check /> : i + 1}</span>{t}</li>)}
+          </ol>
+          <p className="sub small">{stage >= 3 ? "This word is secure. It will come back for a gentle check now and then." : "Next: practise it, or use it in your own sentence, to help it grow."}</p>
           <Card><span className="sub small">Source: {s.provenance.source} · Status: {status}. <Link href="/about" style={{ color: "var(--navy-glow)", display: "inline-flex", alignItems: "center", minHeight: 44 }}>Credits and licences</Link></span></Card>
         </>)}
       </div>

@@ -403,3 +403,39 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: non
 .nb-path li.done:not(:last-child)::before { background: color-mix(in srgb, var(--progress) 70%, var(--line)); }
 .nb-dot { flex: 0 0 26px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--line); background: var(--surface); color: var(--surface); }
 .nb-path li.done .nb-dot { background: var(--progress); border-color: var(--progress); } .nb-path li.next .nb-dot { border-color: var(--primary); box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 22%, transparent); }
+
+.meaning-text { font-size: 1.12rem; line-height: 1.55; font-weight: 400; margin: 0 0 12px; color: var(--ink); text-wrap: pretty; }
+.grow-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; } .grow-steps li { display: flex; align-items: center; gap: 10px; color: var(--sub); }
+.grow-steps li span { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--line); font-size: .75rem; background: var(--surface); }
+.grow-steps li.done { color: var(--ink); } .grow-steps li.done span { background: var(--progress); border-color: var(--progress); color: #fff; }
+.grow-steps li.now { color: var(--ink); font-weight: 500; } .grow-steps li.now span { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent); }
+.pz-clue-line { margin: 0; max-width: 46ch; color: var(--ink); line-height: 1.5; } .pz-hint { display: grid; gap: 4px; justify-items: center; }
+
+/* ---- Puzzle timer, levels, voice, and the "quake" on a correct answer ---- */
+.pz-timer { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--line); font: 500 14px/1 var(--font-mono), monospace; font-variant-numeric: tabular-nums; color: var(--ink); }
+.pz-bar { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.pz-levels { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; } .pz-levels .chip { min-height: 40px; padding: 4px 14px; font-size: .9rem; }
+.pz-levels .chip .tick { margin-left: 6px; color: var(--progress); display: inline-flex; }
+.pz-mic { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: 500 15px/1 var(--font-body), system-ui, sans-serif; cursor: pointer; transition: background-color .16s var(--ease), border-color .16s var(--ease), transform .12s var(--ease); }
+.pz-mic:active { transform: scale(.97); } .pz-mic.on { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 18%, var(--surface-2)); }
+.pz-mic:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.pz-heard { min-height: 1.4em; margin: 0; color: var(--sub); font-size: .95rem; }
+.pz-wave { position: fixed; left: 50%; top: 42%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; pointer-events: none; z-index: 60; border: 3px solid var(--primary); opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .quake { animation: pz-quake .5s cubic-bezier(.36, .07, .19, .97) both; }
+  .quake.big { animation-duration: .8s; }
+  .pz-wave { animation: pz-wave .7s var(--ease) both; }
+  @keyframes pz-quake { 10%, 90% { transform: translate3d(-2px, 1px, 0) rotate(-.2deg); } 20%, 80% { transform: translate3d(4px, -2px, 0) rotate(.3deg); } 30%, 50%, 70% { transform: translate3d(-7px, 2px, 0) rotate(-.5deg); } 40%, 60% { transform: translate3d(7px, -2px, 0) rotate(.5deg); } }
+  @keyframes pz-wave { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(28); } }
+  .quake .pz-tile.correct, .quake .pz-key.correct { animation: pz-glow .6s var(--ease); }
+  @keyframes pz-glow { 0% { filter: brightness(1.9); } 100% { filter: none; } }
+}
+@media (prefers-reduced-motion: reduce) { .quake .pz-tile.correct, .quake .pz-card.done { animation: pz-flash .5s ease-out; } @keyframes pz-flash { from { filter: brightness(1.8); } to { filter: none; } } }
+
+/* ---- Friends ---- */
+.fr h3 { font-size: .95rem; font-weight: 500; color: var(--sub); margin: 14px 0 6px; }
+.fr-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.fr-list li { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 8px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+.fr-list li.me { border-color: color-mix(in srgb, var(--primary) 55%, var(--line)); }
+.fr-pos { font: 500 .8rem var(--font-mono), monospace; color: var(--sub); } .fr-time { font-variant-numeric: tabular-nums; font-weight: 500; }
+.fr-manage { margin-top: 12px; } .fr-manage summary { cursor: pointer; color: var(--sub); } .fr-manage ul { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 4px; }
