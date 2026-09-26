@@ -7,6 +7,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Account } from "@/components/Account";
 import { QuickSaved } from "@/components/QuickSaved";
 import { MetricsWatcher } from "@/components/MetricsWatcher";
+import { DepthMount } from "@/components/DepthMount";
 import { Sidebar } from "@/components/Sidebar";
 
 // next/font self-hosts these at build time, so no visitor request goes to Google.
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <StoreProvider>
             <MetricsWatcher />
             <QuickSaved />
+            <DepthMount />
             <div className="shell">
               <Sidebar />
               <main className="wrap"><Account />{children}</main>

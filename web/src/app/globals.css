@@ -372,3 +372,8 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: non
 .cbeam:has(> input), .cbeam:has(> textarea), .cbeam:has(> select) { box-shadow: 0 1px 1px rgba(var(--shadow-c), .35), 0 10px 22px -8px rgba(var(--shadow-c), .6), 0 22px 40px -20px rgba(var(--shadow-c), .45); transition: transform .18s var(--ease), box-shadow .18s var(--ease); }
 .cbeam:has(> input:focus-visible), .cbeam:has(> textarea:focus-visible) { transform: translateY(-1px); box-shadow: 0 1px 1px rgba(var(--shadow-c), .35), 0 16px 30px -10px rgba(var(--shadow-c), .65), 0 26px 50px -22px rgba(110, 130, 255, .5); }
 :root[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]), :root[data-theme="light"] textarea { box-shadow: inset 0 2px 4px rgba(30, 40, 90, .12), inset 0 -1px 0 rgba(255, 255, 255, .8); }
+
+/* The three.js depth layer paints the floor shadows; content sits above it, and the CSS shadow only remains as a fallback. */
+.shell, .nav { position: relative; z-index: 1; } .nav { position: fixed; }
+.has-depth .cbeam:has(> input), .has-depth .cbeam:has(> textarea), .has-depth .cbeam:has(> select), .has-depth .tile, .has-depth .pz-tilecard { box-shadow: var(--hi); }
+.has-depth .cbeam:has(> input:focus-visible), .has-depth .cbeam:has(> textarea:focus-visible) { box-shadow: none; }
