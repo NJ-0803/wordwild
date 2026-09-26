@@ -61,3 +61,24 @@ test("word of the day shows a clue from the start and friends ask you to sign in
   await expect(page.getByRole("heading", { name: "Friends today" })).toBeVisible();
   await expect(page.getByText(/Sign in to invite friends/)).toBeVisible();
 });
+
+test("finishing unscramble by voice records a real time", async ({ page }) => {
+  await page.addInitScript(() => {
+    const Fake = class { onresult: ((e: unknown) => void) | null = null; onend: (() => void) | null = null; start() { setTimeout(() => { this.onresult?.({ results: [[{ transcript: (window as unknown as { __said: string }).__said }]] }); this.onend?.(); }, 100); } stop() {} };
+    Object.assign(window, { SpeechRecognition: Fake, webkitSpeechRecognition: Fake });
+  });
+  const posted: { ms: number }[] = [];
+  await page.route("**/api/play/result", async route => { posted.push(JSON.parse(route.request().postData() ?? "{}")); await route.fulfill({ json: { ok: true } }); });
+  await page.goto("/play/unscramble");
+  await expect(page.getByRole("button", { name: "Say the word" })).toBeVisible();
+  const day = await page.evaluate(() => Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000));
+  const { dailyScramble } = await import("../../core/src/index.ts");
+  for (const w of dailyScramble(day, "easy")) {
+    await page.evaluate(x => { (window as unknown as { __said: string }).__said = x; }, w.word);
+    await page.getByRole("button", { name: "Say the word" }).click({ force: true });
+    await page.waitForTimeout(1000);
+  }
+  await expect(page.getByText(/All five done/)).toBeVisible();
+  await expect.poll(() => posted.length).toBeGreaterThan(0);
+  expect(posted[0].ms).toBeGreaterThanOrEqual(1500);
+});

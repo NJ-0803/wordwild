@@ -9,7 +9,12 @@ export function useStopwatch(key: string) {
   const [, tick] = useState(0);
   useEffect(() => { if (s.at === null || s.final !== null) return; const t = setInterval(() => tick(n => n + 1), 500); return () => clearInterval(t); }, [s.at, s.final]);
   const start = useCallback(() => set(v => (v.at === null ? { at: Date.now(), final: null } : v)), [set]);
-  const stop = useCallback((): number => { let ms = 0; set(v => { ms = v.final ?? (v.at ? Date.now() - v.at : 0); return v.final !== null ? v : { at: v.at ?? Date.now(), final: ms }; }); return ms; }, [set]);
+  const ref = useRef(s); useEffect(() => { ref.current = s; }, [s]);
+  const stop = useCallback((): number => {      // reads the latest value right now: a state updater would run too late to return the time
+    const v = ref.current; const ms = v.final ?? (v.at ? Date.now() - v.at : 0);
+    if (v.final === null) set(x => (x.final !== null ? x : { at: x.at ?? Date.now(), final: ms }));
+    return ms;
+  }, [set]);
   const ms = s.final !== null ? s.final : s.at !== null ? Date.now() - s.at : 0;    // eslint-disable-line react-hooks/purity -- a clock is impure by nature
   return { ms, running: s.at !== null && s.final === null, done: s.final !== null, start, stop };
 }
