@@ -35,7 +35,7 @@ export default function Today() {
   const w = worldProgress(state);
   const recs = recommend(state, SENSE_BY_ID, now(), 3);
   const plants = Object.values(state.senses).map(r => ({ id: r.senseId, stage: STAGE[masteryLevel(r)] as 0 | 1 | 2 | 3, label: lemmas[r.senseId] }));
-  const summary = `Your word garden: ${w.discovered} saved, ${w.practising} practising, ${w.secure} secure.`;
+  const summary = `Your word garden: ${w.discovered} saved, ${w.practising} practising, ${w.secure} mastered.`;
 
   const go = (r: Recommendation) => {
     update(s => {
@@ -55,22 +55,25 @@ export default function Today() {
   return (
     <div className="grid g12">
       {(recovered === "reset" || recovered === "migrated") && <div className="c12">{recovered === "reset" ? <Card tone="warn">Your saved progress could not be read, so we started fresh.</Card> : <Card tone="good">Your earlier words were carried over.</Card>}</div>}
-      <section className="c12 hero-band" aria-label="Today">
-        <Orb state={readyCount > 0 ? "listening" : "weaving"} size={120} label={readyCount > 0 ? "Words are ready to review" : "Your words are resting"} />
-        <div style={{ flex: 1 }}>
-          <h1 className="display" style={{ margin: 0 }}>Today</h1>
-          <div style={{ marginTop: 8 }}><LangToggle /></div>
-          <p className="sub" style={{ margin: "6px 0 0", fontSize: "1.1rem" }}>{readyCount > 0 ? `${readyCount} word${readyCount === 1 ? "" : "s"} ready to review. ` : ""}{w.discovered} saved · {w.practising} practising · {w.secure} secure</p>
+      <section className="c12 hero-band home-head" aria-label="Today">
+        <Orb state={readyCount > 0 ? "listening" : "weaving"} size={72} label={readyCount > 0 ? "Words are ready to review" : "Your words are resting"} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 className="display" style={{ margin: 0 }}>{readyCount > 0 ? `${readyCount} word${readyCount === 1 ? "" : "s"} to review` : "All caught up"}</h1>
+          <ul className="stat-chips" aria-label="Your progress">
+            <li><b>{w.discovered}</b> saved</li><li><b>{w.practising}</b> practising</li><li><b>{w.secure}</b> mastered</li>
+          </ul>
+          {readyCount > 0 && <div style={{ marginTop: 12 }}><LinkBtn href="/review">Review words</LinkBtn></div>}
         </div>
+        <div className="home-lang"><LangToggle /></div>
       </section>
-      <nav className="c12 tiles" aria-label="Add a word">
-        <TiltCard className="tilt-fill"><Link href="/capture" className="tile lead"><i><Icon.Plus width={30} height={30} /></i><b>Type a word</b><span>Look it up and save it</span></Link></TiltCard>
-        <TiltCard className="tilt-fill"><Link href="/voice" className="tile"><i><Icon.Mic width={30} height={30} /></i><b>Ask by voice</b><span>Say what you did not understand</span></Link></TiltCard>
-        <TiltCard className="tilt-fill"><Link href="/scan" className="tile"><i><Icon.Scan width={30} height={30} /></i><b>Scan a page</b><span>Tap any word in a photo</span></Link></TiltCard>
-      </nav>
       <div className="c7"><JourneyCard recs={recs} /></div>
+      <nav className="c5 tiles tiles-compact" aria-label="Add a word">
+        <TiltCard className="tilt-fill"><Link href="/capture" className="tile lead"><i><Icon.Plus width={26} height={26} /></i><b>Type a word</b><span>Look it up and save it</span></Link></TiltCard>
+        <TiltCard className="tilt-fill"><Link href="/voice" className="tile"><i><Icon.Mic width={26} height={26} /></i><b>Voice</b><span>Say what you did not understand</span></Link></TiltCard>
+        <TiltCard className="tilt-fill"><Link href="/scan" className="tile"><i><Icon.Scan width={26} height={26} /></i><b>Scan</b><span>Tap any word in a photo</span></Link></TiltCard>
+      </nav>
       <div className="c5 stack">{townCard}</div>
-      {saved >= 3 && <div className="c7"><GardenScene plants={plants} summary={summary} /><p className="sub small" style={{ margin: "10px 2px 0" }}>{w.secure === 0 ? "Nothing has sprouted yet. The first word you make secure plants a seed." : `${w.secure} secure ${w.secure === 1 ? "word has" : "words have"} grown here. Each new secure word adds growth.`}</p></div>}
+      {saved >= 3 && <div className="c7"><GardenScene plants={plants} summary={summary} /><p className="sub small" style={{ margin: "10px 2px 0" }}>{w.secure === 0 ? "Nothing has sprouted yet. The first word you master plants a seed." : `${w.secure} mastered ${w.secure === 1 ? "word has" : "words have"} grown here. Each new mastered word adds growth.`}</p></div>}
       {saved >= 3 && <section className="c5 stack" aria-label="Suggested for you">
         <h2 style={{ fontSize: "1.5rem" }}>Suggested for you</h2>
         {recs.map(r => {
