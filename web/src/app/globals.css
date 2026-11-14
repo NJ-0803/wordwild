@@ -577,3 +577,9 @@ html[data-welcome="1"] .shell, html[data-welcome="1"] .nav { visibility: hidden;
   .nav { padding: 4px; }
   .nav a { font-size: .85rem; padding: 0 2px; white-space: nowrap; }
      }
+
+/* Inter is wider than the old display serif: keep long words inside the screen */
+h1, .display { font-weight: 600; overflow-wrap: anywhere; }
+.hero > * { min-width: 0; }
+.hero h1 { font-size: clamp(1.55rem, 7.4vw, 2.6rem); }
+.wl-nj > span { font-style: normal; font-weight: 700; transform: none; }
