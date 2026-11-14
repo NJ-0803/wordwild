@@ -83,10 +83,10 @@ export default function Notebook() {
         <div className="c12"><Card>
           <div className="row" style={{ alignItems: "stretch" }}>
             <div><p className="label" style={{ margin: 0 }}>Saved</p><p style={{ fontSize: "1.8rem", margin: 0, fontVariantNumeric: "tabular-nums" }}>{Object.keys(state.senses).length}</p></div>
-            <div><p className="label" style={{ margin: 0 }}>You own</p><p style={{ fontSize: "1.8rem", margin: 0, fontVariantNumeric: "tabular-nums" }}>{v.mastered.length}</p></div>
+            <div><p className="label" style={{ margin: 0 }}>Mastered</p><p style={{ fontSize: "1.8rem", margin: 0, fontVariantNumeric: "tabular-nums" }}>{v.mastered.length}</p></div>
             <div><p className="label" style={{ margin: 0 }}>Learning days</p><p style={{ fontSize: "1.8rem", margin: 0, fontVariantNumeric: "tabular-nums" }}>{days.total}</p></div>
           </div>
-          <p className="sub small" style={{ margin: "8px 0 0" }}>&ldquo;You own&rdquo; means mastered: words you can really use, not just words you have seen.</p>
+          <p className="sub small" style={{ margin: "8px 0 0" }}>Mastered words are the ones you can really use, not just words you have seen.</p>
           <div style={{ marginTop: 10 }}><ShareButton kind="vault" filename="my-words.png" text="My words on Wordwild" label="Share my words as a card" spec={() => {
             const pick = [...v.mastered, ...v.learning, ...v.review, ...v.fresh].slice(0, 4).map(id => { const s = getSenseSync(id); return { text: s?.lemma ?? "", sub: s?.simple }; }).filter(l => l.text);
             return { kicker: "My Wordwild", title: "Words I am learning", stats: [{ value: String(Object.keys(state.senses).length), label: "saved" }, { value: String(v.mastered.length), label: "I own" }, { value: String(days.total), label: "learning days" }], lines: pick, footer: "wordwild-seven.vercel.app" };
