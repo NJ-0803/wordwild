@@ -567,3 +567,12 @@ html[data-welcome="1"] .shell, html[data-welcome="1"] .nav { visibility: hidden;
 }
 .nav { background: color-mix(in srgb, var(--surface) 96%, transparent); }
 .wrap { padding-bottom: calc(130px + env(safe-area-inset-bottom)); }
+
+/* Narrow phones (320-360px): keep the account strip and tab bar inside the screen */
+@media (max-width: 360px) {
+  .wrap > .row:first-child { gap: 6px !important; flex-wrap: wrap; }
+  .wrap > .row:first-child .btn { padding: 6px 12px; font-size: .9rem; }
+  .wrap > .row:first-child .pz-link { font-size: .9rem; }
+  .nav { padding: 4px; }
+  .nav a { font-size: .85rem; padding: 0 2px; white-space: nowrap; }
+}
