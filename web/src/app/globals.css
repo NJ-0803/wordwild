@@ -195,17 +195,18 @@ input::placeholder, textarea::placeholder { color: #6a7796; }
 
 @media (min-width: 1024px) { .settings-cols { display: block; columns: 2; column-gap: 26px; } .settings-cols > * { break-inside: avoid; margin: 0 0 18px !important; } .settings-cols > h1 { column-span: all; } }
 
-/* ================= The beam on every card, button and field: compositor-only rotation, opaque child, paused off screen ================= */
-.cbeam { position: relative; padding: 1.5px; overflow: hidden; background: rgba(50, 80, 170, .38); isolation: isolate; contain: layout paint; }
-.cbeam::before { content: ""; position: absolute; left: 50%; top: 50%; width: 260%; aspect-ratio: 1; translate: -50% -50%; z-index: -1; pointer-events: none;
+/* ================= Cards, buttons and fields get a quiet edge; only primary buttons (.glow) carry the travelling light ================= */
+.cbeam { position: relative; padding: 1.5px; overflow: hidden; background: var(--line); isolation: isolate; contain: layout paint; }
+.cbeam.glow { background: rgba(50, 80, 170, .38); }
+.cbeam.glow::before { content: ""; position: absolute; left: 50%; top: 50%; width: 260%; aspect-ratio: 1; translate: -50% -50%; z-index: -1; pointer-events: none;
   background: conic-gradient(from 0deg, transparent 0 60%, rgba(80, 120, 255, .95) 80%, #e6edff 92%, transparent 100%); }
 .cbeam > * { border-radius: calc(var(--r, 20px) - 1.5px); }
 @media (prefers-reduced-motion: no-preference) {
-  .cbeam::before { animation: cbeam-spin 5s linear infinite; will-change: transform; }
-  .cbeam[data-live="0"]::before { animation-play-state: paused; will-change: auto; }
+  .cbeam.glow::before { animation: cbeam-spin 5s linear infinite; will-change: transform; }
+  .cbeam.glow[data-live="0"]::before { animation-play-state: paused; will-change: auto; }
   @keyframes cbeam-spin { to { rotate: 360deg; } }
 }
-@media (prefers-reduced-motion: reduce) { .cbeam::before { width: 100%; background: rgba(111, 147, 255, .6); } }
+@media (prefers-reduced-motion: reduce) { .cbeam.glow::before { width: 100%; background: rgba(111, 147, 255, .6); } }
 
 /* ---- Puzzles ---- */
 .pz { display: grid; gap: 14px; justify-items: center; }
@@ -575,4 +576,4 @@ html[data-welcome="1"] .shell, html[data-welcome="1"] .nav { visibility: hidden;
   .wrap > .row:first-child .pz-link { font-size: .9rem; }
   .nav { padding: 4px; }
   .nav a { font-size: .85rem; padding: 0 2px; white-space: nowrap; }
-}
+     }
