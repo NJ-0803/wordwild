@@ -22,7 +22,7 @@ function Row({ r, note, fmt, due }: { r: SenseRecord; note?: string; fmt: (t: nu
       <h2 style={{ margin: 0 }}>{s ? s.lemma : "…"} {s && <span className="pill">{s.pos}</span>}</h2></div>
       <p className="sub">{s === undefined ? "Loading…" : s === null ? "Not available offline yet. Open it once while online." : s.simple}</p>
       <p className="sub small">
-        {lvl === "secure" ? "Secure" : lvl === "practising" ? "Practising" : "Saved"}{s && tierOf(s) === "dictionary" ? " · included in your reviews, checked practice coming soon" : <> · practise {r.lastAttemptAt ? fmt(r.due) : "when you are ready"}</>}
+        {lvl === "secure" ? "Mastered" : lvl === "practising" ? "Practising" : "Saved"}{s && tierOf(s) === "dictionary" ? " · included in your reviews, checked practice coming soon" : <> · practise {r.lastAttemptAt ? fmt(r.due) : "when you are ready"}</>}
       </p>
       {note && <p className="sub small">Your note: {note}</p>}
       <LinkBtn href={`/learn/${encodeURIComponent(r.senseId)}`} kind="soft">{s && tierOf(s) === "dictionary" ? "Explore word" : "Open"}</LinkBtn>
@@ -32,7 +32,7 @@ function Row({ r, note, fmt, due }: { r: SenseRecord; note?: string; fmt: (t: nu
 }
 
 type Tab = "review" | "fresh" | "learning" | "mastered" | "pending";
-const TAB_LABEL: Record<Tab, string> = { review: "Ready to review", fresh: "Saved", learning: "Practising", mastered: "Secure", pending: "Waiting for a meaning" };
+const TAB_LABEL: Record<Tab, string> = { review: "Ready to review", fresh: "Saved", learning: "Practising", mastered: "Mastered", pending: "Waiting for a meaning" };
 
 export default function Notebook() {
   const { state, now, ready } = useStore();
@@ -86,7 +86,7 @@ export default function Notebook() {
             <div><p className="label" style={{ margin: 0 }}>You own</p><p style={{ fontSize: "1.8rem", margin: 0, fontVariantNumeric: "tabular-nums" }}>{v.mastered.length}</p></div>
             <div><p className="label" style={{ margin: 0 }}>Learning days</p><p style={{ fontSize: "1.8rem", margin: 0, fontVariantNumeric: "tabular-nums" }}>{days.total}</p></div>
           </div>
-          <p className="sub small" style={{ margin: "8px 0 0" }}>&ldquo;You own&rdquo; means secure: words you can really use, not just words you have seen.</p>
+          <p className="sub small" style={{ margin: "8px 0 0" }}>&ldquo;You own&rdquo; means mastered: words you can really use, not just words you have seen.</p>
           <div style={{ marginTop: 10 }}><ShareButton kind="vault" filename="my-words.png" text="My words on Wordwild" label="Share my words as a card" spec={() => {
             const pick = [...v.mastered, ...v.learning, ...v.review, ...v.fresh].slice(0, 4).map(id => { const s = getSenseSync(id); return { text: s?.lemma ?? "", sub: s?.simple }; }).filter(l => l.text);
             return { kicker: "My Wordwild", title: "Words I am learning", stats: [{ value: String(Object.keys(state.senses).length), label: "saved" }, { value: String(v.mastered.length), label: "I own" }, { value: String(days.total), label: "learning days" }], lines: pick, footer: "wordwild-seven.vercel.app" };
