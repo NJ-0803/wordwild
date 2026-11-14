@@ -581,6 +581,6 @@ html[data-welcome="1"] .shell, html[data-welcome="1"] .nav { visibility: hidden;
 /* Inter is wider than the old display serif: keep long words inside the screen */
 h1, .display { font-weight: 600; overflow-wrap: anywhere; }
 .hero > * { min-width: 0; }
-.hero h1 { font-size: clamp(1.4rem, 6.8vw, 2.6rem); }
-@media (max-width: 480px) { .hero:has(h1) > :nth-child(3):last-child { display: none; } }
+.hero h1 { font-size: clamp(1.4rem, 6.8vw, 1.8rem); }
+.hero:has(h1) > :nth-child(3):last-child { display: none; }
 .wl-nj > span { font-style: normal; font-weight: 700; transform: none; }
