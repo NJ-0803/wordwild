@@ -39,13 +39,13 @@ export function Orb({ state = "weaving", size = 120, label, still = false }: { s
 }
 
 /**
- * The border beam on every card, button and field. A light travels round the edge, drawn as a rotating gradient behind an opaque child:
- * only `rotate` animates, which the browser runs on the compositor thread (no repaint, no layout), and it pauses while off screen.
- * The heavier library beam is kept for reward moments only (see Reward). Reduced motion gets a still glowing edge.
+ * Cards, buttons and fields get a quiet 1.5px edge. Only primary buttons set `glow`: a light travels round the edge, drawn as a
+ * rotating gradient behind an opaque child. Only `rotate` animates, which the browser runs on the compositor thread (no repaint,
+ * no layout), and it pauses while off screen. The heavier library beam is kept for reward moments only (see Reward).
  */
-export function Beam({ children, radius = 20, style }: { children: React.ReactNode; radius?: number; variant?: "colorful" | "mono" | "ocean" | "sunset"; style?: React.CSSProperties }) {
+export function Beam({ children, radius = 20, glow = false, style }: { children: React.ReactNode; radius?: number; glow?: boolean; variant?: "colorful" | "mono" | "ocean" | "sunset"; style?: React.CSSProperties }) {
   const [ref, live] = useLive<HTMLDivElement>();
-  return <div ref={ref} className="cbeam" data-live={live ? "1" : "0"} style={{ ["--r" as string]: `${radius}px`, borderRadius: radius, ...style }}>{children}</div>;
+  return <div ref={ref} className={glow ? "cbeam glow" : "cbeam"} data-live={live ? "1" : "0"} style={{ ["--r" as string]: `${radius}px`, borderRadius: radius, ...style }}>{children}</div>;
 }
 
 export function LookupOrb() { const reduced = useReducedMotion(); return <ThinkingOrb state="searching" size={20} paused={reduced} aria-label="Looking up" />; }
